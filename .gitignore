@@ -1,27 +1,53 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# -----------------------------------------------------------------------------
+# DEPENDENCIES
+# -----------------------------------------------------------------------------
+# Ignore node_modules in root AND all sub-folders
+node_modules/
+.pnpm-store/
 
-# dependencies
-/node_modules
+# -----------------------------------------------------------------------------
+# BUILD OUTPUTS
+# -----------------------------------------------------------------------------
+# Next.js build output
+.next/
+out/
 
-# next.js
-/.next/
-/out/
+# NestJS build output
+dist/
 
-# production
-/build
+# General build artifacts
+build/
+*.tsbuildinfo
 
-# debug
+# -----------------------------------------------------------------------------
+# ENVIRONMENTS & SECRETS (Critical)
+# -----------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+
+# -----------------------------------------------------------------------------
+# TOOLS & LOGS
+# -----------------------------------------------------------------------------
+# Debug logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# env files
-.env*
-
-# vercel
+# Vercel
 .vercel
 
-# typescript
-*.tsbuildinfo
+# TypeScript
 next-env.d.ts
+
+# -----------------------------------------------------------------------------
+# SYSTEM & IDE
+# -----------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
