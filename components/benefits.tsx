@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 export function Benefits() {
   const benefits = [
@@ -24,13 +24,15 @@ export function Benefits() {
         "Faster patient onboarding",
       ],
     },
-  ]
+  ];
 
   return (
     <section id="benefits" className="py-24 px-4 sm:px-6 lg:px-8 bg-muted/20">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-20">
-          <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-6">Benefits for Everyone</h2>
+          <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-6">
+            Benefits for Everyone
+          </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             TrustMed creates a win-win for patients and healthcare providers.
           </p>
@@ -44,7 +46,9 @@ export function Benefits() {
             >
               <div className="flex items-center gap-3 mb-6">
                 <span className="text-4xl">{benefit.icon}</span>
-                <h3 className="text-2xl font-bold text-foreground">{benefit.category}</h3>
+                <h3 className="text-2xl font-bold text-foreground">
+                  {benefit.category}
+                </h3>
               </div>
               <ul className="space-y-3">
                 {benefit.items.map((item, itemIndex) => (
@@ -59,5 +63,5 @@ export function Benefits() {
         </div>
       </div>
     </section>
-  )
+  );
 }

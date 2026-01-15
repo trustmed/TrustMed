@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
 export function Footer() {
-  const currentYear = new Date().getFullYear()
+  const currentYear = new Date().getFullYear();
 
   return (
     <footer className="bg-foreground text-background py-16 px-4 sm:px-6 lg:px-8">
@@ -14,7 +14,9 @@ export function Footer() {
               </div>
               <span className="font-bold text-lg">TrustMed</span>
             </div>
-            <p className="text-sm opacity-75">Secure, decentralized healthcare data management.</p>
+            <p className="text-sm opacity-75">
+              Secure, decentralized healthcare data management.
+            </p>
           </div>
 
           <div>
@@ -82,20 +84,31 @@ export function Footer() {
         </div>
 
         <div className="border-t border-background/20 pt-8 flex flex-col sm:flex-row items-center justify-between">
-          <p className="text-sm opacity-75">© {currentYear} TrustMed. All rights reserved.</p>
+          <p className="text-sm opacity-75">
+            © {currentYear} TrustMed. All rights reserved.
+          </p>
           <div className="flex gap-6 mt-4 sm:mt-0">
-            <a href="#" className="text-sm opacity-75 hover:opacity-100 transition">
+            <a
+              href="#"
+              className="text-sm opacity-75 hover:opacity-100 transition"
+            >
               Twitter
             </a>
-            <a href="#" className="text-sm opacity-75 hover:opacity-100 transition">
+            <a
+              href="#"
+              className="text-sm opacity-75 hover:opacity-100 transition"
+            >
               LinkedIn
             </a>
-            <a href="#" className="text-sm opacity-75 hover:opacity-100 transition">
+            <a
+              href="#"
+              className="text-sm opacity-75 hover:opacity-100 transition"
+            >
               GitHub
             </a>
           </div>
         </div>
       </div>
     </footer>
-  )
+  );
 }

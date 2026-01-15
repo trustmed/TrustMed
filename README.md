@@ -7,14 +7,15 @@ Thank you for your interest in contributing to TrustMed. We adhere to strict eng
 We use a **Trunk-Based Development** approach adapted for feature isolation.
 
 ### Branching Strategy
+
 All work must be done on a dedicated branch. Direct commits to `main` are blocked.
 
-| Branch Type | Naming Convention | Use Case |
-| :--- | :--- | :--- |
-| **Feature** | `feat/short-description` | New capabilities (e.g., `feat/auth-jwt`) |
-| **Bugfix** | `fix/short-description` | Fixing an issue (e.g., `fix/header-alignment`) |
-| **Refactor** | `refactor/scope` | Code cleanup, no logic change (e.g., `refactor/api-utils`) |
-| **Hotfix** | `hotfix/issue-id` | Critical prod fixes (e.g., `hotfix/payment-crash`) |
+| Branch Type  | Naming Convention        | Use Case                                                   |
+| :----------- | :----------------------- | :--------------------------------------------------------- |
+| **Feature**  | `feat/short-description` | New capabilities (e.g., `feat/auth-jwt`)                   |
+| **Bugfix**   | `fix/short-description`  | Fixing an issue (e.g., `fix/header-alignment`)             |
+| **Refactor** | `refactor/scope`         | Code cleanup, no logic change (e.g., `refactor/api-utils`) |
+| **Hotfix**   | `hotfix/issue-id`        | Critical prod fixes (e.g., `hotfix/payment-crash`)         |
 
 ---
 
@@ -26,16 +27,18 @@ We strictly follow the **[Conventional Commits](https://www.conventionalcommits.
 `type(scope): description`
 
 **Allowed Types:**
-* `feat`: A new feature
-* `fix`: A bug fix
-* `docs`: Documentation only changes
-* `style`: Changes that do not affect the meaning of the code (white-space, formatting, etc)
-* `refactor`: A code change that neither fixes a bug nor adds a feature
-* `perf`: A code change that improves performance
-* `test`: Adding missing tests or correcting existing tests
-* `chore`: Changes to the build process or auxiliary tools
+
+- `feat`: A new feature
+- `fix`: A bug fix
+- `docs`: Documentation only changes
+- `style`: Changes that do not affect the meaning of the code (white-space, formatting, etc)
+- `refactor`: A code change that neither fixes a bug nor adds a feature
+- `perf`: A code change that improves performance
+- `test`: Adding missing tests or correcting existing tests
+- `chore`: Changes to the build process or auxiliary tools
 
 **Example:**
+
 > ✅ `feat(auth): implement google oauth provider`
 > ❌ `added google login`
 
@@ -61,10 +64,11 @@ Before pushing, ensure your code meets our quality gates.
     git rebase origin/main
     ```
 2.  **Title:** Use the same Conventional Commit format for your PR title.
-3.  **Description:** clearly explain *what* changed and *why*. Attach screenshots if UI is affected.
+3.  **Description:** clearly explain _what_ changed and _why_. Attach screenshots if UI is affected.
 4.  **Review:** Request a code review from at least one maintainer.
 
 ---
 
 ## ⚖️ License
+
 By contributing, you agree that your contributions will be licensed under the project's [LICENSE](./LICENSE).
