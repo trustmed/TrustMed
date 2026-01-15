@@ -22,11 +22,26 @@ This project utilizes a bleeding-edge stack to ensure performance and longevity:
 
 ### Installation
 
-1.  **Clone the repository:**
-    ```bash
-    git clone [https://github.com/pasinduvinsuka/TrustMed.git](https://github.com/pasinduvinsuka/TrustMed.git)
-    cd TrustMed
-    ```
+**Structure:**
+`type(scope): description`
+
+**Allowed Types:**
+
+- `feat`: A new feature
+- `fix`: A bug fix
+- `docs`: Documentation only changes
+- `style`: Changes that do not affect the meaning of the code (white-space, formatting, etc)
+- `refactor`: A code change that neither fixes a bug nor adds a feature
+- `perf`: A code change that improves performance
+- `test`: Adding missing tests or correcting existing tests
+- `chore`: Changes to the build process or auxiliary tools
+
+**Example:**
+
+> ✅ `feat(auth): implement google oauth provider`
+> ❌ `added google login`
+
+---
 
 2.  **Install dependencies:**
     *Note: We use legacy peer deps due to the bleeding-edge nature of React 19/Next 16.*
@@ -55,10 +70,17 @@ We enforce strict engineering standards to maintain code quality.
 * **Commits:** We follow [Conventional Commits](https://www.conventionalcommits.org/).
 * **Hooks:** Husky is configured to reject commits that do not meet these standards.
 
-## 📄 License
+1.  **Sync:** Ensure your branch is up to date with `main` before raising a PR.
+    ```bash
+    git fetch origin
+    git rebase origin/main
+    ```
+2.  **Title:** Use the same Conventional Commit format for your PR title.
+3.  **Description:** clearly explain _what_ changed and _why_. Attach screenshots if UI is affected.
+4.  **Review:** Request a code review from at least one maintainer.
 
 **Copyright (c) 2026 TrustMed. All Rights Reserved.**
 
-This project is licensed under a **Proprietary License**.
-Unauthorized copying, distribution, or use of this source code is strictly prohibited.
-See the [LICENSE](./LICENSE) file for details.
+## ⚖️ License
+
+By contributing, you agree that your contributions will be licensed under the project's [LICENSE](./LICENSE).
