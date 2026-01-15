@@ -1,74 +1,64 @@
-# 🌟 Contributing to TrustMed
+# TrustMed
 
-Thank you for your interest in contributing to TrustMed. We adhere to strict engineering standards to ensure our codebase remains robust, maintainable, and research-grade.
+**TrustMed** is a blockchain-based healthcare platform designed to ensure data integrity and patient trust. This repository contains the frontend application, engineered with a focus on security, scalability, and modern web standards.
 
-## 🛠 1. Development Workflow
+## ⚡ Tech Stack
 
-We use a **Trunk-Based Development** approach adapted for feature isolation.
+This project utilizes a bleeding-edge stack to ensure performance and longevity:
 
-### Branching Strategy
+* **Framework:** [Next.js 16](https://nextjs.org/) (App Router)
+* **Core:** [React 19](https://react.dev/)
+* **Styling:** [Tailwind CSS 4](https://tailwindcss.com/)
+* **Language:** [TypeScript](https://www.typescriptlang.org/)
+* **State/Validation:** React Hook Form + Zod
+* **Quality Control:** ESLint + Prettier + Husky + Commitlint
 
-All work must be done on a dedicated branch. Direct commits to `main` are blocked.
+## 🚀 Getting Started
 
-| Branch Type  | Naming Convention        | Use Case                                                   |
-| :----------- | :----------------------- | :--------------------------------------------------------- |
-| **Feature**  | `feat/short-description` | New capabilities (e.g., `feat/auth-jwt`)                   |
-| **Bugfix**   | `fix/short-description`  | Fixing an issue (e.g., `fix/header-alignment`)             |
-| **Refactor** | `refactor/scope`         | Code cleanup, no logic change (e.g., `refactor/api-utils`) |
-| **Hotfix**   | `hotfix/issue-id`        | Critical prod fixes (e.g., `hotfix/payment-crash`)         |
+### Prerequisites
 
----
+* **Node.js** (v20 or higher recommended)
+* **npm** (comes with Node)
 
-## 📝 2. Commit Standards
+### Installation
 
-We strictly follow the **[Conventional Commits](https://www.conventionalcommits.org/)** specification. This allows us to automate semantic versioning and changelogs.
-
-**Structure:**
-`type(scope): description`
-
-**Allowed Types:**
-
-- `feat`: A new feature
-- `fix`: A bug fix
-- `docs`: Documentation only changes
-- `style`: Changes that do not affect the meaning of the code (white-space, formatting, etc)
-- `refactor`: A code change that neither fixes a bug nor adds a feature
-- `perf`: A code change that improves performance
-- `test`: Adding missing tests or correcting existing tests
-- `chore`: Changes to the build process or auxiliary tools
-
-**Example:**
-
-> ✅ `feat(auth): implement google oauth provider`
-> ❌ `added google login`
-
----
-
-## 🎨 3. Code Quality & Linting
-
-Before pushing, ensure your code meets our quality gates.
-
-1.  **Linting:** Run `npm run lint` to check for static analysis errors.
-2.  **Formatting:** Run `npm run format` (Prettier) to ensure consistent style.
-3.  **Type Checking:** Ensure no TypeScript errors exist.
-
-> **Note:** We use **Husky** hooks. Your commit will be automatically rejected if it fails linting or does not follow the commit message convention.
-
----
-
-## 🚀 4. Pull Request (PR) Process
-
-1.  **Sync:** Ensure your branch is up to date with `main` before raising a PR.
+1.  **Clone the repository:**
     ```bash
-    git fetch origin
-    git rebase origin/main
+    git clone [https://github.com/pasinduvinsuka/TrustMed.git](https://github.com/pasinduvinsuka/TrustMed.git)
+    cd TrustMed
     ```
-2.  **Title:** Use the same Conventional Commit format for your PR title.
-3.  **Description:** clearly explain _what_ changed and _why_. Attach screenshots if UI is affected.
-4.  **Review:** Request a code review from at least one maintainer.
 
----
+2.  **Install dependencies:**
+    *Note: We use legacy peer deps due to the bleeding-edge nature of React 19/Next 16.*
+    ```bash
+    npm install --legacy-peer-deps
+    ```
 
-## ⚖️ License
+3.  **Setup Environment:**
+    Create a `.env.local` file in the root directory.
+    ```bash
+    cp .env.example .env.local
+    ```
 
-By contributing, you agree that your contributions will be licensed under the project's [LICENSE](./LICENSE).
+4.  **Run the development server:**
+    ```bash
+    npm run dev
+    ```
+    Open [http://localhost:3000](http://localhost:3000) to view the application.
+
+## 🤝 Contributing
+
+We enforce strict engineering standards to maintain code quality.
+**Before contributing, please read our [Contribution Guidelines](./CONTRIBUTING.md).**
+
+* **Branching:** We use specific naming conventions (e.g., `feat/`, `fix/`).
+* **Commits:** We follow [Conventional Commits](https://www.conventionalcommits.org/).
+* **Hooks:** Husky is configured to reject commits that do not meet these standards.
+
+## 📄 License
+
+**Copyright (c) 2026 TrustMed. All Rights Reserved.**
+
+This project is licensed under a **Proprietary License**.
+Unauthorized copying, distribution, or use of this source code is strictly prohibited.
+See the [LICENSE](./LICENSE) file for details.
