@@ -1,7 +1,8 @@
 {
   "name": "trustmed-monorepo",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
+  "license": "UNLICENSED",
   "scripts": {
     "dev": "pnpm --parallel -r dev",
     "build": "pnpm -r build",
