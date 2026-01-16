@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { LucideIcon } from "lucide-react";
+import { LucideIcon, Moon, Sun } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
 
 interface NavItem {
   name: string;
@@ -19,6 +20,13 @@ interface NavBarProps {
 
 export function NavBar({ items, className }: NavBarProps) {
   const [activeTab, setActiveTab] = useState(items[0].name);
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
 
   return (
     <div
@@ -40,7 +48,7 @@ export function NavBar({ items, className }: NavBarProps) {
               className={cn(
                 "relative cursor-pointer text-sm font-semibold px-6 py-2 rounded-full transition-colors",
                 "text-foreground/80 hover:text-foreground",
-                isActive && "bg-muted text-foreground"
+                isActive && "text-primary-foreground"
               )}
             >
               <span className="hidden md:inline">{item.name}</span>
@@ -50,7 +58,7 @@ export function NavBar({ items, className }: NavBarProps) {
               {isActive && (
                 <motion.div
                   layoutId="lamp"
-                  className="absolute inset-0 w-full bg-foreground/5 rounded-full -z-10"
+                  className="absolute inset-0 w-full bg-primary rounded-full -z-10"
                   initial={false}
                   transition={{
                     type: "spring",
@@ -58,16 +66,32 @@ export function NavBar({ items, className }: NavBarProps) {
                     damping: 30,
                   }}
                 >
-                  <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-1 bg-foreground rounded-t-full">
-                    <div className="absolute w-12 h-6 bg-foreground/20 rounded-full blur-md -top-2 -left-2" />
-                    <div className="absolute w-8 h-6 bg-foreground/20 rounded-full blur-md -top-1" />
-                    <div className="absolute w-4 h-4 bg-foreground/20 rounded-full blur-sm top-0 left-2" />
+                  <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-1 bg-primary-foreground rounded-t-full">
+                    <div className="absolute w-12 h-6 bg-primary-foreground/20 rounded-full blur-md -top-2 -left-2" />
+                    <div className="absolute w-8 h-6 bg-primary-foreground/20 rounded-full blur-md -top-1" />
+                    <div className="absolute w-4 h-4 bg-primary-foreground/20 rounded-full blur-sm top-0 left-2" />
                   </div>
                 </motion.div>
               )}
             </Link>
           );
         })}
+        <button
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          className={cn(
+            "relative cursor-pointer text-sm font-semibold px-6 py-2 rounded-full transition-colors",
+            "text-foreground/80 hover:text-foreground"
+          )}
+          aria-label="Toggle theme"
+        >
+          {!mounted ? (
+            <div className="w-[18px] h-[18px]" />
+          ) : theme === "dark" ? (
+            <Sun size={18} strokeWidth={2.5} />
+          ) : (
+            <Moon size={18} strokeWidth={2.5} />
+          )}
+        </button>
       </div>
     </div>
   );
