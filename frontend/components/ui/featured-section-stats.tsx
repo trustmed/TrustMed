@@ -25,16 +25,16 @@ export default function FeaturedSectionStats() {
         {/* Stats grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 mt-8">
           <div>
-            <p className="text-3xl font-medium text-gray-900">AES-256</p>
-            <p className="text-gray-500 text-md">Encryption Standard</p>
+            <p className="text-3xl font-medium text-foreground">AES-256</p>
+            <p className="text-muted-foreground text-md">Encryption Standard</p>
           </div>
           <div>
-            <p className="text-3xl font-medium text-gray-900">100%</p>
-            <p className="text-gray-500 text-md">User Data Control</p>
+            <p className="text-3xl font-medium text-foreground">100%</p>
+            <p className="text-muted-foreground text-md">User Data Control</p>
           </div>
           <div>
-            <p className="text-3xl font-medium text-gray-900">HIPAA</p>
-            <p className="text-gray-500 text-md">Compliance Ready</p>
+            <p className="text-3xl font-medium text-foreground">HIPAA</p>
+            <p className="text-muted-foreground text-md">Compliance Ready</p>
           </div>
         </div>
       </div>
@@ -53,11 +53,21 @@ export default function FeaturedSectionStats() {
           <AreaChart data={data}>
             <defs>
               <linearGradient id="colorBlue" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4} />
-                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                <stop
+                  offset="5%"
+                  stopColor="var(--primary)"
+                  stopOpacity={0.4}
+                />
+                <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <Tooltip />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "hsl(var(--card))",
+                borderColor: "hsl(var(--border))",
+                color: "hsl(var(--foreground))",
+              }}
+            />
             <Area
               type="monotone"
               dataKey="value"

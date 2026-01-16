@@ -45,25 +45,29 @@ export const Faq5 = ({
     <section className="py-16 md:py-32">
       <div className="container mx-auto px-4">
         <div className="text-center">
-          <Badge className="text-xs font-medium bg-black text-white hover:bg-black/90">
+          <Badge className="text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90">
             {badge}
           </Badge>
-          <h1 className="mt-4 text-3xl font-semibold text-black md:text-4xl">
+          <h1 className="mt-4 text-3xl font-semibold text-foreground md:text-4xl">
             {heading}
           </h1>
-          <p className="mt-6 font-medium text-black">{description}</p>
+          <p className="mt-6 font-medium text-muted-foreground">
+            {description}
+          </p>
         </div>
         <div className="mx-auto mt-14 max-w-screen-sm">
           {faqs.map((faq, index) => (
-            <div key={index} className="mb-8 flex gap-4">
-              <span className="flex size-6 shrink-0 items-center justify-center rounded-sm bg-black font-mono text-xs text-white">
+            <div key={faq.question} className="mb-8 flex gap-4">
+              <span className="flex size-6 shrink-0 items-center justify-center rounded-sm bg-primary font-mono text-xs text-primary-foreground">
                 {index + 1}
               </span>
               <div>
                 <div className="mb-2 flex items-center justify-between">
-                  <h3 className="font-medium text-black">{faq.question}</h3>
+                  <h3 className="font-medium text-foreground">
+                    {faq.question}
+                  </h3>
                 </div>
-                <p className="text-sm text-black">{faq.answer}</p>
+                <p className="text-sm text-muted-foreground">{faq.answer}</p>
               </div>
             </div>
           ))}

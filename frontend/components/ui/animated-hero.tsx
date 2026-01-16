@@ -36,13 +36,13 @@ function Hero() {
           </div>
           <div className="flex gap-4 flex-col">
             <h1 className="text-3xl sm:text-5xl md:text-7xl max-w-2xl tracking-tighter text-center font-regular">
-              <span className="text-gray-900">Your Medical Records,</span>
+              <span className="text-foreground">Your Medical Records,</span>
               <span className="relative flex w-full justify-center overflow-hidden text-center md:pb-4 md:pt-1">
                 &nbsp;
                 {titles.map((title, index) => (
                   <motion.span
-                    key={index}
-                    className="absolute font-semibold bg-clip-text text-transparent bg-gradient-to-r from-gray-500 to-black/80"
+                    key={title}
+                    className="absolute font-semibold bg-clip-text text-transparent bg-linear-to-r from-muted-foreground to-foreground"
                     initial={{ opacity: 0, y: "-100" }}
                     transition={{ type: "spring", stiffness: 50 }}
                     animate={
@@ -73,7 +73,7 @@ function Hero() {
           <div className="flex flex-col sm:flex-row gap-3">
             <Button
               size="lg"
-              className="gap-4 w-full sm:w-auto bg-black text-white hover:bg-neutral-800"
+              className="gap-4 w-full sm:w-auto bg-foreground text-background hover:bg-foreground/90"
             >
               Start Protecting Your Data <MoveRight className="w-4 h-4" />
             </Button>
