@@ -1,23 +1,35 @@
-"use client";
+import BentoGridShowcaseDemo from "@/components/landing/bento";
+import { FooterSection } from "@/components/landing/footer";
+import { HeroText } from "@/components/landing/hero-text";
 
-import { Header } from "@/components/header";
-import { Hero } from "@/components/hero";
-import { HowItWorks } from "@/components/how-it-works";
-import { Benefits } from "@/components/benefits";
-import { Security } from "@/components/security";
-import { CTA } from "@/components/cta";
-import { Footer } from "@/components/footer";
+import { FaqSection } from "@/components/landing/faq-section";
+import Stats from "@/components/landing/stats";
+import ContentSection from "@/components/landing/content";
+import Bottom from "@/components/landing/bottom";
 
-export default function Home() {
+export default function page() {
   return (
-    <div className="w-full">
-      <Header />
-      <Hero />
-      <HowItWorks />
-      <Benefits />
-      <Security />
-      <CTA />
-      <Footer />
+    <div>
+      {/* <Hero /> */}
+      <section id="home">
+        <HeroText />
+        <Stats />
+      </section>
+
+      <section id="platform">
+        <ContentSection />
+      </section>
+
+      <section id="features">
+        <BentoGridShowcaseDemo />
+      </section>
+
+      <section id="faq">
+        <FaqSection />
+      </section>
+
+      <FooterSection />
+      <Bottom />
     </div>
   );
 }
