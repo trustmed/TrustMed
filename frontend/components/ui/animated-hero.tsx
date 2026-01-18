@@ -26,8 +26,8 @@ function Hero() {
       <div className="container mx-auto">
         <div className="flex gap-8 py-4 items-center justify-center flex-col">
           <div className="flex gap-4 flex-col">
-            <h1 className="text-4xl sm:text-6xl md:text-8xl max-w-5xl tracking-tighter text-center font-regular flex flex-col items-center justify-center">
-              <span className="text-foreground whitespace-nowrap mb-2">
+            <h1 className="text-3xl sm:text-6xl md:text-8xl max-w-5xl tracking-tighter text-center font-regular flex flex-col items-center justify-center">
+              <span className="text-foreground mb-2 text-balance">
                 Your Medical Records Are
               </span>
               <span className="relative flex w-full justify-center overflow-hidden text-center pb-4 md:pb-8 min-h-[1.4em]">
