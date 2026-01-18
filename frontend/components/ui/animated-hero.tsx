@@ -5,10 +5,7 @@ import { Button } from "@/components/ui/button";
 
 function Hero() {
   const [titleNumber, setTitleNumber] = useState(0);
-  const titles = useMemo(
-    () => ["Under Your Control", "Fully Secure", "Decentralized", "Private"],
-    [],
-  );
+  const titles = useMemo(() => ["Fully Secure", "Decentralized", "Private"], []);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
