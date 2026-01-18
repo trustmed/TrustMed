@@ -1,6 +1,8 @@
-import React from "react";
-import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter } from "react-icons/fa";
-import { ShieldCheck } from "lucide-react";
+import {
+  defaultSections,
+  defaultSocialLinks,
+  defaultLegalLinks,
+} from "./footer-data";
 
 interface FooterProps {
   logo?: {
@@ -25,48 +27,6 @@ interface FooterProps {
   }>;
 }
 
-const defaultSections = [
-  {
-    title: "Platform",
-    links: [
-      { name: "Features", href: "#" },
-      { name: "Security", href: "#" },
-      { name: "Compliance", href: "#" },
-      { name: "For Providers", href: "#" },
-    ],
-  },
-  {
-    title: "Company",
-    links: [
-      { name: "About Us", href: "#" },
-      { name: "Careers", href: "#" },
-      { name: "News", href: "#" },
-      { name: "Contact", href: "#" },
-    ],
-  },
-  {
-    title: "Legal",
-    links: [
-      { name: "Privacy Policy", href: "/legal/privacy" },
-      { name: "Terms of Service", href: "/legal/terms" },
-      { name: "Cookie Policy", href: "/legal/cookies" },
-      { name: "BAA Agreement", href: "#" },
-    ],
-  },
-];
-
-const defaultSocialLinks = [
-  { icon: <FaInstagram className="size-5" />, href: "#", label: "Instagram" },
-  { icon: <FaFacebook className="size-5" />, href: "#", label: "Facebook" },
-  { icon: <FaTwitter className="size-5" />, href: "#", label: "Twitter" },
-  { icon: <FaLinkedin className="size-5" />, href: "#", label: "LinkedIn" },
-];
-
-const defaultLegalLinks = [
-  { name: "Terms and Conditions", href: "#" },
-  { name: "Privacy Policy", href: "#" },
-];
-
 export const FooterSection = ({
   logo = {
     url: "/",
@@ -81,14 +41,23 @@ export const FooterSection = ({
 }: FooterProps) => {
   return (
     <section className="py-12 border-t border-border/40">
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-6 md:px-10">
         <div className="flex w-full flex-col justify-between gap-10 lg:flex-row lg:items-start lg:text-left">
           <div className="flex w-full flex-col justify-between gap-6 lg:items-start">
             {/* Logo */}
             <div className="flex items-center gap-2 lg:justify-start">
               <a href={logo.url} className="flex items-center gap-2">
-                <div className="flex items-center justify-center rounded-md bg-primary/10 p-1">
-                  <ShieldCheck className="h-6 w-6 text-primary" />
+                <div className="flex items-center justify-center rounded-md p-1">
+                  <img
+                    src="/logo-black.png"
+                    alt={logo.alt}
+                    className="h-8 w-auto object-contain dark:hidden"
+                  />
+                  <img
+                    src="/logo-white.png"
+                    alt={logo.alt}
+                    className="hidden h-8 w-auto object-contain dark:block"
+                  />
                 </div>
                 <h2 className="text-xl font-bold tracking-tight">
                   {logo.title}

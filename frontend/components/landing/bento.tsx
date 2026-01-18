@@ -174,7 +174,9 @@ const FocusCard = () => (
             fill="currentColor"
           />
         </svg>
-        <span className="mx-auto block w-fit text-5xl font-semibold">100%</span>
+        <span className="mx-auto block w-fit text-4xl sm:text-5xl font-semibold">
+          100%
+        </span>
       </div>
       <div className="flex justify-between text-xs text-muted-foreground">
         <span>Medical Data Standard</span>
@@ -455,7 +457,7 @@ export default function BentoGridShowcaseDemo() {
   return (
     <div className="w-full max-w-7xl mx-auto p-4 md:p-10">
       <div className="mb-8 md:mb-12 text-center max-w-2xl mx-auto">
-        <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-4 text-foreground">
+        <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-4 text-foreground text-balance">
           Modern Healthcare Infrastructure
         </h1>
         <p className="text-base md:text-lg text-muted-foreground">

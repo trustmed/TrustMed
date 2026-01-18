@@ -1,6 +1,6 @@
 "use client";
 import { useRef } from "react";
-import { AreaChart, Area, ResponsiveContainer, Tooltip } from "recharts";
+import { AreaChart, Area, ResponsiveContainer } from "recharts";
 import { useInView, motion } from "framer-motion";
 
 export default function Stats() {
@@ -61,13 +61,6 @@ export default function Stats() {
                 <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "hsl(var(--card))",
-                borderColor: "hsl(var(--border))",
-                color: "hsl(var(--foreground))",
-              }}
-            />
             <Area
               type="monotone"
               dataKey="value"
@@ -76,6 +69,7 @@ export default function Stats() {
               fillOpacity={1}
               fill="url(#colorBlue)"
               isAnimationActive={false} // Disable Recharts animation
+              activeDot={false}
             />
           </AreaChart>
         </ResponsiveContainer>
