@@ -14,24 +14,34 @@ export interface Faq5Props {
 
 const defaultFaqs: FaqItem[] = [
   {
-    question: "What is a FAQ and why is it important?",
+    question: "What is TrustMed?",
     answer:
-      "FAQ stands for Frequently Asked Questions. It is a list that provides answers to common questions people may have about a specific product, service, or topic.",
+      "TrustMed is a decentralized, patient-controlled medical history platform. It allows you to securely manage and share your health records with hospitals using blockchain technology, ensuring you are the true owner of your data.",
   },
   {
-    question: "Why should I use a FAQ on my website or app?",
+    question: "How does TrustMed benefit patients?",
     answer:
-      "Utilizing a FAQ section on your website or app is a practical way to offer instant assistance to your users or customers. Instead of waiting for customer support responses, they can find quick answers to commonly asked questions. ",
+      "Patients gain complete control over their medical history, eliminating the need for repeated tests and physical document transport. It ensures seamless access to records across different hospitals, reducing waiting times and improving care quality.",
   },
   {
-    question: "How do I effectively create a FAQ section?",
+    question: "How does TrustMed benefit hospitals?",
     answer:
-      "Creating a FAQ section starts with gathering the most frequent questions you receive from your users or customers. Once you have a list, you need to write clear, detailed, and helpful answers to each question.",
+      "Hospitals can instantly access accurate, comprehensive patient histories with consent, reducing administrative costs and duplicate testing. It improves diagnostic accuracy and operational efficiency while maintaining their own internal record systems.",
   },
   {
-    question: "What are the benefits of having a well-maintained FAQ section?",
+    question: "Is my medical data secure?",
     answer:
-      "There are numerous advantages to maintaining a robust FAQ section. Firstly, it provides immediate answers to common queries, which improves the user experience.",
+      "Yes. TrustMed uses a permissioned blockchain (Hyperledger Fabric) to store audit logs and consent rules, not your actual medical files. Your sensitive health data remains encrypted and is only shared when you explicitly grant access.",
+  },
+  {
+    question: "Does TrustMed replace existing hospital systems?",
+    answer:
+      "No. TrustMed works alongside existing hospital systems (EMR/EHR). It acts as a secure bridge, allowing hospitals to request and view records from other institutions through a standardized API without replacing their current infrastructure.",
+  },
+  {
+    question: "How does the consent mechanism work?",
+    answer:
+      "You have full control. When a hospital needs your records, a request is sent to you. You can grant or deny access, and even revoke it later. All access events are permanently recorded on the blockchain for full transparency.",
   },
 ];
 

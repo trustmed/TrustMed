@@ -1,8 +1,8 @@
-import { Faq5 } from "@/components/ui/faq-5";
+import { Faq } from "@/components/ui/faq-section";
 
 const FaqSection = () => {
   return (
-    <Faq5 />
+    <Faq/>
   );
 };
 

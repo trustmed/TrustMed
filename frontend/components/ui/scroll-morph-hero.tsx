@@ -90,7 +90,7 @@ function FlipCard({ src, index, target }: FlipCardProps) {
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
         >
           <div className="text-center">
-            <p className="text-[8px] font-bold text-blue-400 uppercase tracking-widest mb-1">
+            <p className="text-[8px] font-bold text-[#003366] uppercase tracking-widest mb-1">
               View
             </p>
             <p className="text-xs font-medium text-white">Details</p>

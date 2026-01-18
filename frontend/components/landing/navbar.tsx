@@ -1,14 +1,14 @@
-'use client'
-import { Home, User, Briefcase, FileText } from 'lucide-react'
-import { NavBar } from "@/components/ui/tubelight-navbar"
+"use client";
+import { Home, Layers, Sparkles, HelpCircle } from "lucide-react";
+import { NavBar } from "@/components/ui/tubelight-navbar";
 
 export function NavigationBar() {
   const navItems = [
-    { name: 'Home', url: '#', icon: Home },
-    { name: 'About', url: '#', icon: User },
-    { name: 'Projects', url: '#', icon: Briefcase },
-    { name: 'Resume', url: '#', icon: FileText }
-  ]
+    { name: "Home", url: "/landing#home", icon: Home },
+    { name: "Platform", url: "/landing#platform", icon: Layers },
+    { name: "Features", url: "/landing#features", icon: Sparkles },
+    { name: "FAQ", url: "/landing#faq", icon: HelpCircle },
+  ];
 
-  return <NavBar items={navItems} />
+  return <NavBar items={navItems} />;
 }

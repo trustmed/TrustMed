@@ -10,11 +10,23 @@ export default function page() {
   return (
     <div>
       {/* <Hero /> */}
-      <HeroText />
-      <Stats />
-      <ContentSection />
-      <BentoGridShowcaseDemo />
-      <FaqSection />
+      <section id="home">
+        <HeroText />
+        <Stats />
+      </section>
+
+      <section id="platform">
+        <ContentSection />
+      </section>
+
+      <section id="features">
+        <BentoGridShowcaseDemo />
+      </section>
+
+      <section id="faq">
+        <FaqSection />
+      </section>
+
       <FooterSection />
     </div>
   );

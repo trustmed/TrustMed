@@ -1,61 +1,100 @@
 import React from "react";
-import { FaGithub, FaLinkedin, FaTwitter } from "react-icons/fa";
+import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter } from "react-icons/fa";
+import { ShieldCheck } from "lucide-react";
 
 interface Footer7Props {
+  logo?: {
+    url: string;
+    alt: string;
+    title: string;
+  };
+  sections?: Array<{
+    title: string;
+    links: Array<{ name: string; href: string }>;
+  }>;
   description?: string;
+  socialLinks?: Array<{
+    icon: React.ReactElement;
+    href: string;
+    label: string;
+  }>;
   copyright?: string;
+  legalLinks?: Array<{
+    name: string;
+    href: string;
+  }>;
 }
 
-const sections = [
+const defaultSections = [
   {
-    title: "Product",
+    title: "Platform",
     links: [
       { name: "Features", href: "#" },
       { name: "Security", href: "#" },
-      { name: "Pricing", href: "#" },
+      { name: "Compliance", href: "#" },
+      { name: "For Providers", href: "#" },
     ],
   },
   {
     title: "Company",
     links: [
-      { name: "About", href: "#" },
-      { name: "Blog", href: "#" },
+      { name: "About Us", href: "#" },
       { name: "Careers", href: "#" },
+      { name: "News", href: "#" },
+      { name: "Contact", href: "#" },
     ],
   },
   {
     title: "Legal",
     links: [
-      { name: "Privacy", href: "#" },
-      { name: "Terms", href: "#" },
-      { name: "Contact", href: "#" },
+      { name: "Privacy Policy", href: "/legal/privacy" },
+      { name: "Terms of Service", href: "/legal/terms" },
+      { name: "Cookie Policy", href: "/legal/cookies" },
+      { name: "BAA Agreement", href: "#" },
     ],
   },
 ];
 
-const socialLinks = [
+const defaultSocialLinks = [
+  { icon: <FaInstagram className="size-5" />, href: "#", label: "Instagram" },
+  { icon: <FaFacebook className="size-5" />, href: "#", label: "Facebook" },
   { icon: <FaTwitter className="size-5" />, href: "#", label: "Twitter" },
   { icon: <FaLinkedin className="size-5" />, href: "#", label: "LinkedIn" },
-  { icon: <FaGithub className="size-5" />, href: "#", label: "GitHub" },
+];
+
+const defaultLegalLinks = [
+  { name: "Terms and Conditions", href: "#" },
+  { name: "Privacy Policy", href: "#" },
 ];
 
 export const Footer7 = ({
-  description = "Secure, decentralized healthcare data management.",
-  copyright = `© ${new Date().getFullYear()} TrustMed. All rights reserved.`,
+  logo = {
+    url: "/",
+    alt: "TrustMed Logo",
+    title: "TrustMed",
+  },
+  sections = defaultSections,
+  description = "Secure, blockchain-powered healthcare data management for the modern world.",
+  socialLinks = defaultSocialLinks,
+  copyright = "© 2024 TrustMed Inc. All rights reserved.",
+  legalLinks = defaultLegalLinks,
 }: Footer7Props) => {
   return (
-    <section className="py-16 md:py-24 bg-background text-foreground border-t border-border">
-      <div className="container mx-auto px-4">
+    <section className="py-12 border-t border-border/40">
+      <div className="max-w-7xl mx-auto px-4">
         <div className="flex w-full flex-col justify-between gap-10 lg:flex-row lg:items-start lg:text-left">
           <div className="flex w-full flex-col justify-between gap-6 lg:items-start">
             {/* Logo */}
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-foreground flex items-center justify-center">
-                <span className="text-background font-bold text-lg">T</span>
-              </div>
-              <span className="font-bold text-lg">TrustMed</span>
+            <div className="flex items-center gap-2 lg:justify-start">
+              <a href={logo.url} className="flex items-center gap-2">
+                <div className="flex items-center justify-center rounded-md bg-primary/10 p-1">
+                  <ShieldCheck className="h-6 w-6 text-primary" />
+                </div>
+                <h2 className="text-xl font-bold tracking-tight">
+                  {logo.title}
+                </h2>
+              </a>
             </div>
-
             <p className="max-w-[70%] text-sm text-muted-foreground">
               {description}
             </p>
@@ -63,7 +102,7 @@ export const Footer7 = ({
               {socialLinks.map((social) => (
                 <li
                   key={social.label}
-                  className="font-medium hover:text-foreground transition-colors"
+                  className="font-medium hover:text-primary transition-colors"
                 >
                   <a href={social.href} aria-label={social.label}>
                     {social.icon}
@@ -82,7 +121,7 @@ export const Footer7 = ({
                   {section.links.map((link) => (
                     <li
                       key={link.name}
-                      className="font-medium hover:text-foreground transition-colors"
+                      className="font-medium hover:text-primary transition-colors"
                     >
                       <a href={link.href}>{link.name}</a>
                     </li>
@@ -92,8 +131,18 @@ export const Footer7 = ({
             ))}
           </div>
         </div>
-        <div className="mt-8 flex flex-col justify-between gap-4 border-t border-border py-8 text-xs font-medium text-muted-foreground md:flex-row md:items-center md:text-left">
+        <div className="mt-12 flex flex-col justify-between gap-4 border-t border-border/40 py-8 text-xs font-medium text-muted-foreground md:flex-row md:items-center md:text-left">
           <p className="order-2 lg:order-1">{copyright}</p>
+          <ul className="order-1 flex flex-col gap-2 md:order-2 md:flex-row">
+            {legalLinks.map((link) => (
+              <li
+                key={link.name}
+                className="hover:text-primary transition-colors"
+              >
+                <a href={link.href}> {link.name}</a>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </section>

@@ -1,4 +1,8 @@
 {
+  "/_not-found/page": "app/_not-found/page.js",
   "/landing/page": "app/landing/page.js",
+  "/legal/cookies/page": "app/legal/cookies/page.js",
+  "/legal/privacy/page": "app/legal/privacy/page.js",
+  "/legal/terms/page": "app/legal/terms/page.js",
   "/page": "app/page.js"
 }
