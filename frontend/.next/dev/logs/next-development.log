@@ -8219,3 +8219,10 @@ Import map: aliased to relative './components/content-5' inside of [project]/fro
 
 https://nextjs.org/docs/messages/module-not-found
 [03:00:33.792] Server  LOG     ✓ Compiled in 247ms
+[03:03:59.008] Server  LOG     ✓ Compiled in 0ms
+[03:06:06.583] Server  LOG     ✓ Compiled in 201ms
+[03:09:29.688] Browser WARN    You are trying to animate y from "-100" to "0". "-100" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+[03:09:29.688] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[03:09:29.688] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[03:09:29.693] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1768725415977}
+[03:09:43.954] Server  LOG     ✓ Compiled in 0ms
