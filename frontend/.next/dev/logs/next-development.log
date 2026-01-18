@@ -7641,3 +7641,588 @@ It can also happen if the client has a browser extension installed which messes 
 [02:15:29.913] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/landing","route":"/landing"}
 [02:15:29.913] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/landing#home color: rgb(120, 120, 120) color: inherit {"dp":"/landing","o":"http://localhost:3000/landing#home","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1768722176207}
 [02:15:40.244] Server  LOG     ✓ Compiled in 278ms
+[02:50:41.613] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[02:50:41.613] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[02:50:41.613] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1768724287078}
+[02:51:05.235] Browser WARN    You are trying to animate y from "-100" to "0". "-100" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+[02:51:05.235] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[02:51:05.235] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[02:51:05.235] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1768724311529}
+[02:51:52.998] Server  LOG     ✓ Compiled in 114ms
+[02:51:56.008] Server  ERROR   ⨯ ReferenceError: Bottom is not defined
+[02:51:56.036] Server  ERROR   ⨯ ReferenceError: Bottom is not defined
+[02:51:56.346] Browser ERROR   uncaughtError: ReferenceError: Bottom is not defined
+[02:51:56.612] Browser ERROR   uncaughtError: ReferenceError: Bottom is not defined
+[02:52:00.241] Server  LOG     ✓ Compiled in 2ms
+[02:52:00.332] Server  WARN    ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+[02:52:01.261] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[02:52:01.261] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[02:52:01.261] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1768724367555}
+[02:52:04.349] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[02:52:04.349] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[02:52:04.349] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1768724367922}
+[02:52:59.769] Browser WARN    You are trying to animate y from "-100" to "0". "-100" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+[02:56:15.270] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[02:56:15.766] Browser WARN    You are trying to animate y from "-100" to "0". "-100" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+[02:56:15.766] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[02:56:15.766] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[02:56:15.766] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1768724622060}
+[03:00:24.212] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.216] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.224] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.225] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.227] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.228] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.230] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.231] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.232] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.234] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.236] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.237] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.239] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.241] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.243] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.244] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.246] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.247] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.248] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.250] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.251] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.253] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.255] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.257] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.258] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.259] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.261] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.263] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.264] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.266] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.267] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.268] Server  ERROR   ⨯ ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[03:00:24.381] Browser ERROR   ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+https://nextjs.org/docs/messages/module-not-found
+[03:00:24.381] Browser ERROR   ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+https://nextjs.org/docs/messages/module-not-found
+[03:00:24.612] Browser ERROR   ./frontend/app/page.tsx:7:1
+Module not found: Can't resolve '@/components/content-5'
+   5 | import { FaqSection } from "@/components/landing/faq-section";
+   6 | import Stats from "@/components/landing/stats";
+>  7 | import ContentSection from "@/components/content-5";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | import Bottom from "@/components/landing/bottom";
+   9 |
+  10 | export default function page() {
+
+Import map: aliased to relative './components/content-5' inside of [project]/frontend
+
+https://nextjs.org/docs/messages/module-not-found
+[03:00:33.792] Server  LOG     ✓ Compiled in 247ms
+[03:03:59.008] Server  LOG     ✓ Compiled in 0ms
+[03:06:06.583] Server  LOG     ✓ Compiled in 201ms
+[03:09:29.688] Browser WARN    You are trying to animate y from "-100" to "0". "-100" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable
+[03:09:29.688] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[03:09:29.688] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[03:09:29.693] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1768725415977}
+[03:09:43.954] Server  LOG     ✓ Compiled in 0ms
