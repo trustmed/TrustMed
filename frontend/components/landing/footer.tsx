@@ -42,7 +42,7 @@ export const FooterSection = ({
 }: FooterProps) => {
   return (
     <section className="py-12 border-t border-border/40">
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-6 md:px-10">
         <div className="flex w-full flex-col justify-between gap-10 lg:flex-row lg:items-start lg:text-left">
           <div className="flex w-full flex-col justify-between gap-6 lg:items-start">
             {/* Logo */}
