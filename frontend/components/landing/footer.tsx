@@ -3,7 +3,6 @@ import {
   defaultSocialLinks,
   defaultLegalLinks,
 } from "./footer-data";
-import { ShieldCheck } from "lucide-react";
 
 interface FooterProps {
   logo?: {
@@ -48,8 +47,17 @@ export const FooterSection = ({
             {/* Logo */}
             <div className="flex items-center gap-2 lg:justify-start">
               <a href={logo.url} className="flex items-center gap-2">
-                <div className="flex items-center justify-center rounded-md bg-primary/10 p-1">
-                  <ShieldCheck className="h-6 w-6 text-primary" />
+                <div className="flex items-center justify-center rounded-md p-1">
+                  <img
+                    src="/logo-black.png"
+                    alt={logo.alt}
+                    className="h-8 w-auto object-contain dark:hidden"
+                  />
+                  <img
+                    src="/logo-white.png"
+                    alt={logo.alt}
+                    className="hidden h-8 w-auto object-contain dark:block"
+                  />
                 </div>
                 <h2 className="text-xl font-bold tracking-tight">
                   {logo.title}
