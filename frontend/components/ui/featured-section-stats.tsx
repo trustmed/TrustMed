@@ -18,12 +18,12 @@ export default function FeaturedSectionStats() {
   const isInView = useInView(ref, { margin: "-50px" }); // Trigger when slightly in view
 
   return (
-    <section className="max-w-7xl mx-auto text-left py-8 px-4 md:px-8">
+    <section className="max-w-7xl mx-auto text-center py-8 px-4 md:px-8">
       <div className="px-4">
         {/* Header removed to avoid collision with Hero text */}
 
         {/* Stats grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 mt-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mt-8">
           <div>
             <p className="text-3xl font-medium text-foreground">AES-256</p>
             <p className="text-muted-foreground text-md">Encryption Standard</p>
@@ -71,7 +71,7 @@ export default function FeaturedSectionStats() {
             <Area
               type="monotone"
               dataKey="value"
-              stroke="#3b82f6"
+              stroke="#003366"
               strokeWidth={2}
               fillOpacity={1}
               fill="url(#colorBlue)"

@@ -3,8 +3,8 @@ import { Globe, Lock, ShieldCheck, Zap } from "lucide-react";
 export default function ContentSection() {
   return (
     <section className="py-16 md:py-32">
-      <div className="mx-auto max-w-5xl space-y-8 px-6 md:space-y-12">
-        <div className="mx-auto max-w-2xl space-y-6 text-center md:space-y-12">
+      <div className="mx-auto max-w-7xl space-y-8 px-6 md:space-y-12">
+        <div className="mx-auto max-w-4xl space-y-6 text-center md:space-y-12">
           <h2 className="text-balance text-4xl font-medium lg:text-5xl">
             The TrustMed ecosystem bridges patient data, providers, and privacy.
           </h2>

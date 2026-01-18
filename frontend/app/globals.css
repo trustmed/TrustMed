@@ -12,7 +12,7 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.12 0 0);
   /* Luxury Blue - Deep Royal/Midnight Blue */
-  --primary: oklch(0.35 0.13 265);
+  --primary: #003366;
   --primary-foreground: oklch(0.98 0 0);
   --secondary: oklch(0.67 0.12 160);
   --secondary-foreground: oklch(0.12 0 0);
@@ -24,8 +24,8 @@
   --destructive-foreground: oklch(0.577 0.245 27.325);
   --border: oklch(0.92 0.01 0);
   --input: oklch(0.96 0.01 0);
-  --ring: oklch(0.35 0.13 265);
-  --chart-1: oklch(0.35 0.13 265);
+  --ring: #003366;
+  --chart-1: #003366;
   --chart-2: oklch(0.58 0.15 160);
   --chart-3: oklch(0.65 0.12 100);
   --chart-4: oklch(0.5 0.16 280);
@@ -33,12 +33,12 @@
   --radius: 0.75rem;
   --sidebar: oklch(0.98 0 0);
   --sidebar-foreground: oklch(0.12 0 0);
-  --sidebar-primary: oklch(0.52 0.18 255);
+  --sidebar-primary: #003366;
   --sidebar-primary-foreground: oklch(0.98 0 0);
   --sidebar-accent: oklch(0.58 0.15 160);
   --sidebar-accent-foreground: oklch(0.12 0 0);
   --sidebar-border: oklch(0.92 0.01 0);
-  --sidebar-ring: oklch(0.52 0.18 255);
+  --sidebar-ring: #003366;
 }
 
 .dark {
@@ -132,6 +132,24 @@
   100% {
     transform: scale(1);
     opacity: 1;
+    }
+  }
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+  @keyframes accordion-down {
+  from {
+    height: 0;
+    }
+  to {
+    height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+    }
+  to {
+    height: 0;
     }
   }
 }

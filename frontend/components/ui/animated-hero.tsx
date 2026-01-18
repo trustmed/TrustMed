@@ -7,7 +7,7 @@ function Hero() {
   const [titleNumber, setTitleNumber] = useState(0);
   const titles = useMemo(
     () => ["Under Your Control", "Fully Secure", "Decentralized", "Private"],
-    []
+    [],
   );
 
   useEffect(() => {
@@ -25,24 +25,17 @@ function Hero() {
     <div className="w-full">
       <div className="container mx-auto">
         <div className="flex gap-8 py-4 items-center justify-center flex-col">
-          <div>
-            <Button
-              variant="secondary"
-              size="sm"
-              className="gap-4 pointer-events-none"
-            >
-              🔒 Privacy-First Healthcare
-            </Button>
-          </div>
           <div className="flex gap-4 flex-col">
-            <h1 className="text-3xl sm:text-5xl md:text-7xl max-w-2xl tracking-tighter text-center font-regular">
-              <span className="text-foreground">Your Medical Records,</span>
-              <span className="relative flex w-full justify-center overflow-hidden text-center md:pb-4 md:pt-1">
+            <h1 className="text-4xl sm:text-6xl md:text-8xl max-w-5xl tracking-tighter text-center font-regular flex flex-col items-center justify-center">
+              <span className="text-foreground whitespace-nowrap mb-2">
+                Your Medical Records Are
+              </span>
+              <span className="relative flex w-full justify-center overflow-hidden text-center pb-4 md:pb-8 min-h-[1.4em]">
                 &nbsp;
                 {titles.map((title, index) => (
                   <motion.span
                     key={title}
-                    className="absolute font-semibold bg-clip-text text-transparent bg-linear-to-r from-muted-foreground to-foreground"
+                    className="absolute font-semibold bg-clip-text text-transparent bg-linear-to-r from-foreground to-foreground/70 whitespace-nowrap"
                     initial={{ opacity: 0, y: "-100" }}
                     transition={{ type: "spring", stiffness: 50 }}
                     animate={
@@ -63,26 +56,26 @@ function Hero() {
               </span>
             </h1>
 
-            <p className="text-base md:text-xl leading-relaxed tracking-tight text-muted-foreground max-w-2xl text-center">
+            <p className="text-lg md:text-xl leading-relaxed tracking-tight text-muted-foreground max-w-xl mx-auto text-center mb-8">
               Secure, decentralized health records powered by blockchain
               technology. Share your medical history instantly with any
-              healthcare provider, while maintaining complete control and
-              transparency.
+              healthcare provider, while maintaining complete control.
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-6 items-center">
             <Button
               size="lg"
-              className="gap-4 w-full sm:w-auto bg-foreground text-background hover:bg-foreground/90"
+              className="gap-2 w-full sm:w-auto bg-primary text-primary-foreground hover:scale-105 transition-all duration-300 shadow-xl shadow-primary/20 rounded-full px-8"
             >
-              Start Protecting Your Data <MoveRight className="w-4 h-4" />
+              Start Protecting Your Data <MoveRight className="w-4 h-4 ml-1" />
             </Button>
             <Button
               size="lg"
-              className="gap-4 w-full sm:w-auto"
-              variant="outline"
+              variant="ghost"
+              className="gap-2 w-full sm:w-auto hover:bg-transparent hover:text-foreground/80 group"
             >
-              Watch Demo <MoveRight className="w-4 h-4" />
+              Watch Demo{" "}
+              <MoveRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </div>
         </div>

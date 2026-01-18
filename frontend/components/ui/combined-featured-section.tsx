@@ -172,11 +172,11 @@ const chartData = [
 const chartConfig = {
   desktop: {
     label: "Ruixen Dashboard (Desktop)",
-    color: "#2563eb", // Primary Blue
+    color: "#003366", // Primary Blue
   },
   mobile: {
     label: "Ruixen App (Mobile)",
-    color: "#60a5fa", // Lighter Blue
+    color: "#003366", // Lighter Blue - Updated to #003366 as requested
   },
 } satisfies ChartConfig;
 
