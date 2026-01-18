@@ -5,7 +5,6 @@ import { HeroText } from "@/components/landing/hero-text";
 import { FaqSection } from "@/components/landing/faq-section";
 import Stats from "@/components/landing/stats";
 import ContentSection from "@/components/landing/content";
-import Bottom from "@/components/landing/bottom";
 
 export default function page() {
   return (
@@ -29,7 +28,6 @@ export default function page() {
       </section>
 
       <FooterSection />
-      <Bottom />
     </div>
   );
 }
