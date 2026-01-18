@@ -44,7 +44,7 @@ function FaqSection() {
 
   return (
     <div className="w-full py-20 lg:py-40">
-      <div className="w-full max-w-7xl mx-auto px-4">
+      <div className="w-full max-w-7xl mx-auto px-6 md:px-10">
         <div className="grid lg:grid-cols-2 gap-10">
           <div className="flex gap-10 flex-col">
             <div className="flex gap-4 flex-col">
