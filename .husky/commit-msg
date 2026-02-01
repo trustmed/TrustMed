@@ -1,6 +1,3 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
 # Run commitlint. If it fails (||), run the custom error message.
 npx --no -- commitlint --edit "${1}" || {
     echo ""
