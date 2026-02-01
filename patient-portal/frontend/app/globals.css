@@ -22,8 +22,8 @@
   --accent-foreground: oklch(0.98 0 0);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.92 0.01 0);
-  --input: oklch(0.96 0.01 0);
+  --border: oklch(0.85 0.01 0);
+  --input: oklch(0.85 0.01 0);
   --ring: #003366;
   --chart-1: #003366;
   --chart-2: oklch(0.58 0.15 160);
@@ -150,6 +150,27 @@
     }
     to {
       height: 0;
+    }
+  }
+  @keyframes fadeSlideIn {
+  to {
+    opacity: 1;
+    filter: blur(0px);
+    transform: translateY(0px);
+    }
+  }
+  @keyframes slideRightIn {
+  to {
+    opacity: 1;
+    filter: blur(0px);
+    transform: translateX(0px);
+    }
+  }
+  @keyframes testimonialIn {
+  to {
+    opacity: 1;
+    filter: blur(0px);
+    transform: translateY(0px) scale(1);
     }
   }
 }
