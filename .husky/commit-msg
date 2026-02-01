@@ -1,5 +1,5 @@
-# Run commitlint. If it fails (||), run the code inside the brackets.
-npx --no -- commitlint --edit ${1} || {
+# Run commitlint. If it fails (||), run the custom error message.
+npx --no -- commitlint --edit "${1}" || {
     echo ""
     echo "---------------------------------------------------------------------"
     echo "🚨 COMMIT REJECTED: Invalid Message Format"
