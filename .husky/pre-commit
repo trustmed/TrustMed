@@ -1,1 +1,28 @@
-npm run lint
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# ---------------------------------------------------
+# 1. Check Patient Portal Frontend
+# ---------------------------------------------------
+echo "🏥 Checking Patient Portal FE..."
+cd patient-portal/patient-fe
+pnpm lint
+if [ $? -ne 0 ]; then
+   echo "❌ Patient Portal Lint Failed!"
+   exit 1
+fi
+cd ../.. 
+
+# ---------------------------------------------------
+# 2. Check Hospital Portal Frontend
+# ---------------------------------------------------
+echo "🏨 Checking Hospital Portal FE..."
+cd hospital-portal/hospital-fe
+pnpm lint
+if [ $? -ne 0 ]; then
+   echo "❌ Hospital Portal Lint Failed!"
+   exit 1
+fi
+cd ../..
+
+echo "✅ All checks passed!"

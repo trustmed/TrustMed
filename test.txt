@@ -1,0 +1,32 @@
+# Run commitlint. If it fails (||), run the code inside the brackets.
+npx --no -- commitlint --edit ${1} || {
+    echo ""
+    echo "---------------------------------------------------------------------"
+    echo "🚨 COMMIT REJECTED: Invalid Message Format"
+    echo "---------------------------------------------------------------------"
+    echo "This repo enforces 'Conventional Commits' standards."
+    echo ""
+    echo "🔑 Allowed Types:"
+    echo "   [ feat, fix, docs, style, refactor, perf, test, chore ]"
+    echo ""
+    echo "✅ Correct Examples:" 
+    echo "   feat(auth): add google login support"
+    echo "   fix(api): resolve timeout issue on payment"
+    echo "   chore: update dependencies"
+    echo ""
+    echo "❌ You typed:"
+    echo "   $(head -n 1 $1)"
+    echo ""
+    echo "👉 See CONTRIBUTING.md for full definitions."
+    echo "---------------------------------------------------------------------"
+    exit 1
+}
+
+
+
+
+above file was for the commit-Message
+
+below one is under the pre-commit 
+
+npm run lint
