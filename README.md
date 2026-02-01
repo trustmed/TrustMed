@@ -6,36 +6,39 @@
 
 This project utilizes a bleeding-edge stack to ensure performance and longevity:
 
-* **Framework:** [Next.js 16](https://nextjs.org/) (App Router)
-* **Core:** [React 19](https://react.dev/)
-* **Styling:** [Tailwind CSS 4](https://tailwindcss.com/)
-* **Language:** [TypeScript](https://www.typescriptlang.org/)
-* **State/Validation:** React Hook Form + Zod
-* **Quality Control:** ESLint + Prettier + Husky + Commitlint
+- **Framework:** [Next.js 16](https://nextjs.org/) (App Router)
+- **Core:** [React 19](https://react.dev/)
+- **Styling:** [Tailwind CSS 4](https://tailwindcss.com/)
+- **Language:** [TypeScript](https://www.typescriptlang.org/)
+- **State/Validation:** React Hook Form + Zod
+- **Quality Control:** ESLint + Prettier + Husky + Commitlint
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-* **Node.js** (v20 or higher recommended)
-* **npm** (comes with Node)
+- **Node.js** (v20 or higher recommended)
+- **npm** (comes with Node)
 
 ### Installation
 
 1.  **Clone the repository:**
+
     ```bash
     git clone [https://github.com/pasinduvinsuka/TrustMed.git](https://github.com/pasinduvinsuka/TrustMed.git)
     cd TrustMed
     ```
 
 2.  **Install dependencies:**
-    *Note: We use legacy peer deps due to the bleeding-edge nature of React 19/Next 16.*
+    _Note: We use legacy peer deps due to the bleeding-edge nature of React 19/Next 16._
+
     ```bash
     npm install --legacy-peer-deps
     ```
 
 3.  **Setup Environment:**
     Create a `.env.local` file in the root directory.
+
     ```bash
     cp .env.example .env.local
     ```
@@ -51,9 +54,9 @@ This project utilizes a bleeding-edge stack to ensure performance and longevity:
 We enforce strict engineering standards to maintain code quality.
 **Before contributing, please read our [Contribution Guidelines](./CONTRIBUTING.md).**
 
-* **Branching:** We use specific naming conventions (e.g., `feat/`, `fix/`).
-* **Commits:** We follow [Conventional Commits](https://www.conventionalcommits.org/).
-* **Hooks:** Husky is configured to reject commits that do not meet these standards.
+- **Branching:** We use specific naming conventions (e.g., `feat/`, `fix/`).
+- **Commits:** We follow [Conventional Commits](https://www.conventionalcommits.org/).
+- **Hooks:** Husky is configured to reject commits that do not meet these standards.
 
 ## 📄 License
 
