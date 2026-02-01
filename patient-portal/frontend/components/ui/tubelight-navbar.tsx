@@ -82,14 +82,15 @@ export function NavBar({ items, className }: NavBarProps) {
             "relative cursor-pointer text-sm font-semibold px-6 py-2 rounded-full transition-colors",
             "text-foreground/80 hover:text-foreground",
           )}
-          aria-label="Toggle theme"
         >
-          {!mounted ? (
-            <div className="w-[18px] h-[18px]" />
-          ) : theme === "dark" ? (
-            <Sun size={18} strokeWidth={2.5} />
+          {mounted ? (
+            theme === "dark" ? (
+              <Sun size={18} strokeWidth={2.5} />
+            ) : (
+              <Moon size={18} strokeWidth={2.5} />
+            )
           ) : (
-            <Moon size={18} strokeWidth={2.5} />
+            <div className="w-[18px] h-[18px]" />
           )}
         </button>
       </div>
