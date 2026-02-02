@@ -65,8 +65,6 @@ interface BentoGridShowcaseProps {
  * @param {React.ReactNode} props.shortcuts - Wide bottom card slot (e.g., Shortcuts)
  * @param {string} props.className - Optional class names for the grid container
  */
- * seen in the "Product Features" UI.
- */
 export const BentoGridShowcase = ({
   integration,
   trackers,
