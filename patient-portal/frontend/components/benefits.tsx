@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * Benefits component displaying advantages for patients and hospitals.
+ * Renders a two-column grid showing benefits for different user types with icons and feature lists.
+ * Highlights key value propositions like data control, access to medical history, and HIPAA compliance.
+ */
 export function Benefits() {
   const benefits = [
     {

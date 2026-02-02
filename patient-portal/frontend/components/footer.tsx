@@ -1,5 +1,11 @@
 "use client";
 
+/**
+ * Footer component for the application.
+ * Renders a multi-column footer with branding, navigation links organized by category
+ * (Product, Company, Legal), social media links, and copyright information.
+ * Dynamically displays the current year.
+ */
 export function Footer() {
   const currentYear = new Date().getFullYear();
 

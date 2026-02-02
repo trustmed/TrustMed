@@ -3,6 +3,12 @@ import { useRef } from "react";
 import { AreaChart, Area, ResponsiveContainer } from "recharts";
 import { useInView, motion } from "framer-motion";
 
+/**
+ * Stats component displaying key platform statistics and growth chart.
+ * Renders a grid of statistics (encryption standard, user control, compliance)
+ * and an animated area chart that reveals with a curtain effect when scrolled into view.
+ * Uses Recharts for data visualization and Framer Motion for animations.
+ */
 export default function Stats() {
   const data = [
     { name: "Jan", value: 20 },

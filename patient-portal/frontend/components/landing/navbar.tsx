@@ -3,6 +3,11 @@ import { usePathname } from "next/navigation";
 import { Home, Layers, Sparkles, HelpCircle, LogIn } from "lucide-react";
 import { NavBar } from "@/components/ui/tubelight-navbar";
 
+/**
+ * NavigationBar component for the landing page navigation.
+ * Renders a navigation bar with icons for Home, Platform, Features, FAQ, and Login.
+ * Conditionally hides on signin/signup pages.
+ */
 export function NavigationBar() {
   const pathname = usePathname();
   if (pathname === "/signin" || pathname === "/signup") return null;

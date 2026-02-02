@@ -1,5 +1,11 @@
 import { Globe, Lock, ShieldCheck, Zap } from "lucide-react";
 
+/**
+ * ContentSection component showcasing the TrustMed ecosystem.
+ * Renders the main content section with ecosystem description, medical report image,
+ * and a grid of key features (instant access, immutable records, privacy, global reach).
+ * Uses Lucide icons to visually represent each feature.
+ */
 export default function ContentSection() {
   return (
     <section className="py-16 md:py-32">

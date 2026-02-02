@@ -27,6 +27,19 @@ interface FooterProps {
   }>;
 }
 
+/**
+ * FooterSection component for the site footer.
+ * Renders a comprehensive footer with logo, description, navigation sections, social links,
+ * copyright information, and legal links. All content is customizable via props.
+ * 
+ * @param {FooterProps} props - Footer configuration
+ * @param {Object} props.logo - Logo configuration with URL, alt text, and title
+ * @param {Array} props.sections - Navigation sections with links (Platform, Company, Legal)
+ * @param {string} props.description - Footer description text
+ * @param {Array} props.socialLinks - Social media links with icons
+ * @param {string} props.copyright - Copyright text
+ * @param {Array} props.legalLinks - Legal policy links
+ */
 export const FooterSection = ({
   logo = {
     url: "/",

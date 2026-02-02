@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * How It Works component explaining the platform workflow.
+ * Renders a step-by-step guide showing the process from creating a digital identity
+ * to sharing medical records. Displays 4 steps in a responsive grid with connecting lines.
+ */
 export function HowItWorks() {
   const steps = [
     {

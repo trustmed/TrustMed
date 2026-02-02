@@ -8,6 +8,12 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 
+/**
+ * FaqSection component for frequently asked questions.
+ * Renders an accordion-style FAQ section with questions and answers about TrustMed platform,
+ * patient/hospital benefits, security, consent mechanism, and system integration.
+ * Includes a contact support button for additional help.
+ */
 function FaqSection() {
   const faqs = [
     {

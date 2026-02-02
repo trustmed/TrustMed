@@ -1,6 +1,11 @@
 import { DottedSurface } from "@/components/ui/dotted-surface";
 import { cn } from "@/lib/utils";
 
+/**
+ * Bottom component for decorative page bottom section.
+ * Renders a dotted surface with a radial gradient blur effect overlay.
+ * Used as a visual separator or decorative element at the bottom of pages.
+ */
 export default function Bottom() {
   return (
     <div className="relative w-full h-[300px] overflow-hidden">

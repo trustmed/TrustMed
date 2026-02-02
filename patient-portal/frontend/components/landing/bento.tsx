@@ -10,6 +10,10 @@ import { BentoGridShowcase } from "@/components/ui/bento-product-features";
 
 // --- Helper Components for the Demo ---
 
+/**
+ * IntegrationCard component for the bento grid.
+ * Displays integration feature with a lock SVG icon and description.
+ */
 const IntegrationCard = () => (
   <Card className="flex h-full flex-col">
     <CardHeader>
@@ -95,6 +99,11 @@ const IntegrationCard = () => (
   </Card>
 );
 
+/**
+ * TrackersCard component for the bento grid.
+ * Displays family health vault feature with patient and family member records,
+ * showing names, roles, and status indicators.
+ */
 const TrackersCard = () => (
   <Card className="h-full">
     <CardContent className="flex h-full flex-col justify-between p-6">
@@ -151,6 +160,11 @@ const TrackersCard = () => (
   </Card>
 );
 
+/**
+ * FocusCard component for the bento grid.
+ * Displays clinical accuracy feature with diagnostic accuracy percentage
+ * and a visual progress indicator.
+ */
 const FocusCard = () => (
   <Card className="h-full">
     <CardContent className="flex h-full flex-col justify-between p-6">
@@ -186,6 +200,11 @@ const FocusCard = () => (
   </Card>
 );
 
+/**
+ * StatisticCard component for the bento grid.
+ * Displays platform statistics with an interactive globe visualization
+ * showing global network connections and data points.
+ */
 const StatisticCard = () => (
   <Card className="relative h-full w-full overflow-hidden">
     <div className="absolute left-3 top-2 flex gap-1 z-20">
@@ -238,6 +257,11 @@ const StatisticCard = () => (
   </Card>
 );
 
+/**
+ * ProductivityCard component for the bento grid.
+ * Displays productivity metrics with a chart visualization showing
+ * time saved through the platform.
+ */
 const ProductivityCard = () => (
   <Card className="h-full">
     <CardContent className="flex h-full flex-col justify-end p-6">
@@ -336,6 +360,11 @@ const ProductivityCard = () => (
   </Card>
 );
 
+/**
+ * ShortcutsCard component for the bento grid.
+ * Displays benefits for different user groups (patients and hospitals)
+ * with bullet points highlighting key advantages.
+ */
 const ShortcutsCard = () => (
   <Card className="h-full">
     <CardHeader>
@@ -453,6 +482,12 @@ const ShortcutsCard = () => (
 );
 
 // --- The Default Demo ---
+/**
+ * BentoGridShowcaseDemo component showcasing platform features.
+ * Main component that renders a bento grid layout displaying various healthcare platform features
+ * including integration, trackers, statistics, focus, productivity, and shortcuts cards.
+ * Provides an overview of the modern healthcare infrastructure capabilities.
+ */
 export default function BentoGridShowcaseDemo() {
   return (
     <div className="w-full max-w-7xl mx-auto p-4 md:p-10">

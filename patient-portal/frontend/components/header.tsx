@@ -2,6 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 
+/**
+ * Header component for the application navigation.
+ * Renders a fixed navigation bar with logo, navigation links, and a call-to-action button.
+ * Includes responsive design with hidden navigation on mobile devices.
+ */
 export function Header() {
   return (
     <header className="fixed top-0 w-full bg-background border-b border-border z-50 shadow-sm">

@@ -3,6 +3,11 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 
+/**
+ * Hero component for the landing page.
+ * Renders the main hero section with headline, description, call-to-action buttons, and key statistics.
+ * Displays a privacy-first healthcare message with gradient text effects and responsive layout.
+ */
 export function Hero() {
   return (
     <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-background via-background to-muted/30">

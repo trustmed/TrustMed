@@ -2,6 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 
+/**
+ * Call-to-Action (CTA) component for conversion.
+ * Renders a centered section with headline, description, and action buttons to encourage user sign-up.
+ * Features gradient background and dual CTAs for trial and demo scheduling.
+ */
 export function CTA() {
   return (
     <section

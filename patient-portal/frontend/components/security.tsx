@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * Security features component showcasing platform security capabilities.
+ * Renders a grid of security features including blockchain security, encryption, HIPAA compliance,
+ * and patient data ownership. Each feature displays an icon, title, and description.
+ */
 export function Security() {
   const features = [
     {

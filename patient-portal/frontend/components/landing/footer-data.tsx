@@ -1,6 +1,10 @@
 import React from "react";
 import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter } from "react-icons/fa";
 
+/**
+ * Default navigation sections for footer.
+ * Contains Platform, Company, and Legal section links.
+ */
 export const defaultSections = [
   {
     title: "Platform",
@@ -31,6 +35,10 @@ export const defaultSections = [
   },
 ];
 
+/**
+ * Default social media links for footer.
+ * Contains Instagram, Facebook, Twitter, and LinkedIn links with icons.
+ */
 export const defaultSocialLinks = [
   { icon: <FaInstagram className="size-5" />, href: "#", label: "Instagram" },
   { icon: <FaFacebook className="size-5" />, href: "#", label: "Facebook" },
@@ -38,6 +46,10 @@ export const defaultSocialLinks = [
   { icon: <FaLinkedin className="size-5" />, href: "#", label: "LinkedIn" },
 ];
 
+/**
+ * Default legal links for footer.
+ * Contains Terms and Conditions and Privacy Policy links.
+ */
 export const defaultLegalLinks = [
   { name: "Terms and Conditions", href: "#" },
   { name: "Privacy Policy", href: "#" },
