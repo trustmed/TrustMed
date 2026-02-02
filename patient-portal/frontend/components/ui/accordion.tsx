@@ -6,8 +6,19 @@ import { ChevronDown } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * Accordion root component using Radix UI primitive.
+ * Base component for creating collapsible content sections.
+ */
 const Accordion = AccordionPrimitive.Root
 
+/**
+ * AccordionItem component for individual accordion sections.
+ * Renders a single collapsible item within an accordion with a bottom border.
+ * 
+ * @param {React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item>} props - Accordion item props from Radix UI
+ * @param {string} props.className - Additional CSS classes
+ */
 const AccordionItem = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item>
@@ -20,6 +31,14 @@ const AccordionItem = React.forwardRef<
 ))
 AccordionItem.displayName = "AccordionItem"
 
+/**
+ * AccordionTrigger component for accordion headers.
+ * Renders a clickable trigger that expands/collapses accordion content.
+ * Includes a chevron icon that rotates when expanded.
+ * 
+ * @param {React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>} props - Accordion trigger props from Radix UI
+ * @param {string} props.className - Additional CSS classes
+ */
 const AccordionTrigger = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>
@@ -40,6 +59,14 @@ const AccordionTrigger = React.forwardRef<
 ))
 AccordionTrigger.displayName = AccordionPrimitive.Trigger.displayName
 
+/**
+ * AccordionContent component for collapsible content.
+ * Renders the expandable/collapsible content section of an accordion item
+ * with smooth slide-down/up animations.
+ * 
+ * @param {React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content>} props - Accordion content props from Radix UI
+ * @param {string} props.className - Additional CSS classes
+ */
 const AccordionContent = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content>

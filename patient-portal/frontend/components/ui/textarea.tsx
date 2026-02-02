@@ -2,6 +2,14 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * Textarea component for multi-line text input.
+ * Renders a styled textarea element with automatic content-based sizing, focus states, and validation styling.
+ * Includes aria-invalid styling for form validation feedback.
+ * 
+ * @param {React.ComponentProps<"textarea">} props - Standard textarea element props
+ * @param {string} props.className - Additional CSS classes
+ */
 function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
   return (
     <textarea

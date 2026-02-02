@@ -5,6 +5,15 @@ import * as SwitchPrimitive from "@radix-ui/react-switch"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * Switch component for toggle input.
+ * Renders a styled toggle switch using Radix UI primitive with sliding thumb indicator.
+ * Supports two sizes (sm, default) and includes checked/unchecked state styling.
+ * 
+ * @param {React.ComponentProps<typeof SwitchPrimitive.Root>} props - Switch props from Radix UI
+ * @param {string} props.size - Size variant (sm or default)
+ * @param {string} props.className - Additional CSS classes
+ */
 function Switch({
   className,
   size = "default",

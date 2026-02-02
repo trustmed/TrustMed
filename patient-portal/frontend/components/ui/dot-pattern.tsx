@@ -14,6 +14,21 @@ interface DotPatternProps {
   [key: string]: unknown;
 }
 
+/**
+ * DotPattern component for decorative dot pattern backgrounds.
+ * Renders an SVG pattern of evenly spaced dots that can be used as a background.
+ * Customizable dot size, spacing, and positioning.
+ * 
+ * @param {DotPatternProps} props - Component props
+ * @param {number} props.width - Pattern width (default: 16)
+ * @param {number} props.height - Pattern height (default: 16)
+ * @param {number} props.x - Pattern X offset (default: 0)
+ * @param {number} props.y - Pattern Y offset (default: 0)
+ * @param {number} props.cx - Dot center X position (default: 1)
+ * @param {number} props.cy - Dot center Y position (default: 1)
+ * @param {number} props.cr - Dot radius (default: 1)
+ * @param {string} props.className - Additional CSS classes
+ */
 function DotPattern({
   width = 16,
   height = 16,

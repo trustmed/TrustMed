@@ -5,10 +5,27 @@ import * as PopoverPrimitive from "@radix-ui/react-popover"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * Popover root component using Radix UI primitive.
+ * Base component for creating popover overlays.
+ */
 const Popover = PopoverPrimitive.Root
 
+/**
+ * PopoverTrigger component for triggering popover display.
+ * Element that triggers the popover to open when interacted with.
+ */
 const PopoverTrigger = PopoverPrimitive.Trigger
 
+/**
+ * PopoverContent component for popover content container.
+ * Renders the popover content with animations, positioning, and portal rendering.
+ * Opens with fade-in and zoom animations from the trigger side.
+ * 
+ * @param {string} align - Horizontal alignment (center, start, end)
+ * @param {number} sideOffset - Distance from the trigger
+ * @param {string} className - Additional CSS classes
+ */
 const PopoverContent = React.forwardRef<
   React.ElementRef<typeof PopoverPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>

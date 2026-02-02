@@ -2,6 +2,15 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * Input component for text input fields.
+ * Renders a styled input element with focus states, validation styling, and file upload support.
+ * Includes hover and focus-visible states, and aria-invalid styling for form validation.
+ * 
+ * @param {React.ComponentProps<"input">} props - Standard input element props
+ * @param {string} props.type - Input type (text, email, password, file, etc.)
+ * @param {string} props.className - Additional CSS classes
+ */
 function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   return (
     <input

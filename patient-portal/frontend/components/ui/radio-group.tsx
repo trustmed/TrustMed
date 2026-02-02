@@ -6,6 +6,14 @@ import { Circle } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * RadioGroup component for radio button groups.
+ * Renders a container for radio button items using Radix UI primitive.
+ * Only one option can be selected at a time within a group.
+ * 
+ * @param {React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>} props - Radio group props from Radix UI
+ * @param {string} props.className - Additional CSS classes
+ */
 const RadioGroup = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>
@@ -18,6 +26,14 @@ const RadioGroup = React.forwardRef<
 ))
 RadioGroup.displayName = RadioGroupPrimitive.Root.displayName
 
+/**
+ * RadioGroupItem component for individual radio buttons.
+ * Renders a single radio button option with a circular indicator.
+ * Shows a filled circle when selected.
+ * 
+ * @param {React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>} props - Radio group item props from Radix UI
+ * @param {string} props.className - Additional CSS classes
+ */
 const RadioGroupItem = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>

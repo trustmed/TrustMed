@@ -3,6 +3,14 @@ import { motion } from "framer-motion";
 import { MoveRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+/**
+ * Hero component for animated landing page hero section.
+ * Renders an animated hero with rotating title text (Fully Secure, Decentralized, Private)
+ * and call-to-action buttons. Uses Framer Motion for text animations.
+ * 
+ * Side effects:
+ * - Automatically cycles through titles every 2 seconds
+ */
 function Hero() {
   const [titleNumber, setTitleNumber] = useState(0);
   const titles = useMemo(() => ["Fully Secure", "Decentralized", "Private"], []);

@@ -39,6 +39,17 @@ export interface ButtonProps
   asChild?: boolean
 }
 
+/**
+ * Button component for user interactions.
+ * Renders a styled button with multiple variants (default, destructive, outline, secondary, ghost, link)
+ * and sizes (default, sm, lg, icon). Supports composition via Radix UI Slot when asChild is true.
+ * 
+ * @param {ButtonProps} props - Component props
+ * @param {string} props.variant - Button style variant
+ * @param {string} props.size - Button size variant
+ * @param {boolean} props.asChild - If true, renders as Slot for composition with child elements
+ * @param {string} props.className - Additional CSS classes
+ */
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"

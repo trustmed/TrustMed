@@ -6,6 +6,14 @@ import { CheckIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * Checkbox component for boolean input.
+ * Renders a styled checkbox using Radix UI primitive with check icon indicator.
+ * Includes checked state styling, focus states, and validation feedback via aria-invalid.
+ * 
+ * @param {React.ComponentProps<typeof CheckboxPrimitive.Root>} props - Checkbox props from Radix UI
+ * @param {string} props.className - Additional CSS classes
+ */
 function Checkbox({
   className,
   ...props

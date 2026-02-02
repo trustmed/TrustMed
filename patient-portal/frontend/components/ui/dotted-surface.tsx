@@ -6,6 +6,18 @@ import * as THREE from "three";
 
 type DottedSurfaceProps = Omit<React.ComponentProps<"div">, "ref">;
 
+/**
+ * DottedSurface component for 3D particle wave animation.
+ * Renders an animated 3D surface using Three.js with particles forming a wave pattern.
+ * Adapts colors based on current theme (light/dark mode).
+ * Creates an interactive visual effect with mouse movement responsiveness.
+ * 
+ * Side effects:
+ * - Creates and manages Three.js scene, camera, and renderer
+ * - Starts animation loop on mount
+ * - Cleans up WebGL resources on unmount
+ * - Responds to window resize events
+ */
 export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
   const { theme } = useTheme();
 
