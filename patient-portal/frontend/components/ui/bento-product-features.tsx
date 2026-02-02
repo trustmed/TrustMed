@@ -31,12 +31,8 @@ const itemVariants = {
 };
 
 /**
- * BentoGridShowcase component for displaying product features in a bento box grid layout.
- * Renders an animated grid layout with customizable slots for different feature cards.
- * Uses Framer Motion for staggered entrance animations.
- * 
- * Props for the BentoGridShowcase component.
- * Each prop represents a "slot" in the grid.
+ * Props interface for the BentoGridShowcase component.
+ * Each prop represents a "slot" in the grid layout.
  */
 interface BentoGridShowcaseProps {
   /** Slot for the tall card (e.g., Integration) */
@@ -56,8 +52,19 @@ interface BentoGridShowcaseProps {
 }
 
 /**
- * A responsive, animated bento grid layout component.
- * It arranges six content slots in the specific layout
+ * BentoGridShowcase component for displaying product features in a bento box grid layout.
+ * Renders an animated grid layout with customizable slots for different feature cards.
+ * Uses Framer Motion for staggered entrance animations.
+ * 
+ * @param {BentoGridShowcaseProps} props - Component props
+ * @param {React.ReactNode} props.integration - Tall card slot (e.g., Integration)
+ * @param {React.ReactNode} props.trackers - Top-middle card slot (e.g., Trackers)
+ * @param {React.ReactNode} props.statistic - Top-right card slot (e.g., Statistic)
+ * @param {React.ReactNode} props.focus - Middle-middle card slot (e.g., Focus)
+ * @param {React.ReactNode} props.productivity - Middle-right card slot (e.g., Productivity)
+ * @param {React.ReactNode} props.shortcuts - Wide bottom card slot (e.g., Shortcuts)
+ * @param {string} props.className - Optional class names for the grid container
+ */
  * seen in the "Product Features" UI.
  */
 export const BentoGridShowcase = ({
