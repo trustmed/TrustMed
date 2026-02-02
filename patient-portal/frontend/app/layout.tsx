@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
-import { NavigationBar } from "@/components/landing/navbar";
+
 
 import { ThemeProvider } from "@/components/theme-provider";
 
@@ -37,7 +37,6 @@ export default function RootLayout({
         >
           {children}
           <Analytics />
-          <NavigationBar />
         </ThemeProvider>
       </body>
     </html>
