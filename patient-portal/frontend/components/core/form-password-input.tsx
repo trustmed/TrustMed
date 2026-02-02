@@ -15,6 +15,18 @@ interface FormPasswordInputProps<T extends FieldValues> extends Omit<React.Compo
   additionalClass?: string;
 }
 
+/**
+ * FormPasswordInput component for password input fields in forms.
+ * Renders a password input field with a toggle button to show/hide password visibility.
+ * Includes validation error display and integrates with react-hook-form.
+ * 
+ * @param {FormPasswordInputProps<T>} props - Component props
+ * @param {Path<T>} props.name - Field name for form registration
+ * @param {Control<T>} props.control - React Hook Form control object
+ * @param {string} props.label - Optional label text
+ * @param {string} props.errorMessage - Custom error message to display
+ * @param {string} props.additionalClass - Additional CSS classes for the container
+ */
 export const FormPasswordInput = <T extends FieldValues>({
   name,
   control,

@@ -14,6 +14,16 @@ const signInSchema = z.object({
 
 export type SignInFormValues = z.infer<typeof signInSchema>;
 
+/**
+ * SignIn component for user authentication.
+ * Renders a sign-in form with email, password, and remember me checkbox.
+ * Includes form validation using Zod schema, Google sign-in option, password reset,
+ * and navigation to sign-up page.
+ * 
+ * Side effects:
+ * - Logs form data to console on submission
+ * - Navigates to /signup when create account is clicked
+ */
 const SignIn = () => {
   const router = useRouter();
 

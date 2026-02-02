@@ -12,6 +12,18 @@ interface FormCheckboxProps<T extends FieldValues> {
   className?: string;
 }
 
+/**
+ * FormCheckbox component for checkbox input in forms.
+ * Renders a checkbox with label and optional description text.
+ * Integrates with react-hook-form for state management and validation.
+ * 
+ * @param {FormCheckboxProps<T>} props - Component props
+ * @param {Path<T>} props.name - Field name for form registration
+ * @param {Control<T>} props.control - React Hook Form control object
+ * @param {string} props.label - Label text for the checkbox
+ * @param {string} props.description - Optional helper text displayed below the label
+ * @param {string} props.className - Additional CSS classes
+ */
 export const FormCheckbox = <T extends FieldValues>({
   name,
   control,

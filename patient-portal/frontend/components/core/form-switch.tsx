@@ -12,6 +12,19 @@ interface FormSwitchProps<T extends FieldValues> {
   className?: string;
 }
 
+/**
+ * FormSwitch component for toggle switches in forms.
+ * Renders a labeled switch control with optional description in a bordered container.
+ * Integrates with react-hook-form for state management.
+ * 
+ * @param {FormSwitchProps<T>} props - Component props
+ * @param {Path<T>} props.name - Field name for form registration
+ * @param {Control<T>} props.control - React Hook Form control object
+ * @param {string} props.label - Label text for the switch
+ * @param {string} props.description - Optional helper text displayed below the label
+ * @param {boolean} props.disabled - Whether the switch is disabled
+ * @param {string} props.className - Additional CSS classes
+ */
 export const FormSwitch = <T extends FieldValues>({
   control,
   label,

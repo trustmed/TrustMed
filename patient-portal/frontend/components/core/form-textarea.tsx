@@ -13,6 +13,18 @@ interface FormTextareaProps<T extends FieldValues> extends Omit<React.ComponentP
   additionalClass?: string;
 }
 
+/**
+ * FormTextarea component for multi-line text input in forms.
+ * Renders a resizable textarea field with optional label and validation error display.
+ * Integrates with react-hook-form for state management and validation.
+ * 
+ * @param {FormTextareaProps<T>} props - Component props
+ * @param {Path<T>} props.name - Field name for form registration
+ * @param {Control<T>} props.control - React Hook Form control object
+ * @param {string} props.label - Optional label text
+ * @param {string} props.errorMessage - Custom error message to display
+ * @param {string} props.additionalClass - Additional CSS classes for the container
+ */
 export const FormTextarea = <T extends FieldValues>({
   name,
   control,

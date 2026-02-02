@@ -14,6 +14,19 @@ interface FormInputProps<T extends FieldValues> extends Omit<React.ComponentProp
   StartIcon?: React.ElementType;
 }
 
+/**
+ * FormInput component for text input fields in forms.
+ * Renders a customizable input field with optional label, icon, and validation error display.
+ * Integrates with react-hook-form for state management and validation.
+ * 
+ * @param {FormInputProps<T>} props - Component props
+ * @param {Path<T>} props.name - Field name for form registration
+ * @param {Control<T>} props.control - React Hook Form control object
+ * @param {string} props.label - Optional label text
+ * @param {string} props.errorMessage - Custom error message to display
+ * @param {string} props.additionalClass - Additional CSS classes for the container
+ * @param {React.ElementType} props.StartIcon - Optional icon component to display at the start of the input
+ */
 export const FormInput = <T extends FieldValues>({
   name,
   control,

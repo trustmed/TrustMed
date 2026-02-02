@@ -26,6 +26,22 @@ interface FormSelectProps<T extends FieldValues, V extends string> {
   disabled?: boolean;
 }
 
+/**
+ * FormSelect component for dropdown selection in forms.
+ * Renders a select dropdown with customizable options and validation.
+ * Integrates with react-hook-form for state management and validation.
+ * 
+ * @param {FormSelectProps<T, V>} props - Component props
+ * @param {Path<T>} props.name - Field name for form registration
+ * @param {Control<T>} props.control - React Hook Form control object
+ * @param {string} props.label - Optional label text
+ * @param {string} props.placeholder - Placeholder text when no option is selected
+ * @param {SelectOption<V>[]} props.options - Array of selectable options with id and label
+ * @param {boolean} props.required - Whether the field is required (shows asterisk)
+ * @param {string} props.description - Helper text displayed below the select
+ * @param {string} props.className - Additional CSS classes
+ * @param {boolean} props.disabled - Whether the select is disabled
+ */
 export const FormSelect = <T extends FieldValues, V extends string>({
   name,
   control,

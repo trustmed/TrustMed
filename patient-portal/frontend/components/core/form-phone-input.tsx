@@ -18,6 +18,21 @@ interface FormPhoneInputProps<T extends FieldValues> {
   description?: string;
 }
 
+/**
+ * FormPhoneInput component for phone number input in forms.
+ * Renders an international phone input field with country code selector using react-phone-input-2.
+ * Integrates with react-hook-form for validation and state management.
+ * 
+ * @param {FormPhoneInputProps<T>} props - Component props
+ * @param {Path<T>} props.name - Field name for form registration
+ * @param {Control<T>} props.control - React Hook Form control object
+ * @param {string} props.label - Optional label text
+ * @param {boolean} props.required - Whether the field is required (shows asterisk)
+ * @param {string} props.className - Additional CSS classes
+ * @param {boolean} props.disabled - Whether the field is disabled
+ * @param {string} props.placeholder - Placeholder text
+ * @param {string} props.description - Helper text displayed below the input
+ */
 export const FormPhoneInput = <T extends FieldValues>({
   name,
   control,

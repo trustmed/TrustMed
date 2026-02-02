@@ -18,6 +18,15 @@ const signUpSchema = z.object({
 
 export type SignUpFormValues = z.infer<typeof signUpSchema>;
 
+/**
+ * SignUp component for user registration.
+ * Renders a sign-up form with name, email, password, and confirm password fields.
+ * Includes form validation using Zod schema, Google sign-up option, and navigation to sign-in page.
+ * 
+ * Side effects:
+ * - Logs form data to console on submission
+ * - Navigates to /signin when sign-in link is clicked
+ */
 const SignUp = () => {
   const router = useRouter();
 

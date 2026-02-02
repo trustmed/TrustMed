@@ -22,6 +22,21 @@ interface FormRadioGroupProps {
   disabled?: boolean;
 }
 
+/**
+ * FormRadioGroup component for radio button groups in forms.
+ * Renders a group of radio buttons with optional label and validation.
+ * Integrates with react-hook-form for state management and validation.
+ * 
+ * @param {FormRadioGroupProps} props - Component props
+ * @param {Control<FieldValues>} props.control - React Hook Form control object
+ * @param {string} props.name - Field name for form registration
+ * @param {string} props.label - Optional label text
+ * @param {Option[]} props.options - Array of radio options with label and value
+ * @param {string} props.defaultValue - Default selected value
+ * @param {string} props.className - Additional CSS classes
+ * @param {boolean} props.required - Whether the field is required (shows asterisk)
+ * @param {boolean} props.disabled - Whether the radio group is disabled
+ */
 export const FormRadioGroup: React.FC<FormRadioGroupProps> = ({
   control,
   name,
