@@ -18,6 +18,16 @@ interface NavBarProps {
   className?: string;
 }
 
+/**
+ * NavBar component for the main navigation menu.
+ * Renders a glassmorphic navigation bar with animated tab indicators and theme toggle.
+ * Displays navigation items with icons and highlights the active tab.
+ * Positioned at the bottom on mobile and top on desktop.
+ * 
+ * @param {NavBarProps} props - Component props
+ * @param {NavItem[]} props.items - Array of navigation items with name, url, and icon
+ * @param {string} props.className - Additional CSS classes
+ */
 export function NavBar({ items, className }: NavBarProps) {
   const [activeTab, setActiveTab] = useState(items[0].name);
   const { theme, setTheme } = useTheme();

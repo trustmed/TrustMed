@@ -8,6 +8,10 @@ import { SignUpFormValues } from "@/components/portal/signup";
 import { Form } from "./form";
 // --- HELPER COMPONENTS (ICONS) ---
 
+/**
+ * GoogleIcon component for Google sign-up button.
+ * Renders the Google logo SVG icon.
+ */
 const GoogleIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 48 48">
         <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s12-5.373 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-2.641-.21-5.236-.611-7.743z" />
@@ -41,6 +45,13 @@ interface SignUpPageProps {
 // --- SUB-COMPONENTS ---
 // GlassInputWrapper removed in favor of standard components
 
+/**
+ * TestimonialCard component for displaying user testimonials.
+ * Renders a testimonial card with avatar, name, handle, and text in an animated glassmorphic card.
+ * 
+ * @param {Testimonial} testimonial - Testimonial data
+ * @param {string} delay - Animation delay class
+ */
 const TestimonialCard = ({ testimonial, delay }: { testimonial: Testimonial, delay: string }) => (
   <div className={`animate-testimonial ${delay} flex items-start gap-3 rounded-3xl bg-card/40 dark:bg-zinc-800/40 backdrop-blur-xl border border-white/10 p-5 w-64`}>
     <img src={testimonial.avatarSrc} className="h-10 w-10 object-cover rounded-2xl" alt="avatar" />
@@ -54,6 +65,21 @@ const TestimonialCard = ({ testimonial, delay }: { testimonial: Testimonial, del
 
 // --- MAIN COMPONENT ---
 
+/**
+ * SignUpPage component for user registration UI.
+ * Renders a split-screen sign-up page with form on the left and hero image with testimonials on the right.
+ * Includes name, email, password, and confirm password fields, Google sign-up option, and link to sign-in page.
+ * 
+ * @param {SignUpPageProps} props - Component props
+ * @param {React.ReactNode} props.title - Page title (default: "Create Account")
+ * @param {React.ReactNode} props.description - Page description
+ * @param {string} props.heroImageSrc - URL of the hero image
+ * @param {Testimonial[]} props.testimonials - Array of testimonials to display
+ * @param {UseFormReturn<SignUpFormValues>} props.form - React Hook Form instance
+ * @param {function} props.onSignUp - Callback when sign-up form is submitted
+ * @param {function} props.onGoogleSignUp - Callback when Google sign-up is clicked
+ * @param {function} props.onSignInClick - Callback when sign-in link is clicked
+ */
 export const SignUpPage: React.FC<SignUpPageProps> = ({
   title = <span className="font-light text-foreground tracking-tighter">Create Account</span>,
   description = "Join us and start your journey today",

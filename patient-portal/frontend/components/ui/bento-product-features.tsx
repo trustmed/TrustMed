@@ -31,6 +31,10 @@ const itemVariants = {
 };
 
 /**
+ * BentoGridShowcase component for displaying product features in a bento box grid layout.
+ * Renders an animated grid layout with customizable slots for different feature cards.
+ * Uses Framer Motion for staggered entrance animations.
+ * 
  * Props for the BentoGridShowcase component.
  * Each prop represents a "slot" in the grid.
  */

@@ -10,6 +10,10 @@ import { Form } from "./form"; // Shadcn Form Wrapper
 
 // --- HELPER COMPONENTS (ICONS) ---
 
+/**
+ * GoogleIcon component for Google sign-in button.
+ * Renders the Google logo SVG icon.
+ */
 const GoogleIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 48 48">
         <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s12-5.373 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-2.641-.21-5.236-.611-7.743z" />
@@ -44,6 +48,13 @@ interface SignInPageProps {
 // --- SUB-COMPONENTS ---
 // GlassInputWrapper removed in favor of standard components
 
+/**
+ * TestimonialCard component for displaying user testimonials.
+ * Renders a testimonial card with avatar, name, handle, and text in an animated glassmorphic card.
+ * 
+ * @param {Testimonial} testimonial - Testimonial data
+ * @param {string} delay - Animation delay class
+ */
 const TestimonialCard = ({ testimonial, delay }: { testimonial: Testimonial, delay: string }) => (
   <div className={`animate-testimonial ${delay} flex items-start gap-3 rounded-3xl bg-card/40 dark:bg-zinc-800/40 backdrop-blur-xl border border-white/10 p-5 w-64`}>
     <img src={testimonial.avatarSrc} className="h-10 w-10 object-cover rounded-2xl" alt="avatar" />
@@ -57,6 +68,22 @@ const TestimonialCard = ({ testimonial, delay }: { testimonial: Testimonial, del
 
 // --- MAIN COMPONENT ---
 
+/**
+ * SignInPage component for user authentication UI.
+ * Renders a split-screen sign-in page with form on the left and hero image with testimonials on the right.
+ * Includes email/password fields, remember me checkbox, Google sign-in option, and links for password reset and account creation.
+ * 
+ * @param {SignInPageProps} props - Component props
+ * @param {React.ReactNode} props.title - Page title (default: "Welcome")
+ * @param {React.ReactNode} props.description - Page description
+ * @param {string} props.heroImageSrc - URL of the hero image
+ * @param {Testimonial[]} props.testimonials - Array of testimonials to display
+ * @param {UseFormReturn<SignInFormValues>} props.form - React Hook Form instance
+ * @param {function} props.onSignIn - Callback when sign-in form is submitted
+ * @param {function} props.onGoogleSignIn - Callback when Google sign-in is clicked
+ * @param {function} props.onResetPassword - Callback when reset password is clicked
+ * @param {function} props.onCreateAccount - Callback when create account is clicked
+ */
 export const SignInPage: React.FC<SignInPageProps> = ({
   title = <span className="font-light text-foreground tracking-tighter">Welcome</span>,
   description = "Access your account and continue your journey with us",
