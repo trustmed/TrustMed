@@ -2,13 +2,13 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import * as dotenv from 'dotenv';
-import { GlobalPatient } from 'src/entities/global-patient.entity';
-import { Institution } from 'src/entities/institution.entity';
-import { AuditLog } from 'src/entities/audit-log.entity';
-import { NotificationQueue } from 'src/entities/notification-queue.entity';
-import { GuardianLink } from 'src/entities/guardian-link.entity';
-import { RecordRegistry } from 'src/entities/record-registry.entity';
-import { AccessRequest } from 'src/entities/access-request.entity';
+import { GlobalPatient } from '../entities/global-patient.entity';
+import { Institution } from '../entities/institution.entity';
+import { AuditLog } from '../entities/audit-log.entity';
+import { NotificationQueue } from '../entities/notification-queue.entity';
+import { GuardianLink } from '../entities/guardian-link.entity';
+import { RecordRegistry } from '../entities/record-registry.entity';
+import { AccessRequest } from '../entities/access-request.entity';
 
 dotenv.config();
 
