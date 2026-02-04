@@ -2,9 +2,14 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import * as dotenv from 'dotenv';
-import { CreatePatientTable1770053211293 } from 'src/entities/migrations/1770053211293-CreatePatientTable';
-import { NewColumnTest1770053537436 } from 'src/entities/migrations/1770053537436-newColumnTest';
-import { Patient } from 'src/entities/Patient.entity';
+import { GlobalPatient } from 'src/entities/global-patient.entity';
+import { Institution } from 'src/entities/institution.entity';
+import { AuditLog } from 'src/entities/audit-log.entity';
+import { NotificationQueue } from 'src/entities/notification-queue.entity';
+import { GuardianLink } from 'src/entities/guardian-link.entity';
+import { RecordRegistry } from 'src/entities/record-registry.entity';
+import { AccessRequest } from 'src/entities/access-request.entity';
+
 dotenv.config();
 
 // Base configuration for TypeORM (used by both NestJS and CLI)
@@ -15,8 +20,16 @@ const baseConfig = {
   username: process.env.DB_USERNAME || 'root',
   password: process.env.DB_PASSWORD || 'password',
   database: process.env.DB_NAME || 'trustmed',
-  entities: [Patient],
-  migrations: [CreatePatientTable1770053211293, NewColumnTest1770053537436],
+  entities: [
+    GlobalPatient,
+    Institution,
+    AuditLog,
+    NotificationQueue,
+    GuardianLink,
+    RecordRegistry,
+    AccessRequest,
+  ],
+  migrations: [],
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
 };
