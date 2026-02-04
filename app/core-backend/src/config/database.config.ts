@@ -2,9 +2,9 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import * as dotenv from 'dotenv';
-import { Patient } from 'src/entities/patient.entity';
 import { CreatePatientTable1770053211293 } from 'src/entities/migrations/1770053211293-CreatePatientTable';
 import { NewColumnTest1770053537436 } from 'src/entities/migrations/1770053537436-newColumnTest';
+import { Patient } from 'src/entities/Patient.entity';
 dotenv.config();
 
 // Base configuration for TypeORM (used by both NestJS and CLI)
