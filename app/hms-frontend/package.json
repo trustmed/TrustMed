@@ -1,5 +1,5 @@
 {
-  "name": "hospital-fe",
+  "name": "@trustmed/hms-frontend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
