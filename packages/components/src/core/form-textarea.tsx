@@ -1,7 +1,7 @@
 "use client";
 
-import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
+import { Textarea } from "../components/ui/textarea";
+import { cn } from "../lib/utils";
 import React from "react";
 import { Control, Controller, FieldValues, Path } from "react-hook-form";
 

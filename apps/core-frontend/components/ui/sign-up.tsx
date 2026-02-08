@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { FormInput } from "@/components/core/form-input";
-import { FormPasswordInput } from "@/components/core/form-password-input";
+// Local imports removed
+import { FormInput, FormPasswordInput } from "@trustmed/components";
 import { SignUpFormValues } from "@/components/portal/signup";
 import { Form } from "./form";
 // --- HELPER COMPONENTS (ICONS) ---

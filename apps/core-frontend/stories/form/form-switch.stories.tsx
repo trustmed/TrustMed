@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { FormSwitch } from "../../components/core/form-switch";
+import { FormSwitch } from "@trustmed/components";
 
 const meta: Meta<typeof FormSwitch> = {
   title: "Form/FormSwitch",
