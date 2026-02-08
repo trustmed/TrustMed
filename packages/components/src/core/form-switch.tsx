@@ -1,6 +1,6 @@
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { cn } from "@/lib/utils";
+import { Label } from "../components/ui/label";
+import { Switch } from "../components/ui/switch";
+import { cn } from "../lib/utils";
 import { Control, Controller, FieldValues, Path } from "react-hook-form";
 
 interface FormSwitchProps<T extends FieldValues> {

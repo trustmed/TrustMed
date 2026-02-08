@@ -1,8 +1,7 @@
-import React from "react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
+import { Checkbox } from "../components/ui/checkbox";
+import { Label } from "../components/ui/label";
 import { Control, Controller, FieldValues, Path } from "react-hook-form";
-import { cn } from "@/lib/utils";
+import { cn } from "../lib/utils";
 
 interface FormCheckboxProps<T extends FieldValues> {
   name: Path<T>;
