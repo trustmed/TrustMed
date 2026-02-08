@@ -2,7 +2,7 @@
 # 1. Check Patient Portal Frontend
 # ---------------------------------------------------
 echo "🏥 Checking Patient Portal FE..."
-cd patient-portal/frontend
+cd apps/hms-frontend
 pnpm lint
 if [ $? -ne 0 ]; then
    echo "❌ Patient Portal Lint Failed!"
@@ -14,7 +14,7 @@ cd ../..
 # 2. Check Hospital Portal Frontend
 # ---------------------------------------------------
 echo "🏨 Checking Hospital Portal FE..."
-cd hospital-portal/frontend
+cd apps/core-frontend
 pnpm lint
 if [ $? -ne 0 ]; then
    echo "❌ Hospital Portal Lint Failed!"
