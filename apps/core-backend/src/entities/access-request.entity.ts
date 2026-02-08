@@ -22,7 +22,7 @@ export class AccessRequest extends BaseEntity {
     patientDid: string;
 
     @ManyToOne(() => GlobalPatient)
-    @JoinColumn({ name: 'patient_did' })
+    @JoinColumn({ name: 'patient_did', referencedColumnName: 'did' })
     patient: GlobalPatient;
 
     @Column({ name: 'record_registry_id', nullable: true })

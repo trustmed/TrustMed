@@ -9,7 +9,7 @@ export class RecordRegistry extends BaseEntity {
     patientDid: string;
 
     @ManyToOne(() => GlobalPatient)
-    @JoinColumn({ name: 'patient_did' })
+    @JoinColumn({ name: 'patient_did', referencedColumnName: 'did' })
     patient: GlobalPatient;
 
     @Column({ name: 'institution_id', nullable: true })

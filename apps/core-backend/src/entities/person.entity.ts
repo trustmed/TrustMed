@@ -1,7 +1,7 @@
 import { Entity, Column } from 'typeorm';
 import { BaseEntity } from './base.entity';
 
-@Entity('patients')
+@Entity('persons')
 export class Person extends BaseEntity {
     @Column({ length: 100 })
     name: string;
@@ -30,7 +30,10 @@ export class Person extends BaseEntity {
     @Column({ length: 100 })
     dob: string;
 
-    @Column({ type: 'timestamp' })
+    @Column({ length: 100, nullable: true }) 
+    password_hash: string;
+
+    @Column({ type: 'timestamp', nullable: true }) 
     lastLogin: Date;
 
 }

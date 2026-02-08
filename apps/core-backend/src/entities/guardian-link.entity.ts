@@ -12,14 +12,14 @@ export class GuardianLink {
     minorDid: string;
 
     @ManyToOne(() => GlobalPatient)
-    @JoinColumn({ name: 'minor_did' })
+    @JoinColumn({ name: 'minor_did', referencedColumnName: 'did' })
     minor: GlobalPatient;
 
     @Column({ name: 'guardian_did' })   
     guardianDid: string;
 
     @ManyToOne(() => GlobalPatient)
-    @JoinColumn({ name: 'guardian_did' })
+    @JoinColumn({ name: 'guardian_did', referencedColumnName: 'did' })
     guardian: GlobalPatient;
 
     @Column({
