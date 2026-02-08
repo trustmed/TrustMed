@@ -16,7 +16,7 @@ export class NotificationQueue {
     targetDid: string;
 
     @ManyToOne(() => GlobalPatient)
-    @JoinColumn({ name: 'target_did' })
+    @JoinColumn({ name: 'target_did', referencedColumnName: 'did' }) 
     target: GlobalPatient;
 
     @Column()

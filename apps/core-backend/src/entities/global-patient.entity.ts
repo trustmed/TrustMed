@@ -1,9 +1,16 @@
 import { Entity, Column, PrimaryColumn, CreateDateColumn } from 'typeorm';
+import { OneToOne, JoinColumn } from 'typeorm';
 import { Person } from './person.entity';
+import { BaseEntity } from './base.entity';
 
 @Entity('global_patients')
-export class GlobalPatient extends Person {
-    @PrimaryColumn()
+export class GlobalPatient extends BaseEntity {
+
+    @OneToOne(() => Person, { cascade: true, onDelete: 'CASCADE' })
+    @JoinColumn({ name: 'person_id' }) 
+    person: Person;
+    
+    @Column({ unique: true }) 
     did: string;
 
     @Column({ name: 'primary_doc_type', type: 'varchar', nullable: true })

@@ -6,6 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
+    "dev": "nest start --watch",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
@@ -18,7 +19,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-"typeorm": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\",\"experimentalDecorators\":true,\"emitDecoratorMetadata\":true,\"strictPropertyInitialization\":false}' ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli",    "migration:generate": "npm run typeorm -- migration:generate -d src/config/database.config.ts",
+    "typeorm": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\",\"experimentalDecorators\":true,\"emitDecoratorMetadata\":true,\"strictPropertyInitialization\":false}' ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli",
+    "migration:generate": "npm run typeorm -- migration:generate -d src/config/database.config.ts",
     "migration:create": "npm run typeorm -- migration:create",
     "migration:run": "npm run typeorm -- migration:run -d src/config/database.config.ts",
     "migration:revert": "npm run typeorm -- migration:revert -d src/config/database.config.ts",
@@ -32,14 +34,13 @@
     "@nestjs/swagger": "^11.2.5",
     "@nestjs/terminus": "^11.0.0",
     "@nestjs/typeorm": "^11.0.0",
+    "@trustmed/types": "workspace:*",
     "dotenv": "^17.2.3",
-    "mysql2": "^3.16.2",
     "pg": "^8.18.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "swagger-ui-express": "^5.0.1",
-    "typeorm": "^0.3.28",
-    "@trustmed/types": "workspace:*"
+    "typeorm": "^0.3.28"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
