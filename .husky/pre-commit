@@ -1,25 +1,38 @@
 # ---------------------------------------------------
-# 1. Check Patient Portal Frontend
+# 1. Check hms Frontend
 # ---------------------------------------------------
-echo "🏥 Checking Patient Portal FE..."
+echo "🏥 Checking hms FE..."
 cd apps/hms-frontend
 pnpm lint
 if [ $? -ne 0 ]; then
-   echo "❌ Patient Portal Lint Failed!"
+   echo "❌ hms-frontend Lint Failed!"
    exit 1
 fi
 cd ../.. 
 
 # ---------------------------------------------------
-# 2. Check Hospital Portal Frontend
+# 2. Check Core Frontend
 # ---------------------------------------------------
-echo "🏨 Checking Hospital Portal FE..."
+echo "🏨 Checking Core FE..."
 cd apps/core-frontend
 pnpm lint
 if [ $? -ne 0 ]; then
-   echo "❌ Hospital Portal Lint Failed!"
+   echo "❌ Core-frontend Lint Failed!"
    exit 1
 fi
 cd ../..
+
+# ---------------------------------------------------
+# 3. Check CoreBackend
+# ---------------------------------------------------
+echo "🏥 Checking CoreBackend..."
+cd apps/core-backend
+pnpm lint
+if [ $? -ne 0 ]; then
+   echo "❌ CoreBackend Lint Failed!"
+   exit 1
+fi
+cd ../..
+
 
 echo "✅ All checks passed!"

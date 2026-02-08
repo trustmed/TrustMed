@@ -9,18 +9,21 @@ import { NotificationQueue } from '../entities/notification-queue.entity';
 import { GuardianLink } from '../entities/guardian-link.entity';
 import { RecordRegistry } from '../entities/record-registry.entity';
 import { AccessRequest } from '../entities/access-request.entity';
+import { Person } from '../entities/person.entity';
+import { InitialSchema1770563243972 } from '../entities/migrations/1770563243972-InitialSchema';
 
 dotenv.config();
 
-// Base configuration for TypeORM (used by both NestJS and CLI)
-const baseConfig = {
-  type: (process.env.DB_TYPE || 'mysql'),
+// Base configuration
+const baseConfig: DataSourceOptions = {
+  type: 'postgres',
   host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT || '3306', 10),
-  username: process.env.DB_USERNAME || 'root',
+  port: parseInt(process.env.DB_PORT || '5432', 10),
+  username: process.env.DB_USERNAME || 'postgres',
   password: process.env.DB_PASSWORD || 'password',
   database: process.env.DB_NAME || 'trustmed',
   entities: [
+    Person,
     GlobalPatient,
     Institution,
     AuditLog,
@@ -29,28 +32,38 @@ const baseConfig = {
     RecordRegistry,
     AccessRequest,
   ],
-  migrations: [],
+  migrations: [InitialSchema1770563243972],
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
+
+  // 👇 CHANGE: Explicitly disable SSL by default unless DB_SSL=true is set
+  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
 };
 
 export const getDatabaseConfig = (
   configService: ConfigService,
-): TypeOrmModuleOptions => ({
-  type: configService.get<string>('DB_TYPE', 'mysql') as any,
-  host: configService.get<string>('DB_HOST', 'localhost'),
-  port: configService.get<number>('DB_PORT', 3306),
-  username: configService.get<string>('DB_USERNAME', 'root'),
-  password: configService.get<string>('DB_PASSWORD', 'password'),
-  database: configService.get<string>('DB_NAME', 'trustmed'),
-  entities: [__dirname + '/../entities/*.entity{.ts,.js}'],
-  migrations: [__dirname + '/../entities/migrations/*{.ts,.js}'],
-  migrationsRun: configService.get<string>('RUN_MIGRATIONS') === 'true',
-  synchronize: configService.get<string>('NODE_ENV') !== 'production',
-  logging: configService.get<string>('NODE_ENV') === 'development',
-  autoLoadEntities: true,
-});
+): TypeOrmModuleOptions => {
+  // Check if we explicitly want SSL via env var
+  const enableSsl = configService.get<string>('DB_SSL') === 'true';
 
-// For TypeORM CLI (migrations)
-const dataSource = new DataSource(baseConfig as DataSourceOptions);
+  return {
+    type: 'postgres',
+    host: configService.get<string>('DB_HOST', 'localhost'),
+    port: configService.get<number>('DB_PORT', 5432),
+    username: configService.get<string>('DB_USERNAME', 'postgres'),
+    password: configService.get<string>('DB_PASSWORD', 'password'),
+    database: configService.get<string>('DB_NAME', 'trustmed'),
+    entities: [__dirname + '/../entities/*.entity{.ts,.js}'],
+    migrations: [__dirname + '/../entities/migrations/*{.ts,.js}'],
+    migrationsRun: configService.get<string>('RUN_MIGRATIONS') === 'true',
+    synchronize: configService.get<string>('NODE_ENV') !== 'production',
+    logging: configService.get<string>('NODE_ENV') === 'development',
+    autoLoadEntities: true,
+
+    // 👇 CHANGE: Same here, disable SSL unless forced
+    ssl: enableSsl ? { rejectUnauthorized: false } : false,
+  };
+};
+
+const dataSource = new DataSource(baseConfig);
 export default dataSource;
