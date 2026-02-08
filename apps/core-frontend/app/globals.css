@@ -14,8 +14,9 @@
   /* Luxury Blue - Deep Royal/Midnight Blue */
   --primary: #003366;
   --primary-foreground: oklch(0.98 0 0);
-  --secondary: oklch(0.67 0.12 265);
-  --secondary-foreground: oklch(0.12 0 0);
+  /* Secondary - Dark Navy */
+  --secondary: #1e293b;
+  --secondary-foreground: #ffffff;
   --muted: oklch(0.94 0.02 0);
   --muted-foreground: oklch(0.48 0.02 0);
   --accent: oklch(0.58 0.15 265);
@@ -51,8 +52,9 @@
   /* Luxury Blue - Richer, slightly lighter for dark mode */
   --primary: oklch(0.55 0.13 265);
   --primary-foreground: oklch(0.12 0 0);
-  --secondary: oklch(0.5 0.14 265);
-  --secondary-foreground: oklch(0.95 0 0);
+  /* Secondary - Slightly Lighter Navy for Dark Mode */
+  --secondary: #334155;
+  --secondary-foreground: #ffffff;
   --muted: oklch(0.28 0.02 0);
   --muted-foreground: oklch(0.7 0.02 0);
   --accent: oklch(0.62 0.14 265);
