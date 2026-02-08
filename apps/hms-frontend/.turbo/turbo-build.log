@@ -1,22 +1,0 @@
-
-
-> @trustmed/hms-frontend@0.1.0 build /home/sithmal/Desktop/SDGP/TrustMed/apps/hms-frontend
-> next build
-
-[1m[38;2;173;127;168m▲ Next.js 16.1.6[39m[22m (Turbopack)
-
-[37m[1m [22m[39m Creating an optimized production build ...
-[32m[1m✓[22m[39m Compiled successfully in 7.1s
-[37m[1m [22m[39m Skipping validation of types
-[?25l[37m[1m [22m[39m Collecting page data using 7 workers  [36m.[39m[2K[1G[37m[1m [22m[39m Collecting page data using 7 workers  [36m..[39m[2K[1G[37m[1m [22m[39m Collecting page data using 7 workers  [36m...[39m[2K[1G[37m[1m [22m[39m Collecting page data using 7 workers  [36m.[39m[2K[1G[37m[1m [22m[39m Collecting page data using 7 workers  [36m..[39m[2K[1G[?25h[37m[1m [22m[39m Collecting page data using 7 workers in 847.9ms    [32m[1m✓[22m[39m Collecting page data using 7 workers in 847.9ms 
-[?25l[37m[1m [22m[39m Generating static pages using 7 workers (0/4)  [36m[    ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 7 workers (0/4)  [36m[=   ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 7 workers (0/4)  [36m[==  ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 7 workers (0/4)  [36m[=== ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 7 workers (0/4)  [36m[ ===][39m[2K[1G[?25h[32m[1m✓[22m[39m Generating static pages using 7 workers (4/4) in 886.7ms
-[?25l[37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G[?25h[37m[1m [22m[39m Finalizing page optimization in 17.3ms    [32m[1m✓[22m[39m Finalizing page optimization in 17.3ms 
-
-[4mRoute (app)[24m
-┌ ○ /
-└ ○ /_not-found
-
-
-○  (Static)  prerendered as static content
-
-[?25h
