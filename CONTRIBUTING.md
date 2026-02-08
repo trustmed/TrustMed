@@ -65,6 +65,37 @@ Before pushing, ensure your code meets our quality gates.
 3.  **Description:** Clearly explain *what* changed and *why*.
 4.  **Review:** Request a code review from a maintainer.
 
+## 🏗️ 5. Project Setup (Monorepo)
+
+This project is a **Monorepo** managed by `pnpm`. It allows us to share code (like DTOs and interfaces) between the frontend and backend without duplication.
+
+### 📦 Installation
+
+We use a single installation command for the entire project. This links all local packages (e.g., `@trustmed/types`) to the applications automatically.
+
+```bash
+# 1. Install all dependencies for all apps and packages
+pnpm install
+```
+
+### 📦 Environment Configuration
+
+* **Path:** `apps/core-backend/.env`
+* **Command:**
+    ```bash
+    cp apps/core-backend/.env.example apps/core-backend/.env
+    ```
+* **Key Variables to Check:**
+    * `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`: Ensure these match your local PostgreSQL credentials.
+    * `PORT`: Default is `4000`.
+
+### 📦 Development
+
+```bash
+# 2. Start all apps and packages
+pnpm dev
+```
+
 ---
 
 ## ⚖️ License Agreement
