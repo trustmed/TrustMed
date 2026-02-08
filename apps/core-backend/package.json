@@ -1,5 +1,5 @@
 {
-  "name": "backend",
+  "name": "@trustmed/core-backend",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -18,8 +18,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli",
-    "migration:generate": "npm run typeorm -- migration:generate -d src/config/database.config.ts",
+"typeorm": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\",\"experimentalDecorators\":true,\"emitDecoratorMetadata\":true,\"strictPropertyInitialization\":false}' ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli",    "migration:generate": "npm run typeorm -- migration:generate -d src/config/database.config.ts",
     "migration:create": "npm run typeorm -- migration:create",
     "migration:run": "npm run typeorm -- migration:run -d src/config/database.config.ts",
     "migration:revert": "npm run typeorm -- migration:revert -d src/config/database.config.ts",
@@ -39,7 +38,8 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "swagger-ui-express": "^5.0.1",
-    "typeorm": "^0.3.28"
+    "typeorm": "^0.3.28",
+    "@trustmed/types": "workspace:*"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
