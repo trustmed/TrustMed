@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { FormTextarea } from "../../components/core/form-textarea";
+import { FormTextarea } from "@trustmed/components";
 
 const meta: Meta<typeof FormTextarea> = {
   title: "Form/FormTextarea",

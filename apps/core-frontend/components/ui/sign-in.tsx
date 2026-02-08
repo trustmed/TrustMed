@@ -2,9 +2,8 @@
 
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { FormInput } from "@/components/core/form-input";
-import { FormPasswordInput } from "@/components/core/form-password-input";
-import { FormCheckbox } from "@/components/core/form-checkbox";
+// Local imports removed
+import { FormInput, FormPasswordInput, FormCheckbox } from "@trustmed/components";
 import { SignInFormValues } from "@/components/portal/signin";
 import { Form } from "./form"; // Shadcn Form Wrapper
 
