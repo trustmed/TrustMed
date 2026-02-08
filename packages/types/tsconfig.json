@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    "target": "ES2023",
+    "declaration": true,        // Generates .d.ts files (Crucial for VS Code hints)
+    "outDir": "./dist",         // Output folder
+    "strict": true,
+    "experimentalDecorators": true, // REQUIRED for class-validator
+    "emitDecoratorMetadata": true,  // REQUIRED for NestJS to read types
+    "esModuleInterop": true
+  },
+  "include": ["src/**/*"]
+}
