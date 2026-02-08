@@ -4,8 +4,8 @@ import React from "react";
 import { Control, Controller, FieldValues, Path } from "react-hook-form";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { Label } from "../components/ui/label";
+import { cn } from "../lib/utils";
 
 interface FormPhoneInputProps<T extends FieldValues> {
   name: Path<T>;

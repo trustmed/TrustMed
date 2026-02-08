@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { FormCheckbox } from "../../components/core/form-checkbox";
+import { FormCheckbox } from "@trustmed/components";
 
 const meta: Meta<typeof FormCheckbox> = {
   title: "Form/FormCheckbox",

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { FormPhoneInput } from "../../components/core/form-phone-input";
+import { FormPhoneInput } from "@trustmed/components";
 
 const meta: Meta<typeof FormPhoneInput> = {
   title: "Form/FormPhoneInput",

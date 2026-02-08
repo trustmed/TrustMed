@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { FormPasswordInput } from "../../components/core/form-password-input";
+import { FormPasswordInput } from "@trustmed/components";
 
 const meta: Meta<typeof FormPasswordInput> = {
   title: "Form/FormPasswordInput",

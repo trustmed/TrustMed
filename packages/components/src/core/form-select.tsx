@@ -4,10 +4,10 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
+} from "../components/ui/select";
+import { Label } from "../components/ui/label";
 import { Control, Controller, FieldValues, Path } from "react-hook-form";
-import { cn } from "@/lib/utils";
+import { cn } from "../lib/utils";
 
 interface SelectOption<T extends string> {
   id: T;

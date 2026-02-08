@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { FormSelect } from "../../components/core/form-select";
+import { FormSelect } from "@trustmed/components";
 
 const meta: Meta<typeof FormSelect> = {
   title: "Form/FormSelect",

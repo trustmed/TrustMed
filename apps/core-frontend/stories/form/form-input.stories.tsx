@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { FormInput } from "../../components/core/form-input";
+import { FormInput } from "@trustmed/components";
 import { Mail } from "lucide-react";
 
 const meta: Meta<typeof FormInput> = {

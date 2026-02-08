@@ -1,41 +1,37 @@
 "use client";
 
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
-import React, { useState } from "react";
+import { Input } from "../components/ui/input";
+import { cn } from "../lib/utils";
 import { Control, useController, FieldValues, Path } from "react-hook-form";
-import { Eye, EyeOff } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
-interface FormPasswordInputProps<T extends FieldValues> extends Omit<React.ComponentProps<"input">, "name"> {
+interface FormInputProps<T extends FieldValues> extends Omit<React.ComponentProps<"input">, "name"> {
   name: Path<T>;
   control: Control<T>;
   label?: string;
   errorMessage?: string;
   additionalClass?: string;
+  StartIcon?: React.ElementType;
 }
 
-export const FormPasswordInput = <T extends FieldValues>({
+export const FormInput = <T extends FieldValues>({
   name,
   control,
   label,
   placeholder,
+  type = "text",
   required = false,
   errorMessage,
   additionalClass,
+  disabled,
   className,
+  StartIcon,
   ...props
-}: FormPasswordInputProps<T>) => {
-  const [showPassword, setShowPassword] = useState(false);
+}: FormInputProps<T>) => {
   const { field, fieldState: { error } } = useController({
     name,
     control,
     rules: { required: required && "Required" },
   });
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
 
   return (
     <div className={cn("flex flex-col gap-2", additionalClass)}>
@@ -48,12 +44,22 @@ export const FormPasswordInput = <T extends FieldValues>({
         </label>
       )}
       <div className="relative">
+        {StartIcon && (
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+            <StartIcon className="h-4 w-4" />
+          </div>
+        )}
         <Input
           {...field}
           id={name}
-          type={showPassword ? "text" : "password"}
+          type={type}
+          disabled={disabled}
           placeholder={placeholder}
-          className={cn("pr-10", className)}
+          className={cn(
+            "w-full",
+            StartIcon && "pl-9",
+            className
+          )}
           aria-invalid={!!error || !!errorMessage}
           onChange={(e) => {
             field.onChange(e);
@@ -61,23 +67,6 @@ export const FormPasswordInput = <T extends FieldValues>({
           }}
           {...props}
         />
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-          onClick={togglePasswordVisibility}
-          tabIndex={-1}
-        >
-          {showPassword ? (
-            <EyeOff className="h-4 w-4 text-gray-500" aria-hidden="true" />
-          ) : (
-            <Eye className="h-4 w-4 text-gray-500" aria-hidden="true" />
-          )}
-          <span className="sr-only">
-            {showPassword ? "Hide password" : "Show password"}
-          </span>
-        </Button>
       </div>
       {(error?.message || errorMessage) && (
         <p className="text-red-500 text-sm mt-1">{error?.message || errorMessage}</p>

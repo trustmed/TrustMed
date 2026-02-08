@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import React from "react";
 import { useForm, FieldValues } from "react-hook-form";
-import { FormRadioGroup } from "../../components/core/form-radio-group";
+import { FormRadioGroup } from "@trustmed/components";
 import { Button } from "../../components/ui/button";
 
 const meta: Meta<typeof FormRadioGroup> = {
