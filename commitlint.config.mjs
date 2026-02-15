@@ -7,10 +7,8 @@ export default {
           const { subject } = parsed;
           if (!subject) return [true];
 
-          // Get the first word of the subject
           const firstWord = subject.split(' ')[0].toLowerCase();
 
-          // Blacklist: Words that are NOT imperative
           const forbiddenWords = [
             'added', 'adding',
             'fixed', 'fixing',
@@ -40,10 +38,14 @@ export default {
     },
   ],
   rules: {
-    // Enable custom rule (2 = error, 'always' = enforce it)
+    // Keep your custom rule
     'imperative-tense': [2, 'always'],
     
-    // Standard rules needed to be checked
-    'subject-case': [2, 'always', 'lower-case'], // strict lowercase
+    // Allow sentence-case ("Add feature"), lower-case ("add feature"), and upper-case ("ADD FEATURE")
+    'subject-case': [
+      2, 
+      'always', 
+      ['sentence-case', 'start-case', 'pascal-case', 'upper-case', 'lower-case']
+    ],
   },
 };
