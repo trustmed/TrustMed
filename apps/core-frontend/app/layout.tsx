@@ -1,8 +1,10 @@
 import type React from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Toaster } from "sonner";
 import "./globals.css";
 
 
@@ -30,16 +32,23 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-          <Analytics />
-          <SpeedInsights/>
-        </ThemeProvider>
+        <ClerkProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+            <Toaster
+              richColors
+              position="top-right"
+              toastOptions={{ className: "text-sm sm:text-base" }}
+            />
+            <Analytics />
+            <SpeedInsights />
+          </ThemeProvider>
+        </ClerkProvider>
       </body>
     </html>
   );
