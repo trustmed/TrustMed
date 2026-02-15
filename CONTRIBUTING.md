@@ -42,6 +42,7 @@ We strictly follow the **[Conventional Commits](https://www.conventionalcommits.
 > ❌ `added login` (Missing type)
 
 ---
+**Casing:** Start with a capital letter or lowercase (both are allowed).
 
 ## 🎨 3. Code Quality & Linting
 
