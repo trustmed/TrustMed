@@ -1,10 +1,12 @@
 "use client";
 
 import { SignInPage } from "@/components/ui/sign-in";
+import { useSignIn } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { toast } from "sonner";
 
 const signInSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -16,6 +18,7 @@ export type SignInFormValues = z.infer<typeof signInSchema>;
 
 const SignIn = () => {
   const router = useRouter();
+  const { isLoaded, setActive, signIn } = useSignIn();
 
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),
@@ -26,18 +29,52 @@ const SignIn = () => {
     },
   });
 
-  const onSubmit = (data: SignInFormValues) => {
-    console.log("Sign In submitted:", data);
-    alert(`Sign In Submitted! Check the browser console for form data.`);
+  const getClerkErrorMessage = (error: unknown) => {
+    if (error && typeof error === "object" && "errors" in error) {
+      const typedError = error as { errors?: Array<{ message?: string }> };
+      return typedError.errors?.[0]?.message ?? "Unable to sign in.";
+    }
+
+    return "Unable to sign in.";
   };
 
-  const handleGoogleSignIn = () => {
-    console.log("Continue with Google clicked");
-    alert("Continue with Google clicked");
+  const onSubmit = async (data: SignInFormValues) => {
+    if (!isLoaded) {
+      return;
+    }
+
+    try {
+      const result = await signIn.create({
+        identifier: data.email,
+        password: data.password,
+      });
+
+      if (result.status === "complete") {
+        await setActive({ session: result.createdSessionId });
+        router.push("/portal");
+        return;
+      }
+
+      toast.info("Additional verification is required. Please complete sign-in in Clerk.");
+    } catch (error) {
+      toast.error(getClerkErrorMessage(error));
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    if (!isLoaded) {
+      return;
+    }
+
+    await signIn.authenticateWithRedirect({
+      strategy: "oauth_google",
+      redirectUrl: "/signin",
+      redirectUrlComplete: "/portal",
+    });
   };
   
   const handleResetPassword = () => {
-    alert("Reset Password clicked");
+    toast.info("Reset password flow is not configured yet.");
   }
 
   const handleCreateAccount = () => {
