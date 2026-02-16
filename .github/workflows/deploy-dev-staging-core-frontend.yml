@@ -47,6 +47,7 @@ jobs:
           key: ${{ secrets.FRONTEND_STAGING_DEV_SSH_SECRET }}
           debug: true
           source: apps/core-frontend/package.json,apps/core-frontend/public,apps/core-frontend/.next
+          strip_components: 2
           target: /home/ubuntu/frontend
 
       # Step 7: Restart frontend using PM2
