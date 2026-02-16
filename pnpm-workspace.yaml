@@ -1,6 +1,6 @@
 packages:
   - apps/*
-  - packages/types
+  - packages/*
 
 onlyBuiltDependencies:
   - '@nestjs/core'
