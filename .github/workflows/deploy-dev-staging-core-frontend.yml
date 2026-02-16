@@ -57,7 +57,12 @@ jobs:
           username: ${{ secrets.FRONTEND_DEV_STAGING_SERVER_USER }}
           key: ${{ secrets.FRONTEND_STAGING_DEV_SSH_SECRET }}
           script: |
+            export PATH="$HOME/.local/share/pnpm:$PATH"
+            if ! command -v pnpm >/dev/null 2>&1; then
+              corepack enable
+              corepack prepare pnpm@8 --activate
+            fi
             cd /home/ubuntu/frontend
             pnpm install --prod
             pm2 delete frontend || true
-            pm2 start pnpm --name frontend -- start
+            pm2 start "pnpm start" --name frontend
