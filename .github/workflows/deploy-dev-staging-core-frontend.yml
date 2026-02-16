@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
-      # CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+      CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
 
     steps:
       # Step 1: Checkout code
@@ -21,6 +21,15 @@ jobs:
         uses: pnpm/action-setup@v2
         with:
           version: 8
+
+      # Step 2.1: Check Clerk secret is present (masked)
+      - name: Check Clerk secret
+        run: |
+          if [ -z "${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}" ]; then
+            echo "Clerk publishable key is NOT set"
+            exit 1
+          fi
+          echo "Clerk publishable key is set (length=${#NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY})"
 
       # Step 3: Install dependencies
       - name: Install dependencies
