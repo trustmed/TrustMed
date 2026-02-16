@@ -1,0 +1,56 @@
+name: Deploy Frontend to Oracle
+
+# Trigger on push to staging branch
+on:
+  push:
+    branches: [devops]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      # Step 2: Setup pnpm
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: pnpm install
+
+      # Step 4: Inject Clerk environment variable
+      - name: Set environment variable for Next.js
+        run: echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}" >> $GITHUB_ENV
+
+      # Step 5: Build frontend
+      - name: Build Next.js frontend
+        run: pnpm build
+
+      # Step 6: Copy files to Oracle VM via SCP
+      - name: Deploy built files to Oracle VM
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          source: "."
+          target: "/home/ubuntu/frontend"
+
+      # Step 7: Restart frontend using PM2
+      - name: Restart frontend on Oracle VM
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/frontend
+            pnpm install --prod
+            pm2 delete frontend || true
+            pm2 start pnpm --name frontend -- start
