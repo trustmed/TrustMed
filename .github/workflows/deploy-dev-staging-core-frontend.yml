@@ -9,33 +9,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout code
       - name: Checkout repo
         uses: actions/checkout@v3
 
+      # Step 2: Setup pnpm
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 8
 
-      # Step 1: Move to frontend folder
-      - name: Change directory to frontend
-        run: cd apps/core-frontend && pwd
-
-      # Step 2: Install dependencies
+      # Step 3: Install dependencies
       - name: Install dependencies
-        run: |
-          cd apps/core-frontend
-          pnpm install
+        working-directory: apps/core-frontend
+        run: pnpm install
 
-      # Step 3: Inject Clerk environment variable
-      - name: Set environment variable for Next.js
-        run: echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}" >> $GITHUB_ENV
-
-      # Step 4: Build frontend
+      # Step 4: Build frontend with Clerk key
       - name: Build Next.js frontend
-        run: |
-          cd apps/core-frontend
-          pnpm build
+        working-directory: apps/core-frontend
+        env:
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+        run: pnpm build
 
       # Step 5: Deploy built files to Oracle VM
       - name: Deploy built files to Oracle VM
