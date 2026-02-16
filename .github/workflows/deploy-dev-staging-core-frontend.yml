@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.FRONTEND_DEV_STAGING_CLERK }}
-      # CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+      CLERK_PUBLISHABLE_KEY: ${{ secrets.FRONTEND_DEV_STAGING_CLERK }}
 
     steps:
       # Step 1: Checkout code
@@ -46,8 +46,7 @@ jobs:
           username: ${{ secrets.FRONTEND_DEV_STAGING_SERVER_USER }}
           key: ${{ secrets.FRONTEND_STAGING_DEV_SSH_SECRET }}
           debug: true
-          source: apps/core-frontend/package.json,apps/core-frontend/public,apps/core-frontend/.next
-          strip_components: 2
+          source: package.json,pnpm-lock.yaml,pnpm-workspace.yaml,apps/core-frontend,packages/components,packages/types
           target: /home/ubuntu/frontend
 
       # Step 7: Restart frontend using PM2
@@ -64,6 +63,9 @@ jobs:
               corepack prepare pnpm@8 --activate
             fi
             cd /home/ubuntu/frontend
-            pnpm install --prod
+            pnpm install
+            pnpm --filter @trustmed/types build
+            pnpm --filter @trustmed/components run --if-present build
+            cd /home/ubuntu/frontend/apps/core-frontend
             pm2 delete frontend || true
             pm2 start "pnpm start" --name frontend
