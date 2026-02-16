@@ -32,6 +32,12 @@ jobs:
         working-directory: apps/core-frontend
         run: pnpm build
 
+      # Step 5.1: Verify build artifacts exist
+      - name: Check build output
+        run: |
+          ls -la apps/core-frontend
+          ls -la apps/core-frontend/.next
+
       # Step 6: Deploy built files to Oracle VM
       - name: Deploy built files to Oracle VM
         uses: appleboy/scp-action@v0.1.7
@@ -42,8 +48,8 @@ jobs:
           source: |
             apps/core-frontend/package.json
             apps/core-frontend/pnpm-lock.yaml
-            apps/core-frontend/public
-            apps/core-frontend/.next
+            apps/core-frontend/public/**
+            apps/core-frontend/.next/**
           target: /home/ubuntu/frontend
 
       # Step 7: Restart frontend using PM2
