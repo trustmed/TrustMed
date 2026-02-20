@@ -50,7 +50,19 @@ jobs:
           username: ${{ secrets.FRONTEND_DEV_STAGING_SERVER_USER }}
           key: ${{ secrets.FRONTEND_STAGING_DEV_SSH_SECRET }}
           debug: true
-          source: apps/core-frontend/public,apps/core-frontend/.next/standalone,apps/core-frontend/.next/static
+          source: apps/core-frontend/.next
+          strip_components: 1
+          target: /home/ubuntu/frontend
+
+      # Step 6.1: Deploy public folder
+      - name: Deploy public folder
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.FRONTEND_DEV_STAGING_IP }}
+          username: ${{ secrets.FRONTEND_DEV_STAGING_SERVER_USER }}
+          key: ${{ secrets.FRONTEND_STAGING_DEV_SSH_SECRET }}
+          debug: true
+          source: apps/core-frontend/public
           strip_components: 2
           target: /home/ubuntu/frontend
 
@@ -66,13 +78,13 @@ jobs:
             cd /home/ubuntu/frontend
 
             # Clean old build (safe for 1GB micro VM)
-            rm -rf .next/* public/* || true
+            rm -rf /home/ubuntu/frontend/.next/* /home/ubuntu/frontend/public/* || true
 
             # Stop & delete old PM2 process if exists
             pm2 delete frontend 2>/dev/null || true
 
             # Start frontend using standalone server
-            PORT=3000 NODE_ENV=production pm2 start /home/ubuntu/frontend/standalone/server.js --name frontend
+            PORT=3000 NODE_ENV=production pm2 start /home/ubuntu/frontend/.next/standalone/server.js --name frontend
 
             # Save PM2 process for auto-restart on reboot
             pm2 save
