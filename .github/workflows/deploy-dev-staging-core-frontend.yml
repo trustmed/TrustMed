@@ -51,7 +51,7 @@ jobs:
           key: ${{ secrets.FRONTEND_STAGING_DEV_SSH_SECRET }}
           debug: true
           source: apps/core-frontend/.next
-          strip_components: 1
+          strip_components: 2
           target: /home/ubuntu/frontend
 
       # Step 6.1: Deploy public folder
@@ -74,8 +74,14 @@ jobs:
           username: ${{ secrets.FRONTEND_DEV_STAGING_SERVER_USER }}
           key: ${{ secrets.FRONTEND_STAGING_DEV_SSH_SECRET }}
           script: |
+            # Clean up incorrect nested structure from previous deployment
+            rm -rf /home/ubuntu/frontend/core-frontend || true
+
             # Verify files exist
+            echo "=== Current directory structure ==="
             ls -la /home/ubuntu/frontend
+            echo "=== Contents of .next ==="
+            ls -la /home/ubuntu/frontend/.next 2>/dev/null || echo ".next folder not found"
 
             # Stop & delete old PM2 process if exists
             pm2 delete frontend 2>/dev/null || true
