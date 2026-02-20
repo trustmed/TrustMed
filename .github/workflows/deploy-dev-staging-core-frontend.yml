@@ -74,11 +74,8 @@ jobs:
           username: ${{ secrets.FRONTEND_DEV_STAGING_SERVER_USER }}
           key: ${{ secrets.FRONTEND_STAGING_DEV_SSH_SECRET }}
           script: |
-            # Go to deployment folder
-            cd /home/ubuntu/frontend
-
-            # Clean old build (safe for 1GB micro VM)
-            rm -rf /home/ubuntu/frontend/.next/* /home/ubuntu/frontend/public/* || true
+            # Verify files exist
+            ls -la /home/ubuntu/frontend
 
             # Stop & delete old PM2 process if exists
             pm2 delete frontend 2>/dev/null || true
