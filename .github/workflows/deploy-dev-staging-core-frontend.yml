@@ -9,7 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.FRONTEND_DEV_STAGING_CLERK }}
-      CLERK_PUBLISHABLE_KEY: ${{ secrets.FRONTEND_DEV_STAGING_CLERK }}
 
     steps:
       # Step 1: Checkout code
@@ -71,12 +70,11 @@ jobs:
         uses: appleboy/ssh-action@v1
         env:
           CLERK_PUBLISHABLE_KEY: ${{ secrets.FRONTEND_DEV_STAGING_CLERK }}
-          CLERK_SECRET_KEY: ${{ secrets.FRONTEND_DEV_STAGING_CLERK_SECRET }}
         with:
           host: ${{ secrets.FRONTEND_DEV_STAGING_IP }}
           username: ${{ secrets.FRONTEND_DEV_STAGING_SERVER_USER }}
           key: ${{ secrets.FRONTEND_STAGING_DEV_SSH_SECRET }}
-          envs: CLERK_PUBLISHABLE_KEY,CLERK_SECRET_KEY
+          envs: CLERK_PUBLISHABLE_KEY
           script: |
             # Clean up incorrect nested structure from previous deployment
             rm -rf /home/ubuntu/frontend/core-frontend || true
@@ -84,7 +82,6 @@ jobs:
             # Create .env.local with Clerk secrets
             cat > /home/ubuntu/frontend/.env.local << EOF
             NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$CLERK_PUBLISHABLE_KEY
-            CLERK_SECRET_KEY=$CLERK_SECRET_KEY
             EOF
 
             # Stop & delete old PM2 process if exists
