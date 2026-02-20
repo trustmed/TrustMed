@@ -69,11 +69,10 @@ jobs:
             rm -rf .next/* public/* || true
 
             # Stop & delete old PM2 process if exists
-            pm2 stop frontend || true
-            pm2 delete frontend || true
+            pm2 delete frontend 2>/dev/null || true
 
             # Start frontend using standalone server
-            PORT=3000 NODE_ENV=production pm2 start "node .next/standalone/server.js" --name frontend
+            PORT=3000 NODE_ENV=production pm2 start /home/ubuntu/frontend/.next/standalone/server.js --name frontend
 
             # Save PM2 process for auto-restart on reboot
             pm2 save
