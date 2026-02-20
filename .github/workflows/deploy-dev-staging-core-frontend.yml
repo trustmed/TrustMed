@@ -2,7 +2,7 @@ name: Deploy Frontend to Oracle
 
 on:
   push:
-    branches: [devops]  # your branch
+    branches: [devops] # your deployment branch
 
 jobs:
   build-and-deploy:
@@ -22,17 +22,21 @@ jobs:
         with:
           version: 8
 
-      # Step 4: Install dependencies
+      # Step 3: Install dependencies
       - name: Install dependencies
-        working-directory: apps/core-frontend
         run: pnpm install
 
-      # Step 5: Build frontend with Clerk key
-      - name: Build Next.js frontend
-        working-directory: apps/core-frontend
-        run: pnpm build
+      # Step 4: Build workspace packages
+      - name: Build workspace packages
+        run: |
+          pnpm --filter @trustmed/types build
+          pnpm --filter @trustmed/components run --if-present build
 
-      # Step 5.1: Verify build artifacts exist
+      # Step 5: Build frontend
+      - name: Build Next.js frontend
+        run: pnpm --filter @trustmed/core-frontend build
+
+      # Step 5.1: Verify build artifacts
       - name: Check build output
         run: |
           ls -la apps/core-frontend
@@ -46,10 +50,11 @@ jobs:
           username: ${{ secrets.FRONTEND_DEV_STAGING_SERVER_USER }}
           key: ${{ secrets.FRONTEND_STAGING_DEV_SSH_SECRET }}
           debug: true
-          source: package.json,pnpm-lock.yaml,pnpm-workspace.yaml,apps/core-frontend,packages/components,packages/types
+          source: apps/core-frontend/public,apps/core-frontend/.next/standalone,apps/core-frontend/.next/static
+          strip_components: 2
           target: /home/ubuntu/frontend
 
-      # Step 7: Restart frontend using PM2
+      # Step 7: Restart frontend with PM2 safely
       - name: Restart frontend on Oracle VM
         uses: appleboy/ssh-action@v1
         with:
@@ -57,15 +62,18 @@ jobs:
           username: ${{ secrets.FRONTEND_DEV_STAGING_SERVER_USER }}
           key: ${{ secrets.FRONTEND_STAGING_DEV_SSH_SECRET }}
           script: |
-            export PATH="$HOME/.local/share/pnpm:$PATH"
-            if ! command -v pnpm >/dev/null 2>&1; then
-              corepack enable
-              corepack prepare pnpm@8 --activate
-            fi
+            # Go to deployment folder
             cd /home/ubuntu/frontend
-            pnpm install
-            pnpm --filter @trustmed/types build
-            pnpm --filter @trustmed/components run --if-present build
-            cd /home/ubuntu/frontend/apps/core-frontend
+
+            # Clean old build (safe for 1GB micro VM)
+            rm -rf .next/* public/* || true
+
+            # Stop & delete old PM2 process if exists
+            pm2 stop frontend || true
             pm2 delete frontend || true
-            pm2 start "pnpm start" --name frontend
+
+            # Start frontend using standalone server
+            PORT=3000 NODE_ENV=production pm2 start "node .next/standalone/server.js" --name frontend
+
+            # Save PM2 process for auto-restart on reboot
+            pm2 save
