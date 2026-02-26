@@ -4,7 +4,7 @@ name: core-frontend-auto-deploy
 on:
   push:
     branches:
-      - devops-azure
+      [devops-azure]
     paths:
       - "apps/core-frontend/**"
       - "pnpm-lock.yaml"
