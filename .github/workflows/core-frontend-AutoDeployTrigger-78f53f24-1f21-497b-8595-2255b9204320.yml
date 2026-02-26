@@ -1,29 +1,51 @@
-name: Trigger auto deployment for core-frontend
+name: core-frontend-auto-deploy
 
-# When this action will be executed
+# Trigger on pushes to the devops-azure branch and allow manual triggers
 on:
-  # Automatically trigger it when detected changes in repo
   push:
-    branches: 
-      [ devops-azure ]
+    branches:
+      - devops-azure
     paths:
-    - '**'
-    - '.github/workflows/core-frontend-AutoDeployTrigger-78f53f24-1f21-497b-8595-2255b9204320.yml'
-
-  # Allow manual trigger 
+      - "apps/core-frontend/**"
+      - "pnpm-lock.yaml"
+      - "package.json"
+      - "pnpm-workspace.yaml"
   workflow_dispatch:      
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     permissions: 
-      id-token: write #This is required for requesting the OIDC JWT Token
-      contents: read #Required when GH token is used to authenticate with private repo
+      id-token: write    # Required for OIDC token (Azure login)
+      contents: read    # Required to access repo
 
     steps:
-      - name: Checkout to the branch
-        uses: actions/checkout@v2
+      # 1️⃣ Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
 
+      # 2️⃣ Docker login to Docker Hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.COREFRONTEND_REGISTRY_USERNAME }}
+          password: ${{ secrets.COREFRONTEND_REGISTRY_PASSWORD }}
+
+      # 3️⃣ Buildx setup for cross-platform build
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 4️⃣ Build and push Docker image
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/core-frontend/Dockerfile
+          push: true
+          platforms: linux/amd64
+          tags: harithatk/trustmed-dev-core-frontend:${{ github.sha }}
+
+      # 5️⃣ Azure login
       - name: Azure Login
         uses: azure/login@v2
         with:
@@ -31,19 +53,10 @@ jobs:
           tenant-id: ${{ secrets.COREFRONTEND_AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.COREFRONTEND_AZURE_SUBSCRIPTION_ID }}
 
-      - name: Build and push container image to registry
-        uses: azure/container-apps-deploy-action@v2
-        with:
-          appSourcePath: ${{ github.workspace }}apps/core-frontend
-          _dockerfilePathKey_: _dockerfilePath_
-          _targetLabelKey_: _targetLabel_
-          registryUrl: docker.io
-          registryUsername: ${{ secrets.COREFRONTEND_REGISTRY_USERNAME }}
-          registryPassword: ${{ secrets.COREFRONTEND_REGISTRY_PASSWORD }}
-          containerAppName: core-frontend
-          resourceGroup: trustmed-health-dev
-          imageToBuild: harithatk/core-frontend:${{ github.sha }}
-          _buildArgumentsKey_: |
-            _buildArgumentsValues_
-
-
+      # 6️⃣ Deploy to Container App
+      - name: Deploy to Azure Container App
+        run: |
+          az containerapp update \
+            --name core-frontend \
+            --resource-group trustmed-health-dev \
+            --image harithatk/trustmed-dev-core-frontend:${{ github.sha }}
