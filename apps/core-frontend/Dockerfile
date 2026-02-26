@@ -11,7 +11,6 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 
 # Copy all workspace packages (components + core-frontend)
 COPY apps/core-frontend ./apps/core-frontend
-# Adjust the path below if your shared components live somewhere else
 COPY packages/components ./packages/components
 
 # Install all dependencies (workspace linking works)
@@ -20,6 +19,12 @@ RUN pnpm install --frozen-lockfile
 # ---------- builder ----------
 FROM installer AS builder
 WORKDIR /app/apps/core-frontend
+
+# --------------------------
+# Pass Clerk key as build argument
+# --------------------------
+ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 
 # Build Next.js
 RUN pnpm build
@@ -31,6 +36,10 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV PORT=3000
+
+# Make Clerk key available at runtime
+ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 
 # Copy standalone build (monorepo paths are nested under apps/core-frontend)
 COPY --from=builder /app/apps/core-frontend/.next/standalone ./
