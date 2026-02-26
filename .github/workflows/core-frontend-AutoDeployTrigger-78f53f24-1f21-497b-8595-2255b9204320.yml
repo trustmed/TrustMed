@@ -39,7 +39,7 @@ jobs:
           push: true
           platforms: linux/amd64
           build-args: |
-            NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.CLERK_PUBLISHABLE_KEY }}
+            NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.FRONTEND_DEV_STAGING_CLERK }}
           tags: harithatk/trustmed-dev-core-frontend:${{ github.sha }}
 
       # 5️⃣ Azure login
