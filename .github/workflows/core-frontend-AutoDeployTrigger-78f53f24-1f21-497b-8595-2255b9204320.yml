@@ -5,11 +5,6 @@ on:
   push:
     branches:
       [devops-azure]
-    # paths:
-    #   - "apps/core-frontend/**"
-    #   - "pnpm-lock.yaml"
-    #   - "package.json"
-    #   - "pnpm-workspace.yaml"
   workflow_dispatch:      
 
 jobs:
@@ -35,7 +30,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # 4️⃣ Build and push Docker image
+      # 4️⃣ Build and push Docker image with Clerk key
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -43,6 +38,8 @@ jobs:
           file: apps/core-frontend/Dockerfile
           push: true
           platforms: linux/amd64
+          build-args: |
+            NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.CLERK_PUBLISHABLE_KEY }}
           tags: harithatk/trustmed-dev-core-frontend:${{ github.sha }}
 
       # 5️⃣ Azure login
