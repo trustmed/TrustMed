@@ -9,8 +9,15 @@ import { NotificationQueue } from '../entities/notification-queue.entity';
 import { GuardianLink } from '../entities/guardian-link.entity';
 import { RecordRegistry } from '../entities/record-registry.entity';
 import { AccessRequest } from '../entities/access-request.entity';
+
 import { Person } from '../entities/person.entity';
+import { MedicalProfile } from '../entities/medical-profile.entity';
+import { Allergy } from '../entities/allergy.entity';
+import { Medication } from '../entities/medication.entity';
+import { EmergencyContact } from '../entities/emergency-contact.entity';
 import { InitialSchema1770563243972 } from '../entities/migrations/1770563243972-InitialSchema';
+import { UserProfileSchema1770724220388 } from '../entities/migrations/1770724220388-UserProfileSchema';
+import { SeedUser1770741624799 } from '../entities/migrations/1770741624799-SeedUser';
 
 dotenv.config();
 
@@ -31,8 +38,16 @@ const baseConfig: DataSourceOptions = {
     GuardianLink,
     RecordRegistry,
     AccessRequest,
+    MedicalProfile,
+    Allergy,
+    Medication,
+    EmergencyContact,
   ],
-  migrations: [InitialSchema1770563243972],
+  migrations: [
+    InitialSchema1770563243972,
+    UserProfileSchema1770724220388,
+    SeedUser1770741624799,
+  ],
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
 
