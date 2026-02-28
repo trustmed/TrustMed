@@ -1,58 +1,59 @@
-# name: core-frontend-dev
+name: core-frontend-auto-deploy
 
-# on:
-#   push:
-#     branches: [ devops-azure ]
-#     paths:
-#       - "apps/core-frontend/**"
-#       - "pnpm-lock.yaml"
-#       - "package.json"
-#       - "pnpm-workspace.yaml"
+# Trigger on pushes to the devops-azure branch and allow manual triggers
+on:
+  push:
+    branches:
+      [devops-azure]
+  workflow_dispatch:      
 
-# env:
-#   IMAGE_NAME: harithatk/trustmed-dev-core-frontend
-#   CONTAINER_APP: core-frontend
-#   RESOURCE_GROUP: trustmed-health-dev
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions: 
+      id-token: write    # Required for OIDC token (Azure login)
+      contents: read    # Required to access repo
 
-# jobs:
-#   build-and-deploy:
-#     runs-on: ubuntu-latest
+    steps:
+      # 1️⃣ Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-#     steps:
-#       - name: Checkout
-#         uses: actions/checkout@v4
+      # 2️⃣ Docker login to Docker Hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.COREFRONTEND_REGISTRY_USERNAME }}
+          password: ${{ secrets.COREFRONTEND_REGISTRY_PASSWORD }}
 
-#       # 🐳 Docker login
-#       - name: Login to Docker Hub
-#         uses: docker/login-action@v3
-#         with:
-#           username: ${{ secrets.DOCKERHUB_USERNAME_DEV }}
-#           password: ${{ secrets.DOCKERHUB_TOKEN_DEV }}
+      # 3️⃣ Buildx setup for cross-platform build
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-#       # 🔥 Buildx for amd64
-#       - name: Set up Docker Buildx
-#         uses: docker/setup-buildx-action@v3
+      # 4️⃣ Build and push Docker image with Clerk key
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/core-frontend/Dockerfile
+          push: true
+          platforms: linux/amd64
+          build-args: |
+            NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.FRONTEND_DEV_STAGING_CLERK }}
+          tags: harithatk/trustmed-dev-core-frontend:${{ github.sha }}
 
-#       # 🐳 Build and push image
-#       - name: Build and push
-#         uses: docker/build-push-action@v5
-#         with:
-#           context: .
-#           file: apps/core-frontend/Dockerfile
-#           push: true
-#           platforms: linux/amd64
-#           tags: ${{ env.IMAGE_NAME }}:latest
+      # 5️⃣ Azure login
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.COREFRONTEND_AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.COREFRONTEND_AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.COREFRONTEND_AZURE_SUBSCRIPTION_ID }}
 
-#       # 🔐 Azure login
-#       - name: Azure Login
-#         uses: azure/login@v2
-#         with:
-#           creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-#       # 🚀 Update container app
-#       - name: Deploy to Container Apps
-#         run: |
-#           az containerapp update \
-#             --name $CONTAINER_APP \
-#             --resource-group $RESOURCE_GROUP \
-#             --image $IMAGE_NAME:latest
+      # 6️⃣ Deploy to Container App
+      - name: Deploy to Azure Container App
+        run: |
+          az containerapp update \
+            --name core-frontend \
+            --resource-group trustmed-health-dev \
+            --image harithatk/trustmed-dev-core-frontend:${{ github.sha }}
