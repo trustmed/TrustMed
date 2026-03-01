@@ -30,7 +30,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # 4️⃣ Build and push Docker image with Clerk key
+      # 4️⃣ Build and push Docker image with environment variables
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -40,6 +40,7 @@ jobs:
           platforms: linux/amd64
           build-args: |
             NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.FRONTEND_DEV_STAGING_CLERK }}
+            NEXT_PUBLIC_API_URL=${{ secrets.FRONTEND_DEV_API_URL }}
           tags: harithatk/trustmed-dev-core-frontend:${{ github.sha }}
 
       # 5️⃣ Azure login

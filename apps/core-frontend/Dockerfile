@@ -21,10 +21,13 @@ FROM installer AS builder
 WORKDIR /app/apps/core-frontend
 
 # --------------------------
-# Pass Clerk key as build argument
+# Pass environment variables as build arguments
 # --------------------------
 ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
 # Build Next.js
 RUN pnpm build
@@ -37,9 +40,12 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
 
-# Make Clerk key available at runtime
+# Make environment variables available at runtime
 ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
 # Copy standalone build (monorepo paths are nested under apps/core-frontend)
 COPY --from=builder /app/apps/core-frontend/.next/standalone ./
