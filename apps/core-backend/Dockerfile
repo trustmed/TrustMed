@@ -33,7 +33,8 @@ COPY packages ./packages
 # Install production dependencies only
 RUN pnpm install --prod --frozen-lockfile --ignore-scripts
 
-# Copy built application
+# Copy built packages and application from builder
+COPY --from=builder /app/packages ./packages
 COPY --from=builder /app/apps/core-backend/dist ./apps/core-backend/dist
 
 WORKDIR /app/apps/core-backend
