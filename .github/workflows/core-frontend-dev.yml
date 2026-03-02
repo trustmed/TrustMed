@@ -4,7 +4,7 @@ name: core-frontend-auto-deploy
 on:
   push:
     branches:
-      [devops-azure]
+      [dev]
     paths:
       - 'apps/core-frontend/**'
       - 'packages/**'

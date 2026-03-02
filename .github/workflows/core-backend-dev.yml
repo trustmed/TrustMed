@@ -4,7 +4,7 @@ name: core-backend-auto-deploy
 on:
   push:
     branches:
-      [devops-azure]
+      [dev]
     paths:
       - 'apps/core-backend/**'
       - 'packages/**'
