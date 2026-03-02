@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-and-deploy:
-    if: true
+    if: true   # set false to disable this job
     runs-on: ubuntu-latest
     permissions: 
       id-token: write    # Required for OIDC token (Azure login)
