@@ -6,7 +6,7 @@ WORKDIR /app
 # ---------- installer ----------
 FROM base AS installer
 
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json turbo.json ./
 COPY apps/core-backend ./apps/core-backend
 COPY packages ./packages
 
@@ -14,7 +14,7 @@ RUN pnpm install --frozen-lockfile
 
 # ---------- builder ----------
 FROM installer AS builder
-WORKDIR /app/apps/core-backend
+WORKDIR /app
 RUN pnpm build
 
 # ---------- runner ----------
