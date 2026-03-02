@@ -41,6 +41,6 @@ jobs:
           registryPassword: ${{ secrets.COREBACKEND_REGISTRY_PASSWORD }}
           containerAppName: core-backend
           resourceGroup: trustmed-health-dev
-          imageToBuild: harithatk/core-backend:${{ github.sha }}
+          imageToBuild: harithatk/trustmed-dev-core-frontend:${{ github.sha }}
 
 
