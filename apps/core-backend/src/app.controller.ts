@@ -14,7 +14,7 @@ export class AppController {
   @ApiResponse({
     status: 200,
     description: 'Server is running',
-    schema: { example: 'Hello World!' },
+    schema: { example: 'Hello World! test 1' },
   })
   getHello(): string {
     return this.appService.getHello();
