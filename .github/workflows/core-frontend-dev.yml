@@ -5,6 +5,15 @@ on:
   push:
     branches:
       [devops-azure]
+    paths:
+      - 'apps/core-frontend/**'
+      - 'packages/**'
+      - '.github/workflows/core-frontend-dev.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      
   workflow_dispatch:      
 
 jobs:
