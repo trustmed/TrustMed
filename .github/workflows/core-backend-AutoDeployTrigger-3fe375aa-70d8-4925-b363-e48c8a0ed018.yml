@@ -34,16 +34,13 @@ jobs:
       - name: Build and push container image to registry
         uses: azure/container-apps-deploy-action@v2
         with:
-          appSourcePath: ${{ github.workspace }}/apps/core-backend
-          _dockerfilePathKey_: _dockerfilePath_
-          _targetLabelKey_: _targetLabel_
+          appSourcePath: ${{ github.workspace }}
+          dockerfilePath: apps/core-backend/Dockerfile
           registryUrl: docker.io
           registryUsername: ${{ secrets.COREBACKEND_REGISTRY_USERNAME }}
           registryPassword: ${{ secrets.COREBACKEND_REGISTRY_PASSWORD }}
           containerAppName: core-backend
           resourceGroup: trustmed-health-dev
           imageToBuild: harithatk/core-backend:${{ github.sha }}
-          _buildArgumentsKey_: |
-            _buildArgumentsValues_
 
 
