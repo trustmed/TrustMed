@@ -1,0 +1,15 @@
+# dependencies
+node_modules
+**/node_modules
+
+# next build
+.next
+**/.next
+
+# git
+.git
+.gitignore
+
+# misc
+Dockerfile
+docker-compose.yml
