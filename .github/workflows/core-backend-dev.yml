@@ -33,8 +33,8 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.COREBACKEND_REGISTRY_USERNAME }}
-          password: ${{ secrets.COREBACKEND_REGISTRY_PASSWORD }}
+          username: ${{ secrets.DEVCOREBACKEND_REGISTRY_USERNAME }}
+          password: ${{ secrets.DEVCOREBACKEND_REGISTRY_PASSWORD }}
 
       # 3️⃣ Buildx setup for cross-platform build
       - name: Set up Docker Buildx
@@ -54,9 +54,9 @@ jobs:
       - name: Azure Login
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.COREBACKEND_AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.COREBACKEND_AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.COREBACKEND_AZURE_SUBSCRIPTION_ID }}
+          client-id: ${{ secrets.DEVCOREBACKEND_AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.DEVCOREBACKEND_AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.DEVCOREBACKEND_AZURE_SUBSCRIPTION_ID }}
 
       # 6️⃣ Deploy to Container App
       - name: Deploy to Azure Container App
