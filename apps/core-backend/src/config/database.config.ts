@@ -16,9 +16,6 @@ import { Allergy } from '../entities/allergy.entity';
 import { Medication } from '../entities/medication.entity';
 import { EmergencyContact } from '../entities/emergency-contact.entity';
 import { InitialSchema1770563243972 } from '../entities/migrations/1770563243972-InitialSchema';
-import { UserProfileSchema1770724220388 } from '../entities/migrations/1770724220388-UserProfileSchema';
-import { SeedUser1770741624799 } from '../entities/migrations/1770741624799-SeedUser';
-
 dotenv.config();
 
 // Base configuration
@@ -43,11 +40,7 @@ const baseConfig: DataSourceOptions = {
     Medication,
     EmergencyContact,
   ],
-  migrations: [
-    InitialSchema1770563243972,
-    UserProfileSchema1770724220388,
-    SeedUser1770741624799,
-  ],
+  migrations: [InitialSchema1770563243972],
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
 
