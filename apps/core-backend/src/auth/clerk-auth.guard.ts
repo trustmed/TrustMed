@@ -53,7 +53,12 @@ export class ClerkAuthGuard implements CanActivate {
     }
 
     try {
-      const payload = await verifyToken(token, { secretKey });
+      const payload = await (
+        verifyToken as (
+          token: string,
+          opts: { secretKey: string },
+        ) => Promise<unknown>
+      )(token, { secretKey });
       request.auth = payload;
       return true;
     } catch (error) {
