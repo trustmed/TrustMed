@@ -6,7 +6,8 @@ import {
     InsuranceValues,
 } from "@/lib/schemas/profile";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const API_URL = `${BASE_URL}/api`;
 
 const jsonHeaders = { "Content-Type": "application/json" };
 
