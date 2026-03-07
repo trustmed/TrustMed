@@ -1,0 +1,62 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/": {
+      "get": {
+        "operationId": "AppController_getHello",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Server is running",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": "Hello World!"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Health check endpoint",
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "HealthController_checkHealth",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Application health status with database connection info"
+          }
+        },
+        "summary": "Check application health and database status",
+        "tags": [
+          "health"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "TrustMed Core API",
+    "description": "API documentation for the TrustMed Core backend",
+    "version": "1.0.0",
+    "contact": {
+
+    }
+  },
+  "tags": [
+    {
+      "name": "health",
+      "description": "Health check endpoints"
+    }
+  ],
+  "servers": [],
+  "components": {
+    "schemas": {
+
+    }
+  }
+}

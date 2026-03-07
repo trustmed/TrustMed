@@ -111,6 +111,8 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
                   />
                 </div>
 
+                  <div id="clerk-captcha" className="min-h-[78px]" />
+
                 <button type="submit" className="animate-element animate-delay-700 w-full rounded-2xl bg-primary py-4 font-medium text-primary-foreground hover:bg-primary/90 transition-colors mt-2">
                   Sign Up
                 </button>

@@ -1,0 +1,70 @@
+name: core-frontend-auto-deploy
+
+# Trigger on pushes to the devops-azure branch and allow manual triggers
+on:
+  push:
+    branches:
+      [dev]
+    paths:
+      - 'apps/core-frontend/**'
+      - 'packages/**'
+      - '.github/workflows/core-frontend-dev.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      
+  workflow_dispatch:      
+
+jobs:
+  build-and-deploy:
+    if: true   # set false to disable this job
+    runs-on: ubuntu-latest
+    permissions: 
+      id-token: write    # Required for OIDC token (Azure login)
+      contents: read    # Required to access repo
+
+    steps:
+      # 1️⃣ Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2️⃣ Docker login to Docker Hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DEVCOREFRONTEND_REGISTRY_USERNAME }}
+          password: ${{ secrets.DEVCOREFRONTEND_REGISTRY_PASSWORD }}
+
+      # 3️⃣ Buildx setup for cross-platform build
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 4️⃣ Build and push Docker image with environment variables
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/core-frontend/Dockerfile
+          push: true
+          platforms: linux/amd64
+          build-args: |
+            NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.FRONTEND_DEV_STAGING_CLERK }}
+            NEXT_PUBLIC_API_URL=${{ secrets.FRONTEND_DEV_API_URL }}
+          tags: harithatk/trustmed-dev-core-frontend:${{ github.sha }}
+
+      # 5️⃣ Azure login
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.DEVCOREFRONTEND_AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.DEVCOREFRONTEND_AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.DEVCOREFRONTEND_AZURE_SUBSCRIPTION_ID }}
+
+      # 6️⃣ Deploy to Container App
+      - name: Deploy to Azure Container App
+        run: |
+          az containerapp update \
+            --name core-frontend \
+            --resource-group trustmed-health-dev \
+            --image harithatk/trustmed-dev-core-frontend:${{ github.sha }}
