@@ -10,10 +10,14 @@ export class HealthController {
   constructor(private readonly healthService: HealthService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Check application health and database status' })
+  @ApiOperation({
+    operationId: 'getHealth',
+    summary: 'Check application health and database status',
+  })
   @ApiResponse({
     status: 200,
     description: 'Application health status with database connection info',
+    type: HealthResponse,
   })
   async checkHealth(): Promise<HealthResponse> {
     return this.healthService.getHealth();

@@ -1,41 +1,182 @@
 {
   "openapi": "3.0.0",
   "paths": {
-    "/": {
+    "/api/health": {
       "get": {
-        "operationId": "AppController_getHello",
+        "operationId": "getHealth",
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Server is running",
+            "description": "Application health status with database connection info",
             "content": {
               "application/json": {
-                "schema": {
-                  "example": "Hello World!"
-                }
+                "schema": { "$ref": "#/components/schemas/HealthResponse" }
               }
             }
           }
         },
-        "summary": "Health check endpoint",
-        "tags": [
-          "health"
-        ]
+        "summary": "Check application health and database status",
+        "tags": ["health"]
       }
     },
-    "/health": {
+    "/api/profile/{personId}": {
       "get": {
-        "operationId": "HealthController_checkHealth",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Application health status with database connection info"
+        "operationId": "ProfileController_getProfile",
+        "parameters": [
+          {
+            "name": "personId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
           }
-        },
-        "summary": "Check application health and database status",
-        "tags": [
-          "health"
-        ]
+        ],
+        "responses": { "200": { "description": "" } },
+        "summary": "Get full user profile",
+        "tags": ["profile"]
+      }
+    },
+    "/api/profile/email/{email}": {
+      "get": {
+        "operationId": "ProfileController_getProfileByEmail",
+        "parameters": [
+          {
+            "name": "email",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "" } },
+        "summary": "Get full user profile by email",
+        "tags": ["profile"]
+      }
+    },
+    "/api/profile/{personId}/personal": {
+      "patch": {
+        "operationId": "ProfileController_updatePerson",
+        "parameters": [
+          {
+            "name": "personId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "" } },
+        "summary": "Update personal details",
+        "tags": ["profile"]
+      }
+    },
+    "/api/profile/{personId}/medical": {
+      "patch": {
+        "operationId": "ProfileController_updateMedicalProfile",
+        "parameters": [
+          {
+            "name": "personId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "" } },
+        "summary": "Update medical profile",
+        "tags": ["profile"]
+      }
+    },
+    "/api/profile/{personId}/allergies": {
+      "post": {
+        "operationId": "ProfileController_addAllergy",
+        "parameters": [
+          {
+            "name": "personId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "201": { "description": "" } },
+        "summary": "Add allergy",
+        "tags": ["profile"]
+      }
+    },
+    "/api/profile/allergies/{id}": {
+      "delete": {
+        "operationId": "ProfileController_deleteAllergy",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "" } },
+        "summary": "Delete allergy",
+        "tags": ["profile"]
+      }
+    },
+    "/api/profile/{personId}/medications": {
+      "post": {
+        "operationId": "ProfileController_addMedication",
+        "parameters": [
+          {
+            "name": "personId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "201": { "description": "" } },
+        "summary": "Add medication",
+        "tags": ["profile"]
+      }
+    },
+    "/api/profile/medications/{id}": {
+      "delete": {
+        "operationId": "ProfileController_deleteMedication",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "" } },
+        "summary": "Delete medication",
+        "tags": ["profile"]
+      }
+    },
+    "/api/profile/{personId}/contacts": {
+      "post": {
+        "operationId": "ProfileController_addEmergencyContact",
+        "parameters": [
+          {
+            "name": "personId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "201": { "description": "" } },
+        "summary": "Add emergency contact",
+        "tags": ["profile"]
+      }
+    },
+    "/api/profile/contacts/{id}": {
+      "delete": {
+        "operationId": "ProfileController_deleteEmergencyContact",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "" } },
+        "summary": "Delete emergency contact",
+        "tags": ["profile"]
       }
     }
   },
@@ -43,20 +184,54 @@
     "title": "TrustMed Core API",
     "description": "API documentation for the TrustMed Core backend",
     "version": "1.0.0",
-    "contact": {
-
-    }
+    "contact": {}
   },
-  "tags": [
-    {
-      "name": "health",
-      "description": "Health check endpoints"
-    }
-  ],
+  "tags": [{ "name": "health", "description": "Health check endpoints" }],
   "servers": [],
   "components": {
     "schemas": {
-
+      "DatabaseHealth": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["connected", "disconnected"],
+            "example": "connected"
+          },
+          "type": {
+            "type": "string",
+            "example": "postgres",
+            "description": "The type of database currently in use"
+          }
+        },
+        "required": ["status", "type"]
+      },
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["up", "down"],
+            "example": "up"
+          },
+          "uptime": {
+            "type": "number",
+            "example": 3600,
+            "description": "Application uptime in seconds"
+          },
+          "timestamp": {
+            "type": "string",
+            "example": "2026-03-07T12:00:00.000Z",
+            "description": "ISO timestamp of the health check"
+          },
+          "message": {
+            "type": "string",
+            "example": "Backend is running and database is connected"
+          },
+          "database": { "$ref": "#/components/schemas/DatabaseHealth" }
+        },
+        "required": ["status", "uptime", "timestamp", "message"]
+      }
     }
   }
 }
