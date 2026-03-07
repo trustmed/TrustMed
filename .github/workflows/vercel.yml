@@ -1,0 +1,57 @@
+name: Deploy core-frontend to Vercel (Production)
+
+# Trigger on pushes to the main branch
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/core-frontend/**'
+      - 'packages/**'
+      - '.github/workflows/core-frontend-vercel-prod.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+  workflow_dispatch:
+
+jobs:
+  deploy-to-vercel-prod:
+    name: Deploy to Vercel Production
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8 # Matches your workspace version
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Vercel CLI
+        run: pnpm install --global vercel@latest
+
+      # Pulls the PRODUCTION environment variables from Vercel
+      - name: Pull Vercel Environment Information (Production)
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      # Builds the project specifically for production optimization
+      - name: Build Project Artifacts (Production)
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      # Pushes to your main production domain instead of a preview URL
+      - name: Deploy Project Artifacts to Vercel (Production)
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
