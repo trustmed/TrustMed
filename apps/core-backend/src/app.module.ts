@@ -2,8 +2,6 @@ import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { HealthModule } from './health/health.module';
 import { getDatabaseConfig } from './config/database.config';
 import { ProfileModule } from './profile/profile.module';
@@ -24,9 +22,8 @@ import { ClerkAuthGuard } from './auth/clerk-auth.guard';
     HealthModule,
     ProfileModule,
   ],
-  controllers: [AppController],
+  controllers: [],
   providers: [
-    AppService,
     {
       provide: APP_GUARD,
       useClass: ClerkAuthGuard,

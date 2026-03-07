@@ -5,7 +5,7 @@
 
 // Default relative API path for combined deployment
 // When deployed with nginx, backend is available at /api
-const DEFAULT_BACKEND_URL = "http://localhost:8000";
+const DEFAULT_BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 /**
  * Get configuration values with proper fallbacks
