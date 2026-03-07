@@ -1,15 +1,35 @@
-# dependencies
-node_modules
-**/node_modules
-
-# next build
-.next
-**/.next
-
-# git
-.git
-.gitignore
-
 # misc
 Dockerfile
 docker-compose.yml
+# Dependency folders
+node_modules
+**/node_modules
+
+# Next.js build outputs
+.next
+**/.next
+out
+
+# Environment secrets 
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Git and metadata
+.git
+.gitignore
+.github
+README.md
+LICENSE
+.dockerignore
+
+# IDE settings
+.vscode
+.idea
+*.swp
+*.swo
+
+# Monorepo specific cache
+.turbo
