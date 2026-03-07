@@ -1,36 +1,26 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
 
 const isPublicRoute = createRouteMatcher([
   "/",
   "/signin(.*)",
   "/signup(.*)",
   "/legal(.*)",
+  "/healthcheck(.*)", // Added per your previous request
 ]);
 
-export default clerkMiddleware((auth, request) => {
+export default clerkMiddleware(async (auth, request) => {
+  // 1. Check if the route is public
   if (isPublicRoute(request)) {
-    return;
+    return; // Let the request continue normally
   }
 
-  const authWithProtect = auth as unknown as { protect?: () => void };
-  if (typeof authWithProtect.protect === "function") {
-    authWithProtect.protect();
-    return;
-  }
-
-  const authResult = auth();
-  const authResultWithProtect = authResult as { protect?: () => void };
-  if (typeof authResultWithProtect.protect === "function") {
-    authResultWithProtect.protect();
-    return;
-  }
-
-  if (!authResult.userId) {
-    return NextResponse.redirect(new URL("/signin", request.url));
-  }
+  // 2. Protect the route
+  // Calling protect() on the awaited auth() object is the standard.
+  // This internally handles the NEXT_REDIRECT signal correctly.
+  await auth.protect();
 });
 
 export const config = {
+  // Using the standard matcher to catch all relevant routes
   matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
 };
