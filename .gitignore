@@ -62,3 +62,11 @@ Thumbs.db
 # -----------------------------------------------------------------------------
 test-results
 coverage
+
+
+# Hyperledger Fabric Generated Files
+trustmed-blockchain/bin/
+trustmed-blockchain/config/
+trustmed-blockchain/crypto-config/
+trustmed-blockchain/channel-artifacts/
+
