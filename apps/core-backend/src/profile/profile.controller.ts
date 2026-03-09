@@ -7,13 +7,15 @@ import {
   Param,
   Patch,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
 import { ProfileService } from './profile.service';
-import { MedicalProfile } from '../entities/medical-profile.entity';
-import { Allergy } from '../entities/allergy.entity';
-import { Medication } from '../entities/medication.entity';
-import { EmergencyContact } from '../entities/emergency-contact.entity';
-import { Person } from '../entities/person.entity';
+import {
+  UpdatePersonalDto,
+  UpdateMedicalProfileDto,
+  AddAllergyDto,
+  AddMedicationDto,
+  AddEmergencyContactDto,
+} from './profile.dto';
 
 @ApiTags('profile')
 @Controller('profile')
@@ -34,27 +36,34 @@ export class ProfileController {
 
   @Patch(':personId/personal')
   @ApiOperation({ summary: 'Update personal details' })
+  @ApiBody({ type: UpdatePersonalDto })
   async updatePerson(
     @Param('personId') personId: string,
-    @Body() data: Partial<Person>,
+    @Body() data: UpdatePersonalDto,
   ) {
     return this.profileService.updatePerson(personId, data);
   }
 
   @Patch(':personId/medical')
   @ApiOperation({ summary: 'Update medical profile' })
+  @ApiBody({ type: UpdateMedicalProfileDto })
   async updateMedicalProfile(
     @Param('personId') personId: string,
-    @Body() data: Partial<MedicalProfile>,
+    @Body() data: UpdateMedicalProfileDto,
   ) {
-    return this.profileService.updateMedicalProfile(personId, data);
+    const { dob, ...rest } = data;
+    return this.profileService.updateMedicalProfile(personId, {
+      ...rest,
+      ...(dob ? { dob: new Date(dob) } : {}),
+    });
   }
 
   @Post(':personId/allergies')
   @ApiOperation({ summary: 'Add allergy' })
+  @ApiBody({ type: AddAllergyDto })
   async addAllergy(
     @Param('personId') personId: string,
-    @Body() data: Partial<Allergy>,
+    @Body() data: AddAllergyDto,
   ) {
     return this.profileService.addAllergy(personId, data);
   }
@@ -67,9 +76,10 @@ export class ProfileController {
 
   @Post(':personId/medications')
   @ApiOperation({ summary: 'Add medication' })
+  @ApiBody({ type: AddMedicationDto })
   async addMedication(
     @Param('personId') personId: string,
-    @Body() data: Partial<Medication>,
+    @Body() data: AddMedicationDto,
   ) {
     return this.profileService.addMedication(personId, data);
   }
@@ -82,9 +92,10 @@ export class ProfileController {
 
   @Post(':personId/contacts')
   @ApiOperation({ summary: 'Add emergency contact' })
+  @ApiBody({ type: AddEmergencyContactDto })
   async addEmergencyContact(
     @Param('personId') personId: string,
-    @Body() data: Partial<EmergencyContact>,
+    @Body() data: AddEmergencyContactDto,
   ) {
     return this.profileService.addEmergencyContact(personId, data);
   }
