@@ -6,24 +6,28 @@ WORKDIR /app
 # ---------- installer ----------
 FROM base AS installer
 
-# 1.Copy ONLY dependency files first to maximize Docker caching!
+# Copy root lockfile & workspace manifest
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
-COPY apps/core-frontend/package.json ./apps/core-frontend/package.json
-COPY packages/components/package.json ./packages/components/package.json
 
-# Install dependencies 
-RUN pnpm install --frozen-lockfile --config.fetch-retries=5 --config.fetch-timeout=300000
-
-# 2. Now copy the actual source code
+# Copy all workspace packages (components + core-frontend)
 COPY apps/core-frontend ./apps/core-frontend
 COPY packages/components ./packages/components
+
+# Install all dependencies (workspace linking works)
+RUN pnpm install --frozen-lockfile
 
 # ---------- builder ----------
 FROM installer AS builder
 WORKDIR /app/apps/core-frontend
 
-# 3. FIX: Read env vars from a .env file (as discussed earlier) or use BuildKit secrets
-COPY apps/core-frontend/.env.production .env.production
+# --------------------------
+# Pass environment variables as build arguments
+# --------------------------
+ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
 # Build Next.js
 RUN pnpm build
@@ -36,15 +40,19 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
 
+# Make environment variables available at runtime
+ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 
-# Copy standalone build
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
+# Copy standalone build (monorepo paths are nested under apps/core-frontend)
 COPY --from=builder /app/apps/core-frontend/.next/standalone ./
 # Static assets for Next.js
 COPY --from=builder /app/apps/core-frontend/.next/static ./apps/core-frontend/.next/static
 # Public assets
 COPY --from=builder /app/apps/core-frontend/public ./apps/core-frontend/public
-
-USER node
 
 EXPOSE 3000
 
