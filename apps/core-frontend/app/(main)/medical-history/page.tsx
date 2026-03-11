@@ -16,6 +16,33 @@ type MedicalHistoryItem = {
   icon: React.ReactNode;
 };
 
+const TIMELINE_ITEMS: MedicalHistoryItem[] = [
+  {
+    id: "visit-2025-11-30",
+    title: "Appointment/Visit",
+    date: "2025-11-30",
+    icon: <Stethoscope className="h-4 w-4" />,
+  },
+  {
+    id: "vaccinations-2025-11-15",
+    title: "Vaccinations",
+    date: "2025-11-15",
+    icon: <Syringe className="h-4 w-4" />,
+  },
+  {
+    id: "report-2025-11-15",
+    title: "Report Received",
+    date: "2025-11-15",
+    icon: <FileText className="h-4 w-4" />,
+  },
+  {
+    id: "account-2025-11-10",
+    title: "Account Creation",
+    date: "2025-11-10",
+    icon: <UserPlus className="h-4 w-4" />,
+  },
+];
+
 export default function MedicalHistoryPage() {
   const [selectedId, setSelectedId] = React.useState<string>(TIMELINE_ITEMS[0]?.id ?? "");
   const [date, setDate] = React.useState<Date>();
@@ -76,6 +103,106 @@ export default function MedicalHistoryPage() {
         <DetailsCard selectedItem={selectedItem} />
       </div>
     </div>
+  );
+}
+
+function Timeline({
+  items,
+  selectedId,
+  onSelect,
+}: {
+  items: MedicalHistoryItem[];
+  selectedId: string;
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <div className="relative">
+      <div className="flex items-center justify-start gap-2 text-sm font-medium text-foreground/90">
+        <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-muted text-foreground/80">
+          <Stethoscope className="h-4 w-4" />
+        </span>
+        <span className="truncate">Appointment/Visit</span>
+      </div>
+
+      <div className="relative mt-4 pl-7">
+        <div className="absolute left-[13px] top-0 h-full w-px bg-border" />
+
+        <div className="space-y-8">
+          {items.map((item) => {
+            const isActive = item.id === selectedId;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => onSelect(item.id)}
+                className={cn(
+                  "group relative flex w-full items-start gap-3 text-left",
+                  "rounded-xl px-2 py-1 transition-colors hover:bg-muted/60"
+                )}
+              >
+                <span
+                  className={cn(
+                    "absolute -left-7 top-1.5 flex h-7 w-7 items-center justify-center rounded-full border",
+                    isActive
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border bg-background text-foreground/70 group-hover:bg-muted"
+                  )}
+                >
+                  {item.icon}
+                </span>
+
+                <div className="min-w-0">
+                  <div className={cn("text-sm font-medium", isActive ? "text-foreground" : "text-foreground/80")}>
+                    {item.title}
+                  </div>
+                  <div className="mt-1 text-xs text-muted-foreground">{item.date}</div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DetailsCard({ selectedItem }: { selectedItem?: MedicalHistoryItem }) {
+  return (
+    <div className="rounded-2xl border border-border bg-background shadow-sm">
+      <div className="border-b border-border px-6 py-4">
+        <div className="text-sm font-semibold text-foreground">
+          Appointment / Visit — {selectedItem?.date ?? "—"}
+        </div>
+      </div>
+
+      <div className="px-6 py-5 text-sm text-foreground">
+        <div className="grid grid-cols-[160px_1fr] gap-y-3">
+          <LabelValue label="Hospital Name" value="City General Hospital" />
+          <LabelValue label="Doctor Name" value="Dr. Malik Perera" />
+          <LabelValue label="Visit Type" value="In-person Consultation" />
+          <LabelValue label="Reason for Visit" value="Routine health check and discussion." />
+          <LabelValue
+            label="Description"
+            value="Routine consultation to review overall symptoms, and determine if further diagnostic testing is required."
+          />
+          <LabelValue label="Outcome" value="No immediate concerns; doctor recommended monitoring for 2 weeks." />
+          <LabelValue label="Next Steps" value="Book follow-up appointment and complete lab tests before next visit." />
+          <LabelValue label="Attachments" value="Doctor’s notes (PDF), Lab test order" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LabelValue({ label, value }: { label: string; value: string }) {
+  return (
+    <>
+      <div className="text-foreground/80">{label}</div>
+      <div className="text-foreground">
+        <span className="mr-2 text-foreground/60">:</span>
+        {value}
+      </div>
+    </>
   );
 }
 
