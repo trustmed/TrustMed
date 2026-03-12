@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { HealthModule } from './health/health.module';
 import { getDatabaseConfig } from './config/database.config';
 import { ProfileModule } from './profile/profile.module';
+import { MedicalRecordsModule } from './medical-records/medical-records.module';
 import { ClerkAuthGuard } from './auth/clerk-auth.guard';
 
 @Module({
@@ -21,6 +22,7 @@ import { ClerkAuthGuard } from './auth/clerk-auth.guard';
     }),
     HealthModule,
     ProfileModule,
+    MedicalRecordsModule,
   ],
   controllers: [],
   providers: [
