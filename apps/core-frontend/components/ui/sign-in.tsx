@@ -38,6 +38,8 @@ interface SignInPageProps {
   onGoogleSignIn?: () => void;
   onResetPassword?: () => void;
   onCreateAccount?: () => void;
+  onBackHome?: () => void;
+  isLoading?: boolean;
 }
 
 // --- SUB-COMPONENTS ---
@@ -66,6 +68,8 @@ export const SignInPage: React.FC<SignInPageProps> = ({
   onGoogleSignIn,
   onResetPassword,
   onCreateAccount,
+  onBackHome,
+  isLoading = false,
 }) => {
   return (
     <div className="h-dvh flex flex-col md:flex-row font-geist w-dvw">
@@ -73,6 +77,14 @@ export const SignInPage: React.FC<SignInPageProps> = ({
       <section className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
           <div className="flex flex-col gap-6">
+            <button
+              type="button"
+              onClick={() => onBackHome?.()}
+              className="animate-element animate-delay-100 flex w-fit items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              ← Back to Home
+            </button>
+
             <h1 className="animate-element animate-delay-100 text-4xl md:text-5xl font-semibold leading-tight">{title}</h1>
             <p className="animate-element animate-delay-200 text-muted-foreground">{description}</p>
 
@@ -106,8 +118,8 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                   <button type="button" onClick={() => onResetPassword?.()} className="hover:underline text-primary transition-colors">Reset password</button>
                 </div>
 
-                <button type="submit" className="animate-element animate-delay-600 w-full rounded-2xl bg-primary py-4 font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
-                  Sign In
+                <button type="submit" disabled={isLoading} className="animate-element animate-delay-600 w-full rounded-2xl bg-primary py-4 font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
+                  {isLoading ? "Signing in..." : "Sign In"}
                 </button>
               </form>
             </Form>

@@ -1,26 +1,33 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextRequest, NextResponse } from "next/server";
 
-const isPublicRoute = createRouteMatcher([
-  "/",
-  "/signin(.*)",
-  "/signup(.*)",
-  "/legal(.*)",
-  "/healthcheck(.*)", // Added per your previous request
-]);
+const PUBLIC_ROUTES = ["/", "/signin", "/signup", "/legal", "/healthcheck"];
 
-export default clerkMiddleware(async (auth, request) => {
-  // 1. Check if the route is public
-  if (isPublicRoute(request)) {
-    return; // Let the request continue normally
+function isPublicRoute(pathname: string): boolean {
+  return PUBLIC_ROUTES.some(
+    (route) => pathname === route || pathname.startsWith(route + "/"),
+  );
+}
+
+export default function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Always allow public routes and static assets through
+  if (isPublicRoute(pathname)) {
+    return NextResponse.next();
   }
 
-  // 2. Protect the route
-  // Calling protect() on the awaited auth() object is the standard.
-  // This internally handles the NEXT_REDIRECT signal correctly.
-  await auth.protect();
-});
+  // Check for our backend-issued JWT stored as an HttpOnly cookie
+  const hasSession = request.cookies.has("access_token");
+
+  if (!hasSession) {
+    const signInUrl = new URL("/signin", request.url);
+    signInUrl.searchParams.set("redirect", pathname);
+    return NextResponse.redirect(signInUrl);
+  }
+
+  return NextResponse.next();
+}
 
 export const config = {
-  // Using the standard matcher to catch all relevant routes
   matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
 };
