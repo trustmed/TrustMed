@@ -184,4 +184,9 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* react-day-picker accessibility helper */
+  .rdp-vhidden {
+    @apply sr-only;
+  }
 }
