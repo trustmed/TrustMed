@@ -17,8 +17,7 @@ export const ProfileApi = {
             method: "GET",
             headers: jsonHeaders,
         });
-        if (response.status === 404) return null;
-        if (!response.ok) throw new Error(`Failed to fetch profile: ${response.status}`);
+        if (!response.ok) throw new Error("Failed to fetch profile");
         return response.json();
     },
 
