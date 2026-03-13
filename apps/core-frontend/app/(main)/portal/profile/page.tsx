@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useUser } from "@clerk/nextjs";
 import { ProgressRing } from "@/components/profile/ProgressRing";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -29,6 +30,7 @@ function computeProgress(sections: Record<string, boolean>) {
 }
 
 export default function ProfilePage() {
+    const { user } = useUser();
     const [activeSection, setActiveSection] = useState("identity");
     const [personId, setPersonId] = useState<string | null>(null);
 
@@ -53,9 +55,13 @@ export default function ProfilePage() {
 
     // ── Fetch profile ────────────────────────────────────────────────────────
     useEffect(() => {
+        if (!user) return;
         async function fetchProfile() {
+            const email = user?.primaryEmailAddress?.emailAddress;
+            if (!email) { setLoading(false); return; }
             try {
-                const data = await ProfileApi.getProfileByEmail("pramodmaneesha26@gmail.com");
+                const data = await ProfileApi.getProfileByEmail(email);
+                if (!data) { setLoading(false); return; }
                 setPersonId(data.id);
 
                 // Personal & physical
@@ -113,7 +119,7 @@ export default function ProfilePage() {
             }
         }
         fetchProfile();
-    }, []);
+    }, [user]);
 
     // ── Save handlers ────────────────────────────────────────────────────────
 
