@@ -95,6 +95,7 @@ jobs:
           else
             echo "Migration job not found! Please create it manually first."
             exit 1
+          fi
 
       - name: Run migration job
         run: |
