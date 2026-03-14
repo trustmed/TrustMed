@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HealthController } from './health.controller';
-import { HealthService, HealthResponse } from './health.service';
+import { HealthService } from './health.service';
+import { HealthResponseDto } from './dto/health-response.dto';
 import { DataSource } from 'typeorm';
 import { getDataSourceToken } from '@nestjs/typeorm';
 
@@ -66,7 +67,7 @@ describe('HealthController', () => {
     describe('when backend is up', () => {
       it('should return status as up with uptime information', async () => {
         // Arrange
-        const mockHealthResponse: HealthResponse = {
+        const mockHealthResponse: HealthResponseDto = {
           status: 'up',
           uptime: 3600, // 1 hour in seconds
           timestamp: new Date().toISOString(),
@@ -95,7 +96,7 @@ describe('HealthController', () => {
       it('should return correct uptime in seconds', async () => {
         // Arrange
         const expectedUptime = 7200; // 2 hours
-        const mockHealthResponse: HealthResponse = {
+        const mockHealthResponse: HealthResponseDto = {
           status: 'up',
           uptime: expectedUptime,
           timestamp: new Date().toISOString(),
@@ -119,7 +120,7 @@ describe('HealthController', () => {
       it('should return current timestamp when backend is up', async () => {
         // Arrange
         const beforeTime = new Date();
-        const mockHealthResponse: HealthResponse = {
+        const mockHealthResponse: HealthResponseDto = {
           status: 'up',
           uptime: 1800,
           timestamp: new Date().toISOString(),
@@ -146,7 +147,7 @@ describe('HealthController', () => {
 
       it('should include descriptive message about backend status', async () => {
         // Arrange
-        const mockHealthResponse: HealthResponse = {
+        const mockHealthResponse: HealthResponseDto = {
           status: 'up',
           uptime: 5000,
           timestamp: new Date().toISOString(),
@@ -171,7 +172,7 @@ describe('HealthController', () => {
 
       it('should return consistent data structure across multiple calls', async () => {
         // Arrange
-        const mockHealthResponse1: HealthResponse = {
+        const mockHealthResponse1: HealthResponseDto = {
           status: 'up',
           uptime: 1000,
           timestamp: new Date().toISOString(),
@@ -181,7 +182,7 @@ describe('HealthController', () => {
             type: 'mysql',
           },
         };
-        const mockHealthResponse2: HealthResponse = {
+        const mockHealthResponse2: HealthResponseDto = {
           status: 'up',
           uptime: 2000,
           timestamp: new Date().toISOString(),
@@ -214,7 +215,7 @@ describe('HealthController', () => {
 
       it('should return database connection status when connected', async () => {
         // Arrange
-        const mockHealthResponse: HealthResponse = {
+        const mockHealthResponse: HealthResponseDto = {
           status: 'up',
           uptime: 1000,
           timestamp: new Date().toISOString(),
@@ -239,7 +240,7 @@ describe('HealthController', () => {
 
       it('should return database type information', async () => {
         // Arrange
-        const mockHealthResponse: HealthResponse = {
+        const mockHealthResponse: HealthResponseDto = {
           status: 'up',
           uptime: 1000,
           timestamp: new Date().toISOString(),
@@ -265,7 +266,7 @@ describe('HealthController', () => {
     describe('when database is disconnected', () => {
       it('should return status as down when database is not connected', async () => {
         // Arrange
-        const mockHealthResponse: HealthResponse = {
+        const mockHealthResponse: HealthResponseDto = {
           status: 'down',
           uptime: 1000,
           timestamp: new Date().toISOString(),
@@ -289,7 +290,7 @@ describe('HealthController', () => {
 
       it('should include appropriate message when database is disconnected', async () => {
         // Arrange
-        const mockHealthResponse: HealthResponse = {
+        const mockHealthResponse: HealthResponseDto = {
           status: 'down',
           uptime: 1000,
           timestamp: new Date().toISOString(),
