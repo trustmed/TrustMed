@@ -58,15 +58,7 @@ jobs:
           tenant-id: ${{ secrets.DEVCOREBACKEND_AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.DEVCOREBACKEND_AZURE_SUBSCRIPTION_ID }}
 
-      # 6️⃣ Run DB migrations explicitly
-      - name: Run database migrations
-        run: |
-          az containerapp exec \
-            --name core-backend \
-            --resource-group trustmed-health-dev \
-            --command "pnpm migration:run"
-
-      # 7️⃣ Deploy to Container App
+      # 6️⃣ Deploy to Container App
       - name: Deploy to Azure Container App
         run: |
           az containerapp update \
