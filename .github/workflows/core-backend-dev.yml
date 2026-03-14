@@ -100,7 +100,7 @@ jobs:
       - name: Run migration job
         run: |
           MIGRATION_IMAGE=harithatk/trustmed-dev-core-backend:${{ github.sha }}
-          az containerapp job run \
+          az containerapp job start \
             --name dev-core-backend-migrations \
             --resource-group trustmed-health-dev \
             --image $MIGRATION_IMAGE \
