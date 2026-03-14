@@ -62,7 +62,7 @@ jobs:
       - name: Run database migrations
         run: |
           az containerapp exec \
-            --name core-backend \
+            --name dev-core-backend \
             --resource-group trustmed-health-dev \
             --command "pnpm migration:run"
 
@@ -70,7 +70,7 @@ jobs:
       - name: Deploy to Azure Container App
         run: |
           az containerapp update \
-            --name core-backend \
+            --name dev-core-backend \
             --resource-group trustmed-health-dev \
             --image harithatk/trustmed-dev-core-backend:${{ github.sha }}
 
