@@ -34,10 +34,13 @@ function parseExpiry(value: string | undefined): number {
 
 const COOKIE_NAME = 'access_token';
 const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN;
+
+const isDev = process.env.NODE_ENV === 'development';
+
 const COOKIE_OPTIONS: CookieOptions = {
   httpOnly: true,
-  sameSite: 'lax',
-  secure: process.env.NODE_ENV !== 'development',
+  sameSite: isDev ? 'lax' : 'none',
+  secure: !isDev,
   path: '/',
   maxAge: parseExpiry(process.env.JWT_EXPIRES_IN),
 };
