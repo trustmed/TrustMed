@@ -68,6 +68,9 @@ jobs:
 
   migration:
     runs-on: ubuntu-latest
+    permissions: 
+      id-token: write    # Required for OIDC token (Azure login)
+      contents: read    # Required to access repo
     needs: build-and-deploy
     steps:
       - name: Azure login
