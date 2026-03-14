@@ -1,12 +1,11 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HealthModule } from './health/health.module';
-import { dataSourceOptions } from './config/database.config';
+import { getDatabaseConfig } from './config/database.config';
 import { ProfileModule } from './profile/profile.module';
-import { AuthModule } from './auth/auth.module';
-import { JwtCookieGuard } from './auth/jwt-cookie.guard';
+import { ClerkAuthGuard } from './auth/clerk-auth.guard';
 
 @Module({
   imports: [
@@ -14,8 +13,12 @@ import { JwtCookieGuard } from './auth/jwt-cookie.guard';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    TypeOrmModule.forRoot(dataSourceOptions),
-    AuthModule,
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) =>
+        getDatabaseConfig(configService),
+      inject: [ConfigService],
+    }),
     HealthModule,
     ProfileModule,
   ],
@@ -23,7 +26,7 @@ import { JwtCookieGuard } from './auth/jwt-cookie.guard';
   providers: [
     {
       provide: APP_GUARD,
-      useClass: JwtCookieGuard,
+      useClass: ClerkAuthGuard,
     },
   ],
 })

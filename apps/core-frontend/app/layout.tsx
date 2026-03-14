@@ -1,6 +1,7 @@
 import type React from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Toaster } from "sonner";
@@ -29,7 +30,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased`}>
-        <Providers>
+        <ClerkProvider>
+          <Providers>
             {children}
             <Toaster
               richColors
@@ -39,6 +41,7 @@ export default function RootLayout({
             <Analytics />
             <SpeedInsights />
           </Providers>
+        </ClerkProvider>
       </body>
     </html>
   );
