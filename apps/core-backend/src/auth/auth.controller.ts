@@ -112,7 +112,7 @@ export class AuthController {
     type: AuthMessageDto,
   })
   logout(@Res({ passthrough: true }) res: Response): AuthMessageDto {
-    res.clearCookie(COOKIE_NAME, { path: '/' });
+    res.clearCookie(COOKIE_NAME, COOKIE_OPTIONS);
     return { message: 'Logout successful' };
   }
 }
