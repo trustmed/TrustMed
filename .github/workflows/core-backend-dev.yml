@@ -25,22 +25,22 @@ jobs:
       contents: read    # Required to access repo
 
     steps:
-      # 1️⃣ Checkout code
+      # Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2️⃣ Docker login to Docker Hub
+      # Docker login to Docker Hub
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DEVCOREBACKEND_REGISTRY_USERNAME }}
           password: ${{ secrets.DEVCOREBACKEND_REGISTRY_PASSWORD }}
 
-      # 3️⃣ Buildx setup for cross-platform build
+      # Buildx setup for cross-platform build
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # 4️⃣ Build and push Docker image with environment variables
+      # Build and push Docker image with environment variables
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -50,7 +50,7 @@ jobs:
           platforms: linux/amd64
           tags: harithatk/trustmed-dev-core-backend:${{ github.sha }}
 
-      # 5️⃣ Azure login
+      # Azure login
       - name: Azure Login
         uses: azure/login@v2
         with:
@@ -58,7 +58,7 @@ jobs:
           tenant-id: ${{ secrets.DEVCOREBACKEND_AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.DEVCOREBACKEND_AZURE_SUBSCRIPTION_ID }}
 
-      # 6️⃣ Run DB migrations explicitly
+      # Run DB migrations explicitly
       - name: Run database migrations
         run: |
           az containerapp exec \
@@ -66,7 +66,7 @@ jobs:
             --resource-group trustmed-health-dev \
             --command "pnpm migration:run"
 
-      # 7️⃣ Deploy to Container App
+      # Deploy to Container App
       - name: Deploy to Azure Container App
         run: |
           az containerapp update \
@@ -74,4 +74,38 @@ jobs:
             --resource-group trustmed-health-dev \
             --image harithatk/trustmed-dev-core-backend:${{ github.sha }}
 
+  migration:
+    runs-on: ubuntu-latest
+    needs: build-and-deploy
+    steps:
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.DEVCOREBACKEND_AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.DEVCOREBACKEND_AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.DEVCOREBACKEND_AZURE_SUBSCRIPTION_ID }}
 
+      - name: Update migration job image
+        run: |
+          MIGRATION_IMAGE=harithatk/trustmed-dev-core-backend:${{ github.sha }}
+          
+          if az containerapp job show \
+                --name dev-core-backend-migrations \
+                --resource-group trustmed-health-dev &>/dev/null; then
+            echo "Updating migration job with latest image..."
+            az containerapp job update \
+              --name dev-core-backend-migrations \
+              --resource-group trustmed-health-dev \
+              --image $MIGRATION_IMAGE
+          else
+            echo "Migration job not found! Please create it manually first."
+            exit 1
+
+      - name: Run migration job
+        run: |
+          MIGRATION_IMAGE=harithatk/trustmed-dev-core-backend:${{ github.sha }}
+          az containerapp job run \
+            --name dev-core-backend-migrations \
+            --resource-group trustmed-health-dev \
+            --image $MIGRATION_IMAGE \
+            --command "pnpm migration:run"
