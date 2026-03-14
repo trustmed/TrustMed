@@ -6,7 +6,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import type { Response } from 'express';
+import type { Response, CookieOptions } from 'express';
 import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { Public } from './public.decorator';
@@ -15,14 +15,36 @@ import { RegisterDto } from './dto/register.dto';
 import { AuthMessageDto } from './dto/auth-message.dto';
 import { ErrorResponseDto } from './dto/error-response.dto';
 
+/** Parse JWT_EXPIRES_IN (e.g. "7d", "24h", "60m") into milliseconds. */
+function parseExpiry(value: string | undefined): number {
+  const FALLBACK_MS = 1 * 24 * 60 * 60 * 1000; // 1 days
+  if (!value) return FALLBACK_MS;
+  const match = value.match(/^(\d+)([smhd])$/);
+  if (!match) return FALLBACK_MS;
+  const amount = parseInt(match[1], 10);
+  const unit = match[2];
+  const multipliers: Record<string, number> = {
+    s: 1_000,
+    m: 60_000,
+    h: 3_600_000,
+    d: 86_400_000,
+  };
+  return amount * multipliers[unit];
+}
+
 const COOKIE_NAME = 'access_token';
-const COOKIE_OPTIONS = {
+const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN;
+const COOKIE_OPTIONS: CookieOptions = {
   httpOnly: true,
-  sameSite: 'lax' as const,
-  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax',
+  secure: process.env.NODE_ENV !== 'development',
   path: '/',
-  maxAge: 60 * 60 * 24 * 7 * 1000, // 7 days in ms
+  maxAge: parseExpiry(process.env.JWT_EXPIRES_IN),
 };
+
+if (COOKIE_DOMAIN) {
+  COOKIE_OPTIONS.domain = COOKIE_DOMAIN;
+}
 
 @ApiTags('auth')
 @Controller('auth')
