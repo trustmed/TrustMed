@@ -102,6 +102,4 @@ jobs:
           MIGRATION_IMAGE=harithatk/trustmed-dev-core-backend:${{ github.sha }}
           az containerapp job start \
             --name dev-core-backend-migrations \
-            --resource-group trustmed-health-dev \
-            --image $MIGRATION_IMAGE \
-            --command "pnpm migration:run:prod"
+            --resource-group trustmed-health-dev 
