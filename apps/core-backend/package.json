@@ -20,9 +20,11 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "typeorm": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\",\"experimentalDecorators\":true,\"emitDecoratorMetadata\":true,\"strictPropertyInitialization\":false}' ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli",
+    "typeorm:prod": "node ./node_modules/typeorm/cli.js",
     "migration:generate": "npm run typeorm -- migration:generate -d src/config/database.config.ts",
     "migration:create": "npm run typeorm -- migration:create",
     "migration:run": "npm run typeorm -- migration:run -d src/config/database.config.ts",
+    "migration:run:prod": "npm run typeorm:prod -- migration:run -d dist/config/database.config.js",
     "migration:revert": "npm run typeorm -- migration:revert -d src/config/database.config.ts",
     "migration:show": "npm run typeorm -- migration:show -d src/config/database.config.ts"
   },

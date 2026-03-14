@@ -104,4 +104,4 @@ jobs:
             --name dev-core-backend-migrations \
             --resource-group trustmed-health-dev \
             --image $MIGRATION_IMAGE \
-            --command "pnpm migration:run"
+            --command "pnpm migration:run:prod"
