@@ -1,6 +1,5 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -12,9 +11,6 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
-
-  // Enable cookie parsing so guards can read HttpOnly cookies
-  app.use(cookieParser());
 
   // Set global prefix for all routes
   app.setGlobalPrefix('api');
@@ -30,9 +26,11 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  const port = process.env.PORT;
-  if (!port) throw new Error('PORT environment variable is not set');
+  // 2. Change Default Port to 4000
+  const port = process.env.PORT ?? 4000;
 
   await app.listen(port);
+  console.log(`Application is running on: http://localhost:${port}`);
+  console.log(`Swagger documentation: http://localhost:${port}/api`);
 }
 void bootstrap();

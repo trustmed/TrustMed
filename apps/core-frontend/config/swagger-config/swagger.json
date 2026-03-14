@@ -1,77 +1,6 @@
 {
   "openapi": "3.0.0",
   "paths": {
-    "/api/auth/login": {
-      "post": {
-        "operationId": "authControllerLogin",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/LoginDto" }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Login successful",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/AuthMessageResponse" }
-              }
-            }
-          },
-          "401": { "description": "Invalid credentials" }
-        },
-        "summary": "Login with email and password",
-        "tags": ["auth"]
-      }
-    },
-    "/api/auth/register": {
-      "post": {
-        "operationId": "authControllerRegister",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/RegisterDto" }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Registration successful",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/AuthMessageResponse" }
-              }
-            }
-          }
-        },
-        "summary": "Register a new account",
-        "tags": ["auth"]
-      }
-    },
-    "/api/auth/logout": {
-      "post": {
-        "operationId": "authControllerLogout",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Logout successful",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/AuthMessageResponse" }
-              }
-            }
-          }
-        },
-        "summary": "Logout and clear session cookie",
-        "tags": ["auth"]
-      }
-    },
     "/api/health": {
       "get": {
         "operationId": "getHealth",
@@ -257,38 +186,10 @@
     "version": "1.0.0",
     "contact": {}
   },
-  "tags": [
-    { "name": "auth", "description": "Authentication endpoints" },
-    { "name": "health", "description": "Health check endpoints" }
-  ],
+  "tags": [{ "name": "health", "description": "Health check endpoints" }],
   "servers": [],
   "components": {
     "schemas": {
-      "LoginDto": {
-        "type": "object",
-        "properties": {
-          "email": { "type": "string", "example": "user@example.com" },
-          "password": { "type": "string", "example": "password123" }
-        },
-        "required": ["email", "password"]
-      },
-      "RegisterDto": {
-        "type": "object",
-        "properties": {
-          "email": { "type": "string", "example": "user@example.com" },
-          "password": { "type": "string", "example": "password123" },
-          "firstName": { "type": "string", "example": "John" },
-          "lastName": { "type": "string", "example": "Doe" }
-        },
-        "required": ["email", "password", "firstName"]
-      },
-      "AuthMessageResponse": {
-        "type": "object",
-        "properties": {
-          "message": { "type": "string", "example": "Login successful" }
-        },
-        "required": ["message"]
-      },
       "DatabaseHealth": {
         "type": "object",
         "properties": {
