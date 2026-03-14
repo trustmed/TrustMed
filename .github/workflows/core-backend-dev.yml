@@ -58,14 +58,6 @@ jobs:
           tenant-id: ${{ secrets.DEVCOREBACKEND_AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.DEVCOREBACKEND_AZURE_SUBSCRIPTION_ID }}
 
-      # Run DB migrations explicitly
-      - name: Run database migrations
-        run: |
-          az containerapp exec \
-            --name dev-core-backend \
-            --resource-group trustmed-health-dev \
-            --command "pnpm migration:run"
-
       # Deploy to Container App
       - name: Deploy to Azure Container App
         run: |
@@ -88,7 +80,7 @@ jobs:
       - name: Update migration job image
         run: |
           MIGRATION_IMAGE=harithatk/trustmed-dev-core-backend:${{ github.sha }}
-          
+
           if az containerapp job show \
                 --name dev-core-backend-migrations \
                 --resource-group trustmed-health-dev &>/dev/null; then
