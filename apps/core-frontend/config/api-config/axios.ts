@@ -1,5 +1,4 @@
 import axios from "axios";
-import { getAuthToken } from "./authTokenStore";
 import qs from "qs"; 
 import { config } from "../config";
 
@@ -18,30 +17,34 @@ const axiosInstance = axios.create({
 
 // Interceptors
 axiosInstance.interceptors.request.use((config) => {
-  const token = getAuthToken();
   console.log('📡 API Request:', config.method?.toUpperCase(), config.url);
-  console.log('🔑 Token available:', token ? 'YES (' + token.substring(0, 20) + '...)' : 'NO');
-
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-    console.log('✅ Authorization header set');
-  } else {
-    console.log('❌ No token - Authorization header NOT set');
-  }
-
+  // Cookies are sent automatically because withCredentials: true is set above
   return config;
 });
 
 axiosInstance.interceptors.response.use(
   (res) => res,
   (err) => {
-    // if (err.response?.status === 401) {
-    //   console.warn("🔐 Session expired. Redirecting...");
-    //   window.location.href = "/sign-in";
-    // }
+    const requestUrl = String(err?.config?.url ?? '');
+    const isAuthRequest =
+      requestUrl.includes('/api/auth/login') ||
+      requestUrl.includes('/api/auth/register') ||
+      requestUrl.includes('/api/auth/logout');
+
+    if (
+      err.response?.status === 401 &&
+      typeof window !== 'undefined' &&
+      !isAuthRequest
+    ) {
+      console.warn("🔐 Session expired. Redirecting to sign-in...");
+      window.location.href = "/signin";
+    }
     return Promise.reject(err);
   }
 );
+
+// Named export so auth utilities can share the same configured instance
+export { axiosInstance };
 
 export default async function orvalMutator<TData = unknown, TVariables = unknown>({
   url,
