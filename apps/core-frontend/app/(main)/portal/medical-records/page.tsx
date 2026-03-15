@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useUser } from '@clerk/nextjs';
 import { Upload, Search, FolderOpen, Filter, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,8 +18,6 @@ import { ProfileApi } from '@/lib/api/profile';
 type ModalState = 'upload' | 'edit' | 'delete' | null;
 
 export default function MedicalRecordsPage() {
-  const { user } = useUser();
-
   const [personId, setPersonId] = useState<string | null>(null);
   const [records, setRecords] = useState<MedicalRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,14 +26,11 @@ export default function MedicalRecordsPage() {
   const [modal, setModal] = useState<ModalState>(null);
   const [selectedRecord, setSelectedRecord] = useState<MedicalRecord | null>(null);
 
-  // Fetch personId from email, then load records
   useEffect(() => {
-    if (!user?.primaryEmailAddress?.emailAddress) return;
-
     const init = async () => {
       try {
         const profile = await ProfileApi.getProfileByEmail(
-          user.primaryEmailAddress!.emailAddress,
+          'pramodmaneesha26@gmail.com',
         );
         setPersonId(profile.id);
         const data = await MedicalRecordsApi.getRecords(profile.id);
@@ -49,7 +43,7 @@ export default function MedicalRecordsPage() {
     };
 
     init();
-  }, [user]);
+  }, []);
 
   const filtered = records.filter((r) => {
     const matchSearch =
@@ -58,8 +52,6 @@ export default function MedicalRecordsPage() {
     const matchCategory = filterCategory === 'all' || r.category === filterCategory;
     return matchSearch && matchCategory;
   });
-
-  // ── Handlers ────────────────────────────────────────────────────────────
 
   const handleUpload = async (file: File, category: RecordCategory, notes: string) => {
     if (!personId) return;
@@ -89,8 +81,6 @@ export default function MedicalRecordsPage() {
     }
   };
 
-  // ── Render ───────────────────────────────────────────────────────────────
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -101,7 +91,6 @@ export default function MedicalRecordsPage() {
 
   return (
     <div className="flex flex-col gap-6 w-full">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">
@@ -116,7 +105,6 @@ export default function MedicalRecordsPage() {
         </Button>
       </div>
 
-      {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400 pointer-events-none" />
@@ -141,7 +129,6 @@ export default function MedicalRecordsPage() {
         </Select>
       </div>
 
-      {/* List */}
       {filtered.length > 0 ? (
         <div className="flex flex-col gap-3">
           {filtered.map((record) => (
@@ -175,7 +162,6 @@ export default function MedicalRecordsPage() {
         </div>
       )}
 
-      {/* Modals */}
       <UploadRecordModal
         open={modal === 'upload'}
         onClose={() => setModal(null)}
