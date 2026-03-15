@@ -1,20 +1,27 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  // 1. Enable CORS
+  // Enable CORS
   app.enableCors({
-    origin: true, // Allow all origins for dev.
+    origin: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
 
   // Enable cookie parsing so guards can read HttpOnly cookies
   app.use(cookieParser());
+
+  // Serve uploaded files as static assets
+  app.useStaticAssets(join(process.cwd(), 'public'), {
+    prefix: '/',
+  });
 
   // Set global prefix for all routes
   app.setGlobalPrefix('api');
@@ -26,7 +33,6 @@ async function bootstrap() {
     .setVersion('1.0.0')
     .addTag('health', 'Health check endpoints')
     .build();
-
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
