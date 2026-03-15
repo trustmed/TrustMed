@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiConsumes } from '@nestjs/swagger';
+import { memoryStorage } from 'multer';
 import { MedicalRecordsService } from './medical-records.service';
 import {
   UploadMedicalRecordDto,
@@ -32,7 +33,7 @@ export class MedicalRecordsController {
   @Post(':personId/upload')
   @ApiOperation({ summary: 'Upload a new medical record' })
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
   async uploadRecord(
     @Param('personId') personId: string,
     @UploadedFile() file: Express.Multer.File,
@@ -69,7 +70,7 @@ export class MedicalRecordsController {
   }
 
   @Get(':personId/records/:id/url')
-  @ApiOperation({ summary: 'Get a pre-signed download URL for a record' })
+  @ApiOperation({ summary: 'Get download URL for a record' })
   async getDownloadUrl(
     @Param('personId') personId: string,
     @Param('id') id: string,
