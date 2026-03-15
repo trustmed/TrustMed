@@ -20,18 +20,23 @@ export const MedicalRecordsApi = {
     file: File,
     category: RecordCategory,
     notes?: string,
+    doctorName?: string,
+    hospitalName?: string,
+    recordDate?: string,
   ): Promise<MedicalRecord> => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('category', category);
     if (notes) formData.append('notes', notes);
+    if (doctorName) formData.append('doctorName', doctorName);
+    if (hospitalName) formData.append('hospitalName', hospitalName);
+    if (recordDate) formData.append('recordDate', recordDate);
 
     const response = await fetch(
       `${API_URL}/medical-records/${personId}/upload`,
       {
         method: 'POST',
         body: formData,
-        // Do NOT set Content-Type — browser sets it with boundary automatically
       },
     );
     if (!response.ok) throw new Error('Failed to upload medical record');
@@ -42,7 +47,13 @@ export const MedicalRecordsApi = {
   updateRecord: async (
     personId: string,
     id: string,
-    updates: { category?: RecordCategory; notes?: string },
+    updates: {
+      category?: RecordCategory;
+      notes?: string;
+      doctorName?: string;
+      hospitalName?: string;
+      recordDate?: string;
+    },
   ): Promise<MedicalRecord> => {
     const response = await fetch(
       `${API_URL}/medical-records/${personId}/records/${id}`,
