@@ -29,8 +29,11 @@ export class MedicalRecord extends BaseEntity {
   @Column({ name: 'file_size', type: 'bigint' })
   fileSize: number;
 
-  @Column({ name: 's3_key' })
-  s3Key: string;
+  @Column({ name: 's3_key', nullable: true })
+  s3Key: string | null;
+
+  @Column({ name: 'file_url', nullable: true })
+  fileUrl: string | null;
 
   @Column({
     type: 'enum',
@@ -41,6 +44,15 @@ export class MedicalRecord extends BaseEntity {
 
   @Column({ type: 'text', nullable: true })
   notes: string | null;
+
+  @Column({ name: 'doctor_name', length: 200, nullable: true })
+  doctorName: string | null;
+
+  @Column({ name: 'hospital_name', length: 200, nullable: true })
+  hospitalName: string | null;
+
+  @Column({ name: 'record_date', type: 'date', nullable: true })
+  recordDate: Date | null;
 
   @Column({ name: 'uploaded_by', length: 100 })
   uploadedBy: string;
