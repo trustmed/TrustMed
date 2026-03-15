@@ -48,7 +48,12 @@ export class MedicalRecord extends BaseEntity {
   @Column({ name: 'doctor_name', type: 'varchar', length: 200, nullable: true })
   doctorName: string | null;
 
-  @Column({ name: 'hospital_name', type: 'varchar', length: 200, nullable: true })
+  @Column({
+    name: 'hospital_name',
+    type: 'varchar',
+    length: 200,
+    nullable: true,
+  })
   hospitalName: string | null;
 
   @Column({ name: 'record_date', type: 'date', nullable: true })
