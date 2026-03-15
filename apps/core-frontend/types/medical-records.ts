@@ -5,6 +5,9 @@ export interface MedicalRecord {
   fileType: string;
   category: RecordCategory;
   notes?: string;
+  doctorName?: string;
+  hospitalName?: string;
+  recordDate?: string;
   personId: string;
   createdAt: string;
   updatedAt: string;

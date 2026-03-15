@@ -17,6 +17,8 @@ import { ProfileApi } from '@/lib/api/profile';
 
 type ModalState = 'upload' | 'edit' | 'delete' | null;
 
+type Toast = { id: number; message: string; type: 'success' | 'error' };
+
 export default function MedicalRecordsPage() {
   const [personId, setPersonId] = useState<string | null>(null);
   const [records, setRecords] = useState<MedicalRecord[]>([]);
@@ -25,23 +27,28 @@ export default function MedicalRecordsPage() {
   const [filterCategory, setFilterCategory] = useState<RecordCategory | 'all'>('all');
   const [modal, setModal] = useState<ModalState>(null);
   const [selectedRecord, setSelectedRecord] = useState<MedicalRecord | null>(null);
+  const [toasts, setToasts] = useState<Toast[]>([]);
+
+  const showToast = (message: string, type: 'success' | 'error') => {
+    const id = Date.now();
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 3000);
+  };
 
   useEffect(() => {
     const init = async () => {
       try {
-        const profile = await ProfileApi.getProfileByEmail(
-          'pramodmaneesha26@gmail.com',
-        );
+        const profile = await ProfileApi.getProfileByEmail('pramodmaneesha26@gmail.com');
         setPersonId(profile.id);
         const data = await MedicalRecordsApi.getRecords(profile.id);
         setRecords(data);
       } catch (err) {
         console.error('Failed to load medical records:', err);
+        showToast('Failed to load medical records.', 'error');
       } finally {
         setLoading(false);
       }
     };
-
     init();
   }, []);
 
@@ -53,22 +60,35 @@ export default function MedicalRecordsPage() {
     return matchSearch && matchCategory;
   });
 
-  const handleUpload = async (file: File, category: RecordCategory, notes: string) => {
+  const handleUpload = async (
+    file: File,
+    category: RecordCategory,
+    notes: string,
+    doctorName: string,
+    hospitalName: string,
+    recordDate: string,
+  ) => {
     if (!personId) return;
-    const newRecord = await MedicalRecordsApi.uploadRecord(personId, file, category, notes);
+    const newRecord = await MedicalRecordsApi.uploadRecord(personId, file, category, notes, doctorName, hospitalName, recordDate);
     setRecords((prev) => [newRecord, ...prev]);
+    showToast('Record added successfully', 'success');
   };
 
-  const handleEdit = async (id: string, updates: { category: RecordCategory; notes: string }) => {
+  const handleEdit = async (
+    id: string,
+    updates: { category: RecordCategory; notes: string; doctorName: string; hospitalName: string; recordDate: string },
+  ) => {
     if (!personId) return;
     const updated = await MedicalRecordsApi.updateRecord(personId, id, updates);
     setRecords((prev) => prev.map((r) => (r.id === id ? updated : r)));
+    showToast('Record updated successfully', 'success');
   };
 
   const handleDelete = async (id: string) => {
     if (!personId) return;
     await MedicalRecordsApi.deleteRecord(personId, id);
     setRecords((prev) => prev.filter((r) => r.id !== id));
+    showToast('Record deleted successfully', 'success');
   };
 
   const handleDownload = async (record: MedicalRecord) => {
@@ -77,7 +97,7 @@ export default function MedicalRecordsPage() {
       const url = await MedicalRecordsApi.getDownloadUrl(personId, record.id);
       window.open(url, '_blank');
     } catch {
-      console.error('Failed to get download URL');
+      showToast('Failed to get download URL', 'error');
     }
   };
 
@@ -91,6 +111,20 @@ export default function MedicalRecordsPage() {
 
   return (
     <div className="flex flex-col gap-6 w-full">
+      {/* Toast notifications */}
+      <div className="fixed top-4 right-4 z-50 flex flex-col gap-2">
+        {toasts.map((t) => (
+          <div
+            key={t.id}
+            className={`px-4 py-3 rounded-lg shadow-lg text-sm text-white transition-all ${
+              t.type === 'success' ? 'bg-green-600' : 'bg-red-600'
+            }`}
+          >
+            {t.message}
+          </div>
+        ))}
+      </div>
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">
