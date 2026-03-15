@@ -1,78 +1,38 @@
-import { MedicalRecord, RecordCategory } from '@/types/medical-records';
+export interface MedicalRecord {
+  id: string;
+  fileName: string;
+  fileUrl: string;
+  fileType: string;
+  category: RecordCategory;
+  notes?: string;
+  personId: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-const API_URL = `${BASE_URL}/api`;
+export enum RecordCategory {
+  LAB_REPORT = 'LAB_REPORT',
+  PRESCRIPTION = 'PRESCRIPTION',
+  IMAGING = 'IMAGING',
+  DISCHARGE_SUMMARY = 'DISCHARGE_SUMMARY',
+  VACCINATION = 'VACCINATION',
+  OTHER = 'OTHER',
+}
 
-export const MedicalRecordsApi = {
-  // GET /api/medical-records/:personId
-  getRecords: async (personId: string): Promise<MedicalRecord[]> => {
-    const response = await fetch(`${API_URL}/medical-records/${personId}`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    });
-    if (!response.ok) throw new Error('Failed to fetch medical records');
-    return response.json();
-  },
+export const CATEGORY_LABELS: Record<RecordCategory, string> = {
+  [RecordCategory.LAB_REPORT]: 'Lab Report',
+  [RecordCategory.PRESCRIPTION]: 'Prescription',
+  [RecordCategory.IMAGING]: 'Imaging',
+  [RecordCategory.DISCHARGE_SUMMARY]: 'Discharge Summary',
+  [RecordCategory.VACCINATION]: 'Vaccination',
+  [RecordCategory.OTHER]: 'Other',
+};
 
-  // POST /api/medical-records/:personId/upload  (multipart/form-data)
-  uploadRecord: async (
-    personId: string,
-    file: File,
-    category: RecordCategory,
-    notes?: string,
-  ): Promise<MedicalRecord> => {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('category', category);
-    if (notes) formData.append('notes', notes);
-
-    const response = await fetch(
-      `${API_URL}/medical-records/${personId}/upload`,
-      {
-        method: 'POST',
-        body: formData,
-        // Do NOT set Content-Type — browser sets it with boundary automatically
-      },
-    );
-    if (!response.ok) throw new Error('Failed to upload medical record');
-    return response.json();
-  },
-
-  // PATCH /api/medical-records/:personId/records/:id
-  updateRecord: async (
-    personId: string,
-    id: string,
-    updates: { category?: RecordCategory; notes?: string },
-  ): Promise<MedicalRecord> => {
-    const response = await fetch(
-      `${API_URL}/medical-records/${personId}/records/${id}`,
-      {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      },
-    );
-    if (!response.ok) throw new Error('Failed to update medical record');
-    return response.json();
-  },
-
-  // DELETE /api/medical-records/:personId/records/:id
-  deleteRecord: async (personId: string, id: string): Promise<void> => {
-    const response = await fetch(
-      `${API_URL}/medical-records/${personId}/records/${id}`,
-      { method: 'DELETE' },
-    );
-    if (!response.ok) throw new Error('Failed to delete medical record');
-  },
-
-  // GET /api/medical-records/:personId/records/:id/url
-  getDownloadUrl: async (personId: string, id: string): Promise<string> => {
-    const response = await fetch(
-      `${API_URL}/medical-records/${personId}/records/${id}/url`,
-      { method: 'GET' },
-    );
-    if (!response.ok) throw new Error('Failed to get download URL');
-    const data = await response.json();
-    return data.url;
-  },
+export const CATEGORY_COLORS: Record<RecordCategory, string> = {
+  [RecordCategory.LAB_REPORT]: 'bg-blue-100 text-blue-700',
+  [RecordCategory.PRESCRIPTION]: 'bg-green-100 text-green-700',
+  [RecordCategory.IMAGING]: 'bg-purple-100 text-purple-700',
+  [RecordCategory.DISCHARGE_SUMMARY]: 'bg-orange-100 text-orange-700',
+  [RecordCategory.VACCINATION]: 'bg-teal-100 text-teal-700',
+  [RecordCategory.OTHER]: 'bg-gray-100 text-gray-700',
 };
