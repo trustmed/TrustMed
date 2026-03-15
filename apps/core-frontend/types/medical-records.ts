@@ -14,12 +14,12 @@ export interface MedicalRecord {
 }
 
 export enum RecordCategory {
-  LAB_REPORT = 'LAB_REPORT',
-  PRESCRIPTION = 'PRESCRIPTION',
-  IMAGING = 'IMAGING',
-  DISCHARGE_SUMMARY = 'DISCHARGE_SUMMARY',
-  VACCINATION = 'VACCINATION',
-  OTHER = 'OTHER',
+  LAB_REPORT = 'lab_report',
+  PRESCRIPTION = 'prescription',
+  IMAGING = 'imaging',
+  DISCHARGE_SUMMARY = 'discharge_summary',
+  VACCINATION = 'vaccination',
+  OTHER = 'other',
 }
 
 export const CATEGORY_LABELS: Record<RecordCategory, string> = {
