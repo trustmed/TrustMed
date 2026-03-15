@@ -29,10 +29,10 @@ export class MedicalRecord extends BaseEntity {
   @Column({ name: 'file_size', type: 'bigint' })
   fileSize: number;
 
-  @Column({ name: 's3_key', nullable: true })
+  @Column({ name: 's3_key', type: 'varchar', nullable: true })
   s3Key: string | null;
 
-  @Column({ name: 'file_url', nullable: true })
+  @Column({ name: 'file_url', type: 'varchar', nullable: true })
   fileUrl: string | null;
 
   @Column({
@@ -45,10 +45,10 @@ export class MedicalRecord extends BaseEntity {
   @Column({ type: 'text', nullable: true })
   notes: string | null;
 
-  @Column({ name: 'doctor_name', length: 200, nullable: true })
+  @Column({ name: 'doctor_name', type: 'varchar', length: 200, nullable: true })
   doctorName: string | null;
 
-  @Column({ name: 'hospital_name', length: 200, nullable: true })
+  @Column({ name: 'hospital_name', type: 'varchar', length: 200, nullable: true })
   hospitalName: string | null;
 
   @Column({ name: 'record_date', type: 'date', nullable: true })
