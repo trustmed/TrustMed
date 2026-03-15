@@ -5,6 +5,7 @@ import { Upload, FileImage, FileText, File, X, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog';
@@ -17,10 +18,11 @@ import { RecordCategory, CATEGORY_LABELS } from '@/types/medical-records';
 interface Props {
   open: boolean;
   onClose: () => void;
-  onUpload: (file: File, category: RecordCategory, notes: string) => Promise<void>;
+  onUpload: (file: File, category: RecordCategory, notes: string, doctorName: string, hospitalName: string, recordDate: string) => Promise<void>;
 }
 
-const MAX_SIZE = 50 * 1024 * 1024; // 50 MB
+const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
+const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
 
 function formatBytes(b: number) {
   if (b < 1024 * 1024) return `${(b / 1024).toFixed(0)} KB`;
@@ -37,13 +39,17 @@ export function UploadRecordModal({ open, onClose, onUpload }: Props) {
   const [file, setFile] = useState<File | null>(null);
   const [category, setCategory] = useState<RecordCategory | ''>('');
   const [notes, setNotes] = useState('');
+  const [doctorName, setDoctorName] = useState('');
+  const [hospitalName, setHospitalName] = useState('');
+  const [recordDate, setRecordDate] = useState('');
   const [dragging, setDragging] = useState(false);
   const [error, setError] = useState('');
   const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const validate = (f: File): string => {
-    if (f.size > MAX_SIZE) return 'File too large. Maximum size is 50 MB.';
+    if (!ALLOWED_TYPES.includes(f.type)) return 'Invalid file type. Only PDF, JPG, and PNG are allowed.';
+    if (f.size > MAX_SIZE) return 'File too large. Maximum size is 5 MB.';
     return '';
   };
 
@@ -62,10 +68,13 @@ export function UploadRecordModal({ open, onClose, onUpload }: Props) {
   }, []);
 
   const handleSubmit = async () => {
-    if (!file || !category) { setError('Please select a file and category.'); return; }
+    if (!file || !category || !recordDate) {
+      setError('Please select a file, category, and date.');
+      return;
+    }
     setUploading(true);
     try {
-      await onUpload(file, category, notes);
+      await onUpload(file, category, notes, doctorName, hospitalName, recordDate);
       handleClose();
     } catch {
       setError('Upload failed. Please try again.');
@@ -75,13 +84,15 @@ export function UploadRecordModal({ open, onClose, onUpload }: Props) {
   };
 
   const handleClose = () => {
-    setFile(null); setCategory(''); setNotes(''); setError('');
+    setFile(null); setCategory(''); setNotes('');
+    setDoctorName(''); setHospitalName(''); setRecordDate('');
+    setError('');
     onClose();
   };
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Upload className="h-5 w-5 text-primary" /> Upload Medical Record
@@ -107,7 +118,7 @@ export function UploadRecordModal({ open, onClose, onUpload }: Props) {
               ref={inputRef}
               type="file"
               className="hidden"
-              accept=".pdf,.jpg,.jpeg,.png,.webp,.dcm"
+              accept=".pdf,.jpg,.jpeg,.png"
               onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
             />
             {file ? (
@@ -133,7 +144,7 @@ export function UploadRecordModal({ open, onClose, onUpload }: Props) {
                   <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                     Drop your file here or <span className="text-primary">browse</span>
                   </p>
-                  <p className="text-xs text-neutral-400 mt-1">PDF, JPG, PNG, DICOM · Max 50 MB</p>
+                  <p className="text-xs text-neutral-400 mt-1">PDF, JPG, PNG · Max 5 MB</p>
                 </div>
               </div>
             )}
@@ -150,6 +161,36 @@ export function UploadRecordModal({ open, onClose, onUpload }: Props) {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Date */}
+          <div className="space-y-1.5">
+            <Label>Date of Record <span className="text-red-500">*</span></Label>
+            <Input
+              type="date"
+              value={recordDate}
+              onChange={(e) => setRecordDate(e.target.value)}
+            />
+          </div>
+
+          {/* Doctor Name */}
+          <div className="space-y-1.5">
+            <Label>Doctor Name <span className="text-neutral-400 font-normal">(optional)</span></Label>
+            <Input
+              placeholder="e.g. Dr. Malik Perera"
+              value={doctorName}
+              onChange={(e) => setDoctorName(e.target.value)}
+            />
+          </div>
+
+          {/* Hospital Name */}
+          <div className="space-y-1.5">
+            <Label>Hospital Name <span className="text-neutral-400 font-normal">(optional)</span></Label>
+            <Input
+              placeholder="e.g. City General Hospital"
+              value={hospitalName}
+              onChange={(e) => setHospitalName(e.target.value)}
+            />
           </div>
 
           {/* Notes */}
@@ -172,7 +213,7 @@ export function UploadRecordModal({ open, onClose, onUpload }: Props) {
 
         <DialogFooter className="gap-2">
           <Button variant="outline" onClick={handleClose} disabled={uploading}>Cancel</Button>
-          <Button onClick={handleSubmit} disabled={!file || !category || uploading}>
+          <Button onClick={handleSubmit} disabled={!file || !category || !recordDate || uploading}>
             {uploading
               ? <span className="flex items-center gap-2"><span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Uploading...</span>
               : <span className="flex items-center gap-2"><Upload className="h-4 w-4" />Upload Record</span>}
