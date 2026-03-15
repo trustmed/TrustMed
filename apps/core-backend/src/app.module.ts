@@ -9,7 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { JwtCookieGuard } from './auth/jwt-cookie.guard';
 import { AccessModule } from './access/access.module';
 import { MedicalRecordsModule } from './medical-records/medical-records.module';
-import { ClerkAuthGuard } from './auth/clerk-auth.guard';
+
 
 @Module({
   imports: [
