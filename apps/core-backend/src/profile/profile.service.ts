@@ -75,7 +75,7 @@ export class ProfileService {
         name: name || 'New User',
       });
       person = await this.personRepository.save(person);
-      
+
       // Ensure relations arrays are present so frontend doesn't crash on null properties
       person.allergies = [];
       person.medications = [];

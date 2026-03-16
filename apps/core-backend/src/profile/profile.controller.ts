@@ -38,7 +38,9 @@ export class ProfileController {
 
   @Public()
   @Post('sync')
-  @ApiOperation({ summary: 'Sync user from auth provider (creates if missing)' })
+  @ApiOperation({
+    summary: 'Sync user from auth provider (creates if missing)',
+  })
   @ApiBody({ type: SyncProfileDto })
   async syncProfile(@Body() data: SyncProfileDto) {
     return this.profileService.syncProfile(data.email, data.name);
