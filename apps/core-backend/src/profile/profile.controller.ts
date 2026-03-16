@@ -9,7 +9,9 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
 import { ProfileService } from './profile.service';
+import { Public } from '../auth/public.decorator';
 import {
+  SyncProfileDto,
   UpdatePersonalDto,
   UpdateMedicalProfileDto,
   AddAllergyDto,
@@ -32,6 +34,14 @@ export class ProfileController {
   @ApiOperation({ summary: 'Get full user profile by email' })
   async getProfileByEmail(@Param('email') email: string) {
     return this.profileService.getProfileByEmail(email);
+  }
+
+  @Public()
+  @Post('sync')
+  @ApiOperation({ summary: 'Sync user from auth provider (creates if missing)' })
+  @ApiBody({ type: SyncProfileDto })
+  async syncProfile(@Body() data: SyncProfileDto) {
+    return this.profileService.syncProfile(data.email, data.name);
   }
 
   @Patch(':personId/personal')

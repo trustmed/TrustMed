@@ -13,25 +13,25 @@ export class Person extends BaseEntity {
   @Column({ unique: true })
   email: string;
 
-  @Column({ length: 100 })
+  @Column({ length: 100, nullable: true })
   phone: string;
 
-  @Column({ length: 100 })
+  @Column({ length: 100, nullable: true })
   addressLine1: string;
 
-  @Column({ length: 100 })
+  @Column({ length: 100, nullable: true })
   addressLine2: string;
 
-  @Column({ length: 100 })
+  @Column({ length: 100, nullable: true })
   city: string;
 
-  @Column({ length: 100 })
+  @Column({ length: 100, nullable: true })
   zipCode: string;
 
-  @Column({ length: 100 })
+  @Column({ length: 100, nullable: true })
   gender: string;
 
-  @Column({ length: 100 })
+  @Column({ length: 100, nullable: true })
   dob: string;
 
   @Column({ length: 100, nullable: true })

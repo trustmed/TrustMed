@@ -58,6 +58,33 @@ export class ProfileService {
     return person;
   }
 
+  async syncProfile(email: string, name: string) {
+    let person = await this.personRepository.findOne({
+      where: { email },
+      relations: [
+        'medicalProfile',
+        'allergies',
+        'medications',
+        'emergencyContacts',
+      ],
+    });
+
+    if (!person) {
+      person = this.personRepository.create({
+        email,
+        name: name || 'New User',
+      });
+      person = await this.personRepository.save(person);
+      
+      // Ensure relations arrays are present so frontend doesn't crash on null properties
+      person.allergies = [];
+      person.medications = [];
+      person.emergencyContacts = [];
+    }
+
+    return person;
+  }
+
   async updatePerson(personId: string, data: Partial<Person>) {
     await this.personRepository.update(personId, data);
     return this.getProfile(personId);

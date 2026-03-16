@@ -21,6 +21,16 @@ export const ProfileApi = {
         return response.json();
     },
 
+    syncProfile: async (data: { email: string; name: string }) => {
+        const response = await fetch(`${API_URL}/profile/sync`, {
+            method: "POST",
+            headers: jsonHeaders,
+            body: JSON.stringify(data),
+        });
+        if (!response.ok) throw new Error(`Failed to sync profile: ${response.status}`);
+        return response.json();
+    },
+
     updatePersonalDetails: async (
         personId: string,
         data: Partial<CoreIdentityValues> & {
