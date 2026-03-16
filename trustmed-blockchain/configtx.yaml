@@ -1,5 +1,22 @@
-#---- Organizations ----
+################################################################################
+# SECTION 1: CAPABILITIES
+# These define the binary features enabled for the network.
+################################################################################
+Capabilities:
+    # Channel capabilities apply to both the orderers and the peers.
+    Channel: &ChannelCapabilities
+        V2_0: true
+    # Orderer capabilities only apply to the orderer nodes.
+    Orderer: &OrdererCapabilities
+        V2_0: true
+    # Application capabilities only apply to the peer nodes.
+    Application: &ApplicationCapabilities
+        V2_5: true
 
+################################################################################
+# SECTION 2: ORGANIZATIONS
+# This maps the physical crypto folders to logical Orgs in the network.
+################################################################################
 Organizations:
     - &OrdererOrg
         Name: OrdererOrg
@@ -19,6 +36,7 @@ Organizations:
             Writers: {Type: Signature, Rule: "OR('Hospital1MSP.admin', 'Hospital1MSP.client')"}
             Admins:  {Type: Signature, Rule: "OR('Hospital1MSP.admin')"}
             Endorsement: {Type: Signature, Rule: "OR('Hospital1MSP.peer')"}
+        # AnchorPeers allow nodes from different Orgs to find each other via Gossip
         AnchorPeers:
             - Host: peer0.hospital1.trustmed.com
               Port: 7051
@@ -49,14 +67,17 @@ Organizations:
             - Host: peer0.insurance.trustmed.com
               Port: 9051
 
-# ---- Orderer ----
-
+################################################################################
+# SECTION 3: ORDERER
+# This defines the consensus rules (Raft).
+################################################################################
 Orderer: &OrdererDefaults
     OrdererType: etcdraft
     EtcdRaft:
         Consenters:
             - Host: orderer.trustmed.com
               Port: 7050
+              # These must point to the certificates generated with cryptogen
               ClientTLSCert: crypto-config/ordererOrganizations/trustmed.com/orderers/orderer.trustmed.com/tls/server.crt
               ServerTLSCert: crypto-config/ordererOrganizations/trustmed.com/orderers/orderer.trustmed.com/tls/server.crt
     Addresses:
@@ -68,15 +89,38 @@ Orderer: &OrdererDefaults
         PreferredMaxBytes: 512 KB
     Organizations:
     Capabilities:
-        <<: *OrdererCapabilities
+        <<: *OrdererCapabilities 
     Policies:
         Readers: {Type: ImplicitMeta, Rule: "ANY Readers"}
         Writers: {Type: ImplicitMeta, Rule: "ANY Writers"}
         Admins: {Type: ImplicitMeta, Rule: "MAJORITY Admins"}
         BlockValidation: {Type: ImplicitMeta, Rule: "ANY Writers"}
 
-# ---- Profiles ----
+################################################################################
+# SECTION 4: CHANNEL & APPLICATION DEFAULTS
+################################################################################
+Channel: &ChannelDefaults
+    Policies:
+        Readers: {Type: ImplicitMeta, Rule: "ANY Readers"}
+        Writers: {Type: ImplicitMeta, Rule: "ANY Writers"}
+        Admins: {Type: ImplicitMeta, Rule: "MAJORITY Admins"}
+    Capabilities:
+        <<: *ChannelCapabilities
 
+Application: &ApplicationDefaults
+    Organizations:
+    Policies:
+        Readers: {Type: ImplicitMeta, Rule: "ANY Readers"}
+        Writers: {Type: ImplicitMeta, Rule: "ANY Writers"}
+        Admins: {Type: ImplicitMeta, Rule: "MAJORITY Admins"}
+        LifecycleEndorsement: {Type: ImplicitMeta, Rule: "MAJORITY Endorsement"}
+        Endorsement: {Type: ImplicitMeta, Rule: "MAJORITY Endorsement"}
+    Capabilities:
+        <<: *ApplicationCapabilities
+
+################################################################################
+# SECTION 5: PROFILES
+################################################################################
 Profiles:
     TrustMedGenesis:
         <<: *ChannelDefaults
@@ -84,6 +128,8 @@ Profiles:
             <<: *OrdererDefaults
             Organizations:
                 - *OrdererOrg
+            Capabilities:
+                <<: *OrdererCapabilities
         Consortiums:
             TrustMedConsortium:
                 Organizations:
