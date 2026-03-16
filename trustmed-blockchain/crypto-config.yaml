@@ -3,28 +3,25 @@ OrdererOrgs:
     Domain: trustmed.com
     Specs:
       - Hostname: orderer
-
 PeerOrgs:
   - Name: Hospital1
     Domain: hospital1.trustmed.com
     EnableNodeOUs: true
     Template:
-      Count: 1 
+      Count: 1
     Users:
-      Count: 1 
-
+      Count: 1
   - Name: Hospital2
     Domain: hospital2.trustmed.com
     EnableNodeOUs: true
     Template:
-      Count: 1 
+      Count: 1
     Users:
-      Count: 1 
-
+      Count: 1
   - Name: Insurance
     Domain: insurance.trustmed.com
     EnableNodeOUs: true
     Template:
-      Count: 1 
+      Count: 1
     Users:
       Count: 1
