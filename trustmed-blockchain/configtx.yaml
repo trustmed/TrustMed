@@ -1,0 +1,102 @@
+#---- Organizations ----
+
+Organizations:
+    - &OrdererOrg
+        Name: OrdererOrg
+        ID: OrdererMSP
+        MSPDir: crypto-config/ordererOrganizations/trustmed.com/msp
+        Policies:
+            Readers: {Type: Signature, Rule: "OR('OrdererMSP.member')"}
+            Writers: {Type: Signature, Rule: "OR('OrdererMSP.member')"}
+            Admins:  {Type: Signature, Rule: "OR('OrdererMSP.admin')"}
+
+    - &Hospital1
+        Name: Hospital1
+        ID: Hospital1MSP
+        MSPDir: crypto-config/peerOrganizations/hospital1.trustmed.com/msp
+        Policies:
+            Readers: {Type: Signature, Rule: "OR('Hospital1MSP.admin', 'Hospital1MSP.peer', 'Hospital1MSP.client')"}
+            Writers: {Type: Signature, Rule: "OR('Hospital1MSP.admin', 'Hospital1MSP.client')"}
+            Admins:  {Type: Signature, Rule: "OR('Hospital1MSP.admin')"}
+            Endorsement: {Type: Signature, Rule: "OR('Hospital1MSP.peer')"}
+        AnchorPeers:
+            - Host: peer0.hospital1.trustmed.com
+              Port: 7051
+
+    - &Hospital2
+        Name: Hospital2
+        ID: Hospital2MSP
+        MSPDir: crypto-config/peerOrganizations/hospital2.trustmed.com/msp
+        Policies:
+            Readers: {Type: Signature, Rule: "OR('Hospital2MSP.admin', 'Hospital2MSP.peer', 'Hospital2MSP.client')"}
+            Writers: {Type: Signature, Rule: "OR('Hospital2MSP.admin', 'Hospital2MSP.client')"}
+            Admins:  {Type: Signature, Rule: "OR('Hospital2MSP.admin')"}
+            Endorsement: {Type: Signature, Rule: "OR('Hospital2MSP.peer')"}
+        AnchorPeers:
+            - Host: peer0.hospital2.trustmed.com
+              Port: 8051
+
+    - &Insurance
+        Name: Insurance
+        ID: InsuranceMSP
+        MSPDir: crypto-config/peerOrganizations/insurance.trustmed.com/msp
+        Policies:
+            Readers: {Type: Signature, Rule: "OR('InsuranceMSP.admin', 'InsuranceMSP.peer', 'InsuranceMSP.client')"}
+            Writers: {Type: Signature, Rule: "OR('InsuranceMSP.admin', 'InsuranceMSP.client')"}
+            Admins:  {Type: Signature, Rule: "OR('InsuranceMSP.admin')"}
+            Endorsement: {Type: Signature, Rule: "OR('InsuranceMSP.peer')"}
+        AnchorPeers:
+            - Host: peer0.insurance.trustmed.com
+              Port: 9051
+
+# ---- Orderer ----
+
+Orderer: &OrdererDefaults
+    OrdererType: etcdraft
+    EtcdRaft:
+        Consenters:
+            - Host: orderer.trustmed.com
+              Port: 7050
+              ClientTLSCert: crypto-config/ordererOrganizations/trustmed.com/orderers/orderer.trustmed.com/tls/server.crt
+              ServerTLSCert: crypto-config/ordererOrganizations/trustmed.com/orderers/orderer.trustmed.com/tls/server.crt
+    Addresses:
+        - orderer.trustmed.com:7050
+    BatchTimeout: 2s
+    BatchSize:
+        MaxMessageCount: 10
+        AbsoluteMaxBytes: 99 MB
+        PreferredMaxBytes: 512 KB
+    Organizations:
+    Capabilities:
+        <<: *OrdererCapabilities
+    Policies:
+        Readers: {Type: ImplicitMeta, Rule: "ANY Readers"}
+        Writers: {Type: ImplicitMeta, Rule: "ANY Writers"}
+        Admins: {Type: ImplicitMeta, Rule: "MAJORITY Admins"}
+        BlockValidation: {Type: ImplicitMeta, Rule: "ANY Writers"}
+
+# ---- Profiles ----
+
+Profiles:
+    TrustMedGenesis:
+        <<: *ChannelDefaults
+        Orderer:
+            <<: *OrdererDefaults
+            Organizations:
+                - *OrdererOrg
+        Consortiums:
+            TrustMedConsortium:
+                Organizations:
+                    - *Hospital1
+                    - *Hospital2
+                    - *Insurance
+    TrustMedChannel:
+        Consortium: TrustMedConsortium
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - *Hospital1
+                - *Hospital2
+                - *Insurance
+            Capabilities:
+                <<: *ApplicationCapabilities
