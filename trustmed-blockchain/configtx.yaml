@@ -137,6 +137,7 @@ Profiles:
                     - *Hospital2
                     - *Insurance
     TrustMedChannel:
+        <<: *ChannelDefaults
         Consortium: TrustMedConsortium
         Application:
             <<: *ApplicationDefaults
