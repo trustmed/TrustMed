@@ -1,4 +1,4 @@
-import { LayoutDashboard, UserCog, Settings } from "lucide-react";
+import { CalendarClock, LayoutDashboard, Settings, UserCog } from "lucide-react";
 import Image from "next/image";
 
 export const PORTAL_LINKS = [
@@ -7,6 +7,13 @@ export const PORTAL_LINKS = [
         href: "/portal",
         icon: (
             <LayoutDashboard className="text-neutral-700 dark:text-neutral-200 h-5 w-5 shrink-0" />
+        ),
+    },
+    {
+        label: "Upcoming Appointments",
+        href: "/appointments",
+        icon: (
+            <CalendarClock className="text-neutral-700 dark:text-neutral-200 h-5 w-5 shrink-0" />
         ),
     },
     {
