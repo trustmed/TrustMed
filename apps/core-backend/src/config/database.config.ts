@@ -16,6 +16,7 @@ import { EmergencyContact } from '../entities/emergency-contact.entity';
 import { InitialSchema1770563243972 } from '../entities/migrations/1770563243972-InitialSchema';
 import { AuthUser } from '../entities/auth-user.entity';
 import { AuthUserTableCreate1773499292249 } from '../entities/migrations/1773499292249-AuthUserTableCreate';
+import { LinkAuthUserToPerson1773600000002 } from '../entities/migrations/1773600000002-LinkAuthUserToPerson';
 dotenv.config();
 
 export const dataSourceOptions: DataSourceOptions = {
@@ -40,8 +41,8 @@ export const dataSourceOptions: DataSourceOptions = {
     EmergencyContact,
     AuthUser,
   ],
-  migrations: [InitialSchema1770563243972, AuthUserTableCreate1773499292249],
-  synchronize: false,
+  migrations: [InitialSchema1770563243972, AuthUserTableCreate1773499292249, LinkAuthUserToPerson1773600000002],
+  synchronize: process.env.NODE_ENV === 'development',
   logging: process.env.NODE_ENV === 'development',
 };
 

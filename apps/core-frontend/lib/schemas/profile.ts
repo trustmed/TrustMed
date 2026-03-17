@@ -1,7 +1,8 @@
 import { z } from "zod";
 
 export const coreIdentitySchema = z.object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
+    firstName: z.string().min(1, "First name is required"),
+    lastName: z.string().optional(),
     email: z.string().email("Invalid email address"),
     phone: z.string().optional(),
     addressLine1: z.string().optional(),
