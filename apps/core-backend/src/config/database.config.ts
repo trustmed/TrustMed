@@ -16,6 +16,7 @@ import { EmergencyContact } from '../entities/emergency-contact.entity';
 import { InitialSchema1770563243972 } from '../entities/migrations/1770563243972-InitialSchema';
 import { AuthUser } from '../entities/auth-user.entity';
 import { AuthUserTableCreate1773499292249 } from '../entities/migrations/1773499292249-AuthUserTableCreate';
+import { MedicalRecord } from '../entities/medical-record.entity';
 dotenv.config();
 
 export const dataSourceOptions: DataSourceOptions = {
@@ -39,6 +40,7 @@ export const dataSourceOptions: DataSourceOptions = {
     Medication,
     EmergencyContact,
     AuthUser,
+    MedicalRecord,
   ],
   migrations: [InitialSchema1770563243972, AuthUserTableCreate1773499292249],
   synchronize: false,
