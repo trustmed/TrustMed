@@ -1,0 +1,154 @@
+# docker-compose.yaml
+version: '3.7'
+
+networks:
+  trustmed_net:
+    name: trustmed_net
+
+services:
+  # ---------------------------------------------------------------------------
+  # ORDERER NODE (The Traffic Cop)
+  # ---------------------------------------------------------------------------
+  orderer.trustmed.com:
+    container_name: orderer.trustmed.com
+    image: hyperledger/fabric-orderer:2.5.4
+    environment:
+      - FABRIC_LOGGING_SPEC=INFO
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_LISTENPORT=7050
+      - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/crypto-config/ordererOrganizations/trustmed.com/orderers/orderer.trustmed.com/msp
+      # TLS Setup for communication
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/crypto-config/ordererOrganizations/trustmed.com/orderers/orderer.trustmed.com/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/crypto-config/ordererOrganizations/trustmed.com/orderers/orderer.trustmed.com/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/crypto-config/ordererOrganizations/trustmed.com/orderers/orderer.trustmed.com/tls/ca.crt]
+      # Admin Setup (Required for osnadmin to join the channel in v2.5+)
+      - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:7053
+      - ORDERER_ADMIN_TLS_ENABLED=true
+      - ORDERER_ADMIN_TLS_PRIVATEKEY=/var/hyperledger/crypto-config/ordererOrganizations/trustmed.com/orderers/orderer.trustmed.com/tls/server.key
+      - ORDERER_ADMIN_TLS_CERTIFICATE=/var/hyperledger/crypto-config/ordererOrganizations/trustmed.com/orderers/orderer.trustmed.com/tls/server.crt
+      - ORDERER_ADMIN_TLS_CLIENTROOTCAS=[/var/hyperledger/crypto-config/ordererOrganizations/trustmed.com/orderers/orderer.trustmed.com/tls/ca.crt]
+      # Tell the orderer to start without a system channel
+      - ORDERER_GENERAL_BOOTSTRAPMETHOD=none
+      - ORDERER_CHANNELPARTICIPATION_ENABLED=true
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric
+    command: orderer
+    volumes:
+      - ./crypto-config:/var/hyperledger/crypto-config
+      - ./channel-artifacts:/var/hyperledger/channel-artifacts
+      - orderer_data:/var/hyperledger/production/orderer
+    ports:
+      - "7050:7050"
+      - "7053:7053"
+    networks:
+      - trustmed_net
+
+  # ---------------------------------------------------------------------------
+  # HOSPITAL 1 PEER
+  # ---------------------------------------------------------------------------
+  peer0.hospital1.trustmed.com:
+    container_name: peer0.hospital1.trustmed.com
+    image: hyperledger/fabric-peer:2.5.4
+    environment:
+      # Pass Docker daemon so the peer can spin up Chaincode containers later
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=trustmed_net
+      - FABRIC_LOGGING_SPEC=INFO
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_PROFILE_ENABLED=false
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/crypto-config/peerOrganizations/hospital1.trustmed.com/peers/peer0.hospital1.trustmed.com/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/crypto-config/peerOrganizations/hospital1.trustmed.com/peers/peer0.hospital1.trustmed.com/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/crypto-config/peerOrganizations/hospital1.trustmed.com/peers/peer0.hospital1.trustmed.com/tls/ca.crt
+      - CORE_PEER_ID=peer0.hospital1.trustmed.com
+      - CORE_PEER_ADDRESS=peer0.hospital1.trustmed.com:7051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.hospital1.trustmed.com:7052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.hospital1.trustmed.com:7051
+      - CORE_PEER_LOCALMSPID=Hospital1MSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/crypto-config/peerOrganizations/hospital1.trustmed.com/peers/peer0.hospital1.trustmed.com/msp
+    volumes:
+      - /var/run/docker.sock:/host/var/run/docker.sock
+      - ./crypto-config:/etc/hyperledger/crypto-config
+      - peer0_hospital1_data:/var/hyperledger/production
+    ports:
+      - "7051:7051"
+    networks:
+      - trustmed_net
+
+  # ---------------------------------------------------------------------------
+  # HOSPITAL 2 PEER
+  # ---------------------------------------------------------------------------
+  peer0.hospital2.trustmed.com:
+    container_name: peer0.hospital2.trustmed.com
+    image: hyperledger/fabric-peer:2.5.4
+    environment:
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=trustmed_net
+      - FABRIC_LOGGING_SPEC=INFO
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_PROFILE_ENABLED=false
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/crypto-config/peerOrganizations/hospital2.trustmed.com/peers/peer0.hospital2.trustmed.com/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/crypto-config/peerOrganizations/hospital2.trustmed.com/peers/peer0.hospital2.trustmed.com/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/crypto-config/peerOrganizations/hospital2.trustmed.com/peers/peer0.hospital2.trustmed.com/tls/ca.crt
+      - CORE_PEER_ID=peer0.hospital2.trustmed.com
+      - CORE_PEER_ADDRESS=peer0.hospital2.trustmed.com:8051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:8051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.hospital2.trustmed.com:8052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.hospital2.trustmed.com:8051
+      - CORE_PEER_LOCALMSPID=Hospital2MSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/crypto-config/peerOrganizations/hospital2.trustmed.com/peers/peer0.hospital2.trustmed.com/msp
+    volumes:
+      - /var/run/docker.sock:/host/var/run/docker.sock
+      - ./crypto-config:/etc/hyperledger/crypto-config
+      - peer0_hospital2_data:/var/hyperledger/production
+    ports:
+      - "8051:8051"
+    networks:
+      - trustmed_net
+
+  # ---------------------------------------------------------------------------
+  # INSURANCE PEER
+  # ---------------------------------------------------------------------------
+  peer0.insurance.trustmed.com:
+    container_name: peer0.insurance.trustmed.com
+    image: hyperledger/fabric-peer:2.5.4
+    environment:
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=trustmed_net
+      - FABRIC_LOGGING_SPEC=INFO
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_PROFILE_ENABLED=false
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/crypto-config/peerOrganizations/insurance.trustmed.com/peers/peer0.insurance.trustmed.com/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/crypto-config/peerOrganizations/insurance.trustmed.com/peers/peer0.insurance.trustmed.com/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/crypto-config/peerOrganizations/insurance.trustmed.com/peers/peer0.insurance.trustmed.com/tls/ca.crt
+      - CORE_PEER_ID=peer0.insurance.trustmed.com
+      - CORE_PEER_ADDRESS=peer0.insurance.trustmed.com:9051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:9051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.insurance.trustmed.com:9052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.insurance.trustmed.com:9051
+      - CORE_PEER_LOCALMSPID=InsuranceMSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/crypto-config/peerOrganizations/insurance.trustmed.com/peers/peer0.insurance.trustmed.com/msp
+    volumes:
+      - /var/run/docker.sock:/host/var/run/docker.sock
+      - ./crypto-config:/etc/hyperledger/crypto-config
+      - peer0_insurance_data:/var/hyperledger/production
+    ports:
+      - "9051:9051"
+    networks:
+      - trustmed_net
+
+volumes:
+  orderer_data:
+  peer0_hospital1_data:
+  peer0_hospital2_data:
+  peer0_insurance_data:
