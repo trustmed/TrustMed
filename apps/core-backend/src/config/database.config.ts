@@ -41,7 +41,11 @@ export const dataSourceOptions: DataSourceOptions = {
     EmergencyContact,
     AuthUser,
   ],
-  migrations: [InitialSchema1770563243972, AuthUserTableCreate1773499292249, LinkAuthUserToPerson1773600000002],
+  migrations: [
+    InitialSchema1770563243972,
+    AuthUserTableCreate1773499292249,
+    LinkAuthUserToPerson1773600000002,
+  ],
   synchronize: process.env.NODE_ENV === 'development',
   logging: process.env.NODE_ENV === 'development',
 };
