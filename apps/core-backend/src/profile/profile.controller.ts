@@ -6,7 +6,9 @@ import {
   Body,
   Param,
   Patch,
+  Req,
 } from '@nestjs/common';
+import type { Request } from 'express';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { ProfileService } from './profile.service';
 import { MedicalProfile } from '../entities/medical-profile.entity';
@@ -20,8 +22,24 @@ import { Person } from '../entities/person.entity';
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
+  /**
+   * GET /profile/me — returns the profile of the currently logged-in user.
+   * The JWT cookie guard populates req.user with the token payload;
+   * req.user.sub is the Clerk user ID.
+   * NOTE: this route MUST be declared before :personId to avoid route conflict.
+   */
+  @Get('me')
+  @ApiOperation({ summary: 'Get profile for the logged-in user (via JWT cookie)' })
+  async getMyProfile(@Req() req: Request & { user?: { sub?: string } }) {
+    const clerkUserId = req.user?.sub;
+    if (!clerkUserId) {
+      throw new Error('User not authenticated');
+    }
+    return this.profileService.getProfileByAuthUserId(clerkUserId);
+  }
+
   @Get(':personId')
-  @ApiOperation({ summary: 'Get full user profile' })
+  @ApiOperation({ summary: 'Get full user profile by person ID' })
   async getProfile(@Param('personId') personId: string) {
     return this.profileService.getProfile(personId);
   }
@@ -30,6 +48,12 @@ export class ProfileController {
   @ApiOperation({ summary: 'Get full user profile by email' })
   async getProfileByEmail(@Param('email') email: string) {
     return this.profileService.getProfileByEmail(email);
+  }
+
+  @Get('auth/:clerkUserId')
+  @ApiOperation({ summary: 'Get full user profile by Clerk user ID' })
+  async getProfileByAuthUserId(@Param('clerkUserId') clerkUserId: string) {
+    return this.profileService.getProfileByAuthUserId(clerkUserId);
   }
 
   @Patch(':personId/personal')
