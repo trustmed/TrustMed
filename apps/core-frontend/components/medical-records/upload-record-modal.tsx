@@ -47,25 +47,30 @@ export function UploadRecordModal({ open, onClose, onUpload }: Props) {
   const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const validate = (f: File): string => {
-    if (!ALLOWED_TYPES.includes(f.type)) return 'Invalid file type. Only PDF, JPG, and PNG are allowed.';
-    if (f.size > MAX_SIZE) return 'File too large. Maximum size is 5 MB.';
-    return '';
-  };
+  const handleFile = useCallback(
+    (f: File) => {
+      const err = !ALLOWED_TYPES.includes(f.type)
+        ? 'Invalid file type. Only PDF, JPG, and PNG are allowed.'
+        : f.size > MAX_SIZE
+          ? 'File too large. Maximum size is 5 MB.'
+          : '';
 
-  const handleFile = (f: File) => {
-    const err = validate(f);
-    if (err) { setError(err); return; }
-    setError('');
-    setFile(f);
-  };
+      if (err) { setError(err); return; }
+      setError('');
+      setFile(f);
+    },
+    [],
+  );
 
-  const onDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setDragging(false);
-    const f = e.dataTransfer.files[0];
-    if (f) handleFile(f);
-  }, []);
+  const onDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setDragging(false);
+      const f = e.dataTransfer.files[0];
+      if (f) handleFile(f);
+    },
+    [handleFile],
+  );
 
   const handleSubmit = async () => {
     if (!file || !category || !recordDate) {
