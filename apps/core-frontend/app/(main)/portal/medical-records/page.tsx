@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Upload, Search, FolderOpen, Filter, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +14,7 @@ import { RecordCard } from '@/components/medical-records/record-card';
 import { MedicalRecord, RecordCategory, CATEGORY_LABELS } from '@/types/medical-records';
 import { MedicalRecordsApi } from '@/lib/api/medical-records';
 import { ProfileApi } from '@/lib/api/profile';
+import { useAuthControllerGetMe } from '@/services/api/auth/auth';
 
 type ModalState = 'upload' | 'edit' | 'delete' | null;
 
@@ -29,28 +30,35 @@ export default function MedicalRecordsPage() {
   const [selectedRecord, setSelectedRecord] = useState<MedicalRecord | null>(null);
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const showToast = (message: string, type: 'success' | 'error') => {
+  const { data: user, isLoading: userLoading, error: userError } = useAuthControllerGetMe();
+
+  const showToast = useCallback((message: string, type: 'success' | 'error') => {
     const id = Date.now();
     setToasts((prev) => [...prev, { id, message, type }]);
     setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 3000);
-  };
+  }, []);
 
   useEffect(() => {
     const init = async () => {
+      if (!user?.email) return;
+
       try {
-        const profile = await ProfileApi.getProfileByEmail('pramodmaneesha26@gmail.com');
+        const profile = await ProfileApi.getProfileByEmail(user.email);
         setPersonId(profile.id);
-        const data = await MedicalRecordsApi.getRecords(profile.id);
+
+        // Type explicitly set to MedicalRecord[]
+        const data: MedicalRecord[] = await MedicalRecordsApi.getRecords(profile.id);
         setRecords(data);
-      } catch (err) {
-        console.error('Failed to load medical records:', err);
+      } catch (err: unknown) {
+        const errInfo = err as { status?: number; data?: unknown };
+        console.error('Failed to load medical records:', errInfo);
         showToast('Failed to load medical records.', 'error');
       } finally {
         setLoading(false);
       }
     };
     init();
-  }, []);
+  }, [user, showToast]);
 
   const filtered = records.filter((r) => {
     const matchSearch =
@@ -60,7 +68,7 @@ export default function MedicalRecordsPage() {
     return matchSearch && matchCategory;
   });
 
-  const handleUpload = async (
+  const handleUpload = useCallback(async (
     file: File,
     category: RecordCategory,
     notes: string,
@@ -69,42 +77,59 @@ export default function MedicalRecordsPage() {
     recordDate: string,
   ) => {
     if (!personId) return;
-    const newRecord = await MedicalRecordsApi.uploadRecord(personId, file, category, notes, doctorName, hospitalName, recordDate);
+    const newRecord: MedicalRecord = await MedicalRecordsApi.uploadRecord(
+      personId, file, category, notes, doctorName, hospitalName, recordDate
+    );
     setRecords((prev) => [newRecord, ...prev]);
     showToast('Record added successfully', 'success');
-  };
+  }, [personId, showToast]);
 
-  const handleEdit = async (
+  const handleEdit = useCallback(async (
     id: string,
     updates: { category: RecordCategory; notes: string; doctorName: string; hospitalName: string; recordDate: string },
   ) => {
     if (!personId) return;
-    const updated = await MedicalRecordsApi.updateRecord(personId, id, updates);
+    const updated: MedicalRecord = await MedicalRecordsApi.updateRecord(personId, id, updates);
     setRecords((prev) => prev.map((r) => (r.id === id ? updated : r)));
     showToast('Record updated successfully', 'success');
-  };
+  }, [personId, showToast]);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = useCallback(async (id: string) => {
     if (!personId) return;
     await MedicalRecordsApi.deleteRecord(personId, id);
     setRecords((prev) => prev.filter((r) => r.id !== id));
     showToast('Record deleted successfully', 'success');
-  };
+  }, [personId, showToast]);
 
-  const handleDownload = async (record: MedicalRecord) => {
+  const handleDownload = useCallback(async (record: MedicalRecord) => {
     if (!personId) return;
     try {
-      const url = await MedicalRecordsApi.getDownloadUrl(personId, record.id);
+      const url: string = await MedicalRecordsApi.getDownloadUrl(personId, record.id);
       window.open(url, '_blank');
     } catch {
       showToast('Failed to get download URL', 'error');
     }
-  };
+  }, [personId, showToast]);
 
-  if (loading) {
+  if (userLoading || loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-6 w-6 animate-spin text-neutral-400" />
+      </div>
+    );
+  }
+
+  if (userError) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <h3 className="text-lg font-medium text-neutral-900 dark:text-white">
+            Authentication Required
+          </h3>
+          <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
+            Please sign in to access your medical records.
+          </p>
+        </div>
       </div>
     );
   }
@@ -125,6 +150,7 @@ export default function MedicalRecordsPage() {
         ))}
       </div>
 
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">
@@ -139,6 +165,7 @@ export default function MedicalRecordsPage() {
         </Button>
       </div>
 
+      {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400 pointer-events-none" />
@@ -163,6 +190,7 @@ export default function MedicalRecordsPage() {
         </Select>
       </div>
 
+      {/* Records list */}
       {filtered.length > 0 ? (
         <div className="flex flex-col gap-3">
           {filtered.map((record) => (
@@ -196,6 +224,7 @@ export default function MedicalRecordsPage() {
         </div>
       )}
 
+      {/* Modals */}
       <UploadRecordModal
         open={modal === 'upload'}
         onClose={() => setModal(null)}
