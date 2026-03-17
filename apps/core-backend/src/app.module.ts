@@ -10,7 +10,6 @@ import { JwtCookieGuard } from './auth/jwt-cookie.guard';
 import { AccessModule } from './access/access.module';
 import { MedicalRecordsModule } from './medical-records/medical-records.module';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({
