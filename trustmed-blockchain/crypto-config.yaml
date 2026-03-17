@@ -1,6 +1,7 @@
 OrdererOrgs:
   - Name: Orderer
     Domain: trustmed.com
+    # The Orderer doesn't need standard users, just admins to manage the nodes
     Specs:
       - Hostname: orderer
 
@@ -8,10 +9,13 @@ PeerOrgs:
   - Name: Hospital1
     Domain: hospital1.trustmed.com
     EnableNodeOUs: true
+    # Template defines how many peer nodes this org will have. 
+    # Count: 1 means one peer (peer0.hospital1.trustmed.com)
     Template:
-      Count: 1 # Number of peer nodes
+      Count: 1
+    # Users count defines how many client identities to create (aside from the Admin)
     Users:
-      Count: 1 # Number of non-admin users
+      Count: 1
 
   - Name: Hospital2
     Domain: hospital2.trustmed.com
