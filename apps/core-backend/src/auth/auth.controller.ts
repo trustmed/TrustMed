@@ -1,12 +1,21 @@
 import {
   Controller,
+  Get,
   Post,
   Body,
   Res,
+  Req,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import type { Response, CookieOptions } from 'express';
+import type { Request, Response, CookieOptions } from 'express';
+
+type JwtPayload = {
+  sub: string;
+  email: string;
+  firstName: string;
+  lastName?: string | null;
+};
 import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { Public } from './public.decorator';
@@ -114,5 +123,15 @@ export class AuthController {
   logout(@Res({ passthrough: true }) res: Response): AuthMessageDto {
     res.clearCookie(COOKIE_NAME, COOKIE_OPTIONS);
     return { message: 'Logout successful' };
+  }
+
+  @Get('me')
+  @ApiOperation({ summary: 'Get current user info' })
+  @ApiResponse({
+    status: 200,
+    description: 'Current user info',
+  })
+  getMe(@Req() req: Request & { user?: JwtPayload }) {
+    return req.user;
   }
 }
