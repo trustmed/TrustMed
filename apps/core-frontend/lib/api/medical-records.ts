@@ -1,20 +1,37 @@
+// apps/core-frontend/lib/api/medical-records.ts
 import { MedicalRecord, RecordCategory } from '@/types/medical-records';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 const API_URL = `${BASE_URL}/api`;
 
 export const MedicalRecordsApi = {
-  // GET /api/medical-records/:personId
+  // GET all records for a person
   getRecords: async (personId: string): Promise<MedicalRecord[]> => {
     const response = await fetch(`${API_URL}/medical-records/${personId}`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
     });
-    if (!response.ok) throw new Error('Failed to fetch medical records');
-    return response.json();
+
+    if (!response.ok) {
+      const error = new Error('Failed to fetch medical records') as Error & {
+        status?: number;
+        data?: unknown;
+      };
+      error.status = response.status;
+      try {
+        error.data = await response.json();
+      } catch {
+        error.data = null;
+      }
+      throw error;
+    }
+
+    const data: MedicalRecord[] = await response.json();
+    return data;
   },
 
-  // POST /api/medical-records/:personId/upload  (multipart/form-data)
+  // Upload a new record
   uploadRecord: async (
     personId: string,
     file: File,
@@ -32,18 +49,28 @@ export const MedicalRecordsApi = {
     if (hospitalName) formData.append('hospitalName', hospitalName);
     if (recordDate) formData.append('recordDate', recordDate);
 
-    const response = await fetch(
-      `${API_URL}/medical-records/${personId}/upload`,
-      {
-        method: 'POST',
-        body: formData,
-      },
-    );
-    if (!response.ok) throw new Error('Failed to upload medical record');
-    return response.json();
+    const response = await fetch(`${API_URL}/medical-records/${personId}/upload`, {
+      method: 'POST',
+      body: formData,
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const error = new Error('Failed to upload medical record') as Error & { status?: number; data?: unknown };
+      error.status = response.status;
+      try {
+        error.data = await response.json();
+      } catch {
+        error.data = null;
+      }
+      throw error;
+    }
+
+    const data: MedicalRecord = await response.json();
+    return data;
   },
 
-  // PATCH /api/medical-records/:personId/records/:id
+  // Update a record
   updateRecord: async (
     personId: string,
     id: string,
@@ -55,35 +82,66 @@ export const MedicalRecordsApi = {
       recordDate?: string;
     },
   ): Promise<MedicalRecord> => {
-    const response = await fetch(
-      `${API_URL}/medical-records/${personId}/records/${id}`,
-      {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      },
-    );
-    if (!response.ok) throw new Error('Failed to update medical record');
-    return response.json();
+    const response = await fetch(`${API_URL}/medical-records/${personId}/records/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const error = new Error('Failed to update medical record') as Error & { status?: number; data?: unknown };
+      error.status = response.status;
+      try {
+        error.data = await response.json();
+      } catch {
+        error.data = null;
+      }
+      throw error;
+    }
+
+    const data: MedicalRecord = await response.json();
+    return data;
   },
 
-  // DELETE /api/medical-records/:personId/records/:id
+  // Delete a record
   deleteRecord: async (personId: string, id: string): Promise<void> => {
-    const response = await fetch(
-      `${API_URL}/medical-records/${personId}/records/${id}`,
-      { method: 'DELETE' },
-    );
-    if (!response.ok) throw new Error('Failed to delete medical record');
+    const response = await fetch(`${API_URL}/medical-records/${personId}/records/${id}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const error = new Error('Failed to delete medical record') as Error & { status?: number; data?: unknown };
+      error.status = response.status;
+      try {
+        error.data = await response.json();
+      } catch {
+        error.data = null;
+      }
+      throw error;
+    }
   },
 
-  // GET /api/medical-records/:personId/records/:id/url
+  // Get download URL for a record
   getDownloadUrl: async (personId: string, id: string): Promise<string> => {
-    const response = await fetch(
-      `${API_URL}/medical-records/${personId}/records/${id}/url`,
-      { method: 'GET' },
-    );
-    if (!response.ok) throw new Error('Failed to get download URL');
-    const data = await response.json();
+    const response = await fetch(`${API_URL}/medical-records/${personId}/records/${id}/url`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const error = new Error('Failed to get download URL') as Error & { status?: number; data?: unknown };
+      error.status = response.status;
+      try {
+        error.data = await response.json();
+      } catch {
+        error.data = null;
+      }
+      throw error;
+    }
+
+    const data: { url: string } = await response.json();
     return data.url;
   },
 };
