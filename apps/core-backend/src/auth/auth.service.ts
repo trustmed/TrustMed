@@ -9,6 +9,7 @@ import { createClerkClient, type ClerkClient } from '@clerk/backend';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuthUser } from '../entities/auth-user.entity';
+import { Person } from '../entities/person.entity';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +19,8 @@ export class AuthService {
     private readonly jwtService: JwtService,
     @InjectRepository(AuthUser)
     private readonly authUserRepository: Repository<AuthUser>,
+    @InjectRepository(Person)
+    private readonly personRepository: Repository<Person>,
   ) {
     const secretKey = process.env.CLERK_SECRET_KEY;
     if (!secretKey) {
@@ -97,6 +100,7 @@ export class AuthService {
   ): Promise<string> {
     // 1. Create user in Clerk
     let clerkUserId: string | undefined;
+    let savedAuthUser: AuthUser | undefined;
 
     try {
       const user = await this.clerkClient.users.createUser({
@@ -108,7 +112,8 @@ export class AuthService {
 
       clerkUserId = user.id;
 
-      await this.authUserRepository.save(
+      // 2. Save to auth_users table
+      savedAuthUser = await this.authUserRepository.save(
         this.authUserRepository.create({
           clerkUserId: user.id,
           email,
@@ -119,7 +124,15 @@ export class AuthService {
         }),
       );
 
-      // 2. Issue backend JWT
+      // 3. Create linked Person record (minimal, email only)
+      await this.personRepository.save(
+        this.personRepository.create({
+          email,
+          authUserId: savedAuthUser.id,
+        }),
+      );
+
+      // 4. Issue backend JWT
       return this.signJwt({
         sub: user.id,
         email,
