@@ -22,7 +22,6 @@ const SECTIONS = [
     { id: "insurance", label: "Insurance", icon: FileText, description: "Provider and policy details." },
 ];
 
-// Track which sections have meaningful data for the progress ring
 function computeProgress(sections: Record<string, boolean>) {
     const filled = Object.values(sections).filter(Boolean).length;
     return Math.round((filled / Object.keys(sections).length) * 100);
@@ -32,13 +31,11 @@ export default function ProfilePage() {
     const [activeSection, setActiveSection] = useState("identity");
     const [personId, setPersonId] = useState<string | null>(null);
 
-    // Per-section data
     const [personalData, setPersonalData] = useState<Partial<CoreIdentityValues> | undefined>(undefined);
     const [emergencyData, setEmergencyData] = useState<(EmergencyContactValues & { id?: string })[]>([]);
     const [medicalData, setMedicalData] = useState<{ allergies: (AllergyValues & { id?: string })[]; medications: (MedicationValues & { id?: string })[] }>({ allergies: [], medications: [] });
     const [insuranceData, setInsuranceData] = useState<Partial<InsuranceValues> | undefined>(undefined);
 
-    // Which sections are "done" for the progress ring
     const [sectionsDone, setSectionsDone] = useState({
         identity: false,
         emergency: false,
@@ -51,19 +48,15 @@ export default function ProfilePage() {
     const [savedMsg, setSavedMsg] = useState("");
     const [hasChanges, setHasChanges] = useState(false);
 
-    // ── Fetch profile ────────────────────────────────────────────────────────
     useEffect(() => {
         async function fetchProfile() {
             try {
-                // /api/profile/me uses the JWT cookie to resolve the logged-in user
                 const data = await ProfileApi.getMyProfile();
                 setPersonId(data.id);
 
-                // firstName and lastName come from the joined authUser relation
                 const firstName: string = data.authUser?.firstName ?? "";
                 const lastName: string | undefined = data.authUser?.lastName ?? undefined;
 
-                // Personal & physical
                 const mapped: Partial<CoreIdentityValues> = {
                     firstName,
                     lastName: lastName ?? undefined,
@@ -84,16 +77,13 @@ export default function ProfilePage() {
                 }
                 setPersonalData(mapped);
 
-                // Emergency contacts
                 setEmergencyData(data.emergencyContacts ?? []);
 
-                // Allergies + medications
                 setMedicalData({
                     allergies: data.allergies ?? [],
                     medications: data.medications ?? [],
                 });
 
-                // Insurance (lives on medicalProfile)
                 if (data.medicalProfile) {
                     setInsuranceData({
                         provider: data.medicalProfile.insuranceProvider ?? "",
@@ -102,7 +92,6 @@ export default function ProfilePage() {
                     });
                 }
 
-                // Compute initial progress
                 setSectionsDone({
                     identity: !!(firstName && data.email),
                     emergency: (data.emergencyContacts ?? []).length > 0,
@@ -120,8 +109,6 @@ export default function ProfilePage() {
         }
         fetchProfile();
     }, []);
-
-    // ── Save handlers ────────────────────────────────────────────────────────
 
     const triggerSave = async () => {
         setSaving(true);
@@ -159,16 +146,13 @@ export default function ProfilePage() {
     const handleSaveEmergency = async (contacts: (EmergencyContactValues & { id?: string })[]) => {
         if (!personId) return;
 
-        // Delete contacts that were removed (existed in DB but not in the new list)
         const existingIds = new Set(contacts.filter((c) => c.id).map((c) => c.id));
         const toDelete = emergencyData.filter((c) => !existingIds.has(c.id));
         await Promise.all(toDelete.map((c) => ProfileApi.deleteEmergencyContact(c.id!)));
 
-        // Add contacts that are new (no id)
         const toAdd = contacts.filter((c) => !c.id);
         const added = await Promise.all(toAdd.map((c) => ProfileApi.addEmergencyContact(personId, c)));
 
-        // Update local state
         const kept = contacts.filter((c) => c.id);
         setEmergencyData([...kept, ...added]);
         setSectionsDone((prev) => ({ ...prev, emergency: contacts.length > 0 }));
@@ -183,21 +167,18 @@ export default function ProfilePage() {
     }) => {
         if (!personId) return;
 
-        // Allergies sync
         const existingAllergyIds = new Set(allergies.filter((a) => a.id).map((a) => a.id));
         const allergiesToDelete = medicalData.allergies.filter((a) => !existingAllergyIds.has(a.id));
         await Promise.all(allergiesToDelete.map((a) => ProfileApi.deleteAllergy(a.id!)));
         const newAllergies = allergies.filter((a) => !a.id);
         const addedAllergies = await Promise.all(newAllergies.map((a) => ProfileApi.addAllergy(personId, a)));
 
-        // Medications sync
         const existingMedIds = new Set(medications.filter((m) => m.id).map((m) => m.id));
         const medsToDelete = medicalData.medications.filter((m) => !existingMedIds.has(m.id));
         await Promise.all(medsToDelete.map((m) => ProfileApi.deleteMedication(m.id!)));
         const newMeds = medications.filter((m) => !m.id);
         const addedMeds = await Promise.all(newMeds.map((m) => ProfileApi.addMedication(personId, m)));
 
-        // Update local state
         setMedicalData({
             allergies: [...allergies.filter((a) => a.id), ...addedAllergies],
             medications: [...medications.filter((m) => m.id), ...addedMeds],
@@ -236,7 +217,6 @@ export default function ProfilePage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                {/* Left Column: Progress & Navigation */}
                 <div className="lg:col-span-4 space-y-6">
                     <Card>
                         <CardContent className="pt-6 flex flex-col items-center justify-center text-center">
@@ -281,7 +261,6 @@ export default function ProfilePage() {
                     </div>
                 </div>
 
-                {/* Right Column: Active Form */}
                 <div className="lg:col-span-8">
                     <Card className="min-h-[500px]">
                         <CardHeader className="flex flex-row items-start justify-between gap-4">
