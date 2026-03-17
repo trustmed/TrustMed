@@ -6,10 +6,11 @@ import type { StringValue } from 'ms';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { AuthUser } from '../entities/auth-user.entity';
+import { Person } from '../entities/person.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([AuthUser]),
+    TypeOrmModule.forFeature([AuthUser, Person]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
