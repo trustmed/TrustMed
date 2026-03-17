@@ -275,10 +275,7 @@
     "version": "1.0.0",
     "contact": {}
   },
-  "tags": [
-    { "name": "auth", "description": "Authentication endpoints" },
-    { "name": "health", "description": "Health check endpoints" }
-  ],
+  "tags": [{ "name": "health", "description": "Health check endpoints" }],
   "servers": [],
   "components": {
     "schemas": {

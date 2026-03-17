@@ -1,12 +1,12 @@
 "use client";
 
 import { SignInPage } from "@/components/ui/sign-in";
+import { useSignIn } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
-import { useAuthControllerLogin } from "@/services/api/auth/auth";
 
 const signInSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -18,18 +18,7 @@ export type SignInFormValues = z.infer<typeof signInSchema>;
 
 const SignIn = () => {
   const router = useRouter();
-
-  const { mutate: login, isPending: isLoading } = useAuthControllerLogin({
-    mutation: {
-      onSuccess: () => router.push("/portal"),
-      onError: (error) => {
-        const msg =
-          (error as unknown as { response?: { data?: { message?: string } } })?.response
-            ?.data?.message ?? "Unable to sign in. Please check your credentials.";
-        toast.error(msg);
-      },
-    },
-  });
+  const { isLoaded, setActive, signIn } = useSignIn();
 
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),
@@ -40,10 +29,50 @@ const SignIn = () => {
     },
   });
 
-  const onSubmit = (data: SignInFormValues) => {
-    login({ data: { email: data.email, password: data.password } });
+  const getClerkErrorMessage = (error: unknown) => {
+    if (error && typeof error === "object" && "errors" in error) {
+      const typedError = error as { errors?: Array<{ message?: string }> };
+      return typedError.errors?.[0]?.message ?? "Unable to sign in.";
+    }
+
+    return "Unable to sign in.";
   };
 
+  const onSubmit = async (data: SignInFormValues) => {
+    if (!isLoaded) {
+      return;
+    }
+
+    try {
+      const result = await signIn.create({
+        identifier: data.email,
+        password: data.password,
+      });
+
+      if (result.status === "complete") {
+        await setActive({ session: result.createdSessionId });
+        router.push("/portal");
+        return;
+      }
+
+      toast.info("Additional verification is required. Please complete sign-in in Clerk.");
+    } catch (error) {
+      toast.error(getClerkErrorMessage(error));
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    if (!isLoaded) {
+      return;
+    }
+
+    await signIn.authenticateWithRedirect({
+      strategy: "oauth_google",
+      redirectUrl: "/signin",
+      redirectUrlComplete: "/portal",
+    });
+  };
+  
   const handleResetPassword = () => {
     toast.info("Reset password flow is not configured yet.");
   }
@@ -52,20 +81,15 @@ const SignIn = () => {
     router.push("/signup");
   }
 
-  const handleBackHome = () => {
-    router.push("/#home");
-  }
-
   return (
     <div className="bg-background text-foreground">
       <SignInPage
         heroImageSrc="/report.jpg"
         form={form}
         onSignIn={onSubmit}
+        onGoogleSignIn={handleGoogleSignIn}
         onResetPassword={handleResetPassword}
         onCreateAccount={handleCreateAccount}
-        onBackHome={handleBackHome}
-        isLoading={isLoading}
       />
     </div>
   );
