@@ -39,7 +39,8 @@ export function CoreIdentityForm({
     const form = useForm<CoreIdentityValues>({
         resolver: zodResolver(coreIdentitySchema),
         defaultValues: {
-            name: userData?.name,
+            firstName: userData?.firstName,
+            lastName: userData?.lastName,
             email: userData?.email,
             phone: userData?.phone,
             addressLine1: userData?.addressLine1,
@@ -63,7 +64,8 @@ export function CoreIdentityForm({
     useEffect(() => {
         if (userData) {
             form.reset({
-                name: userData.name,
+                firstName: userData.firstName,
+                lastName: userData.lastName,
                 email: userData.email,
                 phone: userData.phone,
                 addressLine1: userData.addressLine1,
@@ -81,22 +83,22 @@ export function CoreIdentityForm({
     }, [userData]);
 
     async function onSubmit(data: CoreIdentityValues) {
-        console.log("Core Identity Data:", data);
         await onSave(data);
     }
 
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                {/* Name row: First Name + Last Name */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                         control={form.control}
-                        name="name"
+                        name="firstName"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Full Name</FormLabel>
+                                <FormLabel>First Name</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="John Doe" {...field} readOnly disabled className="bg-muted" />
+                                    <Input placeholder="John" {...field} readOnly disabled className="bg-muted" />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -104,18 +106,48 @@ export function CoreIdentityForm({
                     />
                     <FormField
                         control={form.control}
-                        name="email"
+                        name="lastName"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Email</FormLabel>
+                                <FormLabel>Last Name</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="john@example.com" {...field} readOnly disabled className="bg-muted" />
+                                    <Input placeholder="Doe" {...field} readOnly disabled className="bg-muted" />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
                 </div>
+
+                {/* Email */}
+                <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Email</FormLabel>
+                            <FormControl>
+                                <Input placeholder="john@example.com" {...field} readOnly disabled className="bg-muted" />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                {/* Phone */}
+                <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Phone</FormLabel>
+                            <FormControl>
+                                <Input placeholder="+1 555 000 0000" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
@@ -229,8 +261,6 @@ export function CoreIdentityForm({
                             </FormItem>
                         )}
                     />
-
-
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
