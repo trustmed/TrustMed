@@ -20,6 +20,7 @@ import { InitialSchema1770563243972 } from '../entities/migrations/1770563243972
 import { AddMissingPersonColumns1773778275906 } from '../entities/migrations/1773778275906-AddMissingPersonColumns';
 import { AuthUserTableCreate1773499292249 } from '../entities/migrations/1773499292249-AuthUserTableCreate';
 import { LinkAuthUserToPerson1773600000002 } from '../entities/migrations/1773600000002-LinkAuthUserToPerson';
+import { FixMedicalRecordPersonForeignKey1773800000000 } from '../entities/migrations/1773800000000-FixMedicalRecordPersonForeignKey';
 import { MedicalRecord } from '../entities/medical-record.entity';
 dotenv.config();
 
@@ -52,6 +53,7 @@ const baseConfig: DataSourceOptions = {
     AddMissingPersonColumns1773778275906,
     AuthUserTableCreate1773499292249,
     LinkAuthUserToPerson1773600000002,
+    FixMedicalRecordPersonForeignKey1773800000000,
   ],
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
