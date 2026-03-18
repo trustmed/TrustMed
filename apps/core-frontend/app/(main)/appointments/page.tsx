@@ -4,7 +4,7 @@ import * as React from "react";
 
 import { AppointmentsToolbar } from "@/components/appointments/AppointmentsToolbar";
 import { AppointmentsTable } from "@/components/appointments/AppointmentsTable";
-import { DUMMY_APPOINTMENTS } from "@/components/appointments/appointments-data";
+import { DUMMY_APPOINTMENTS, type Appointment } from "@/components/appointments/appointments-data";
 import {
   AppointmentFormDialog,
   type AppointmentFormValues,
@@ -13,7 +13,7 @@ import { AppointmentDeleteDialog } from "@/components/appointments/AppointmentDe
 
 export default function AppointmentsPage() {
   const [search, setSearch] = React.useState("");
-  const [appointments] = React.useState(DUMMY_APPOINTMENTS);
+  const [appointments, setAppointments] = React.useState<Appointment[]>(DUMMY_APPOINTMENTS);
   const [isFormOpen, setIsFormOpen] = React.useState(false);
   const [formMode, setFormMode] = React.useState<"add" | "edit">("add");
   const [formValues, setFormValues] = React.useState<AppointmentFormValues>({
@@ -61,7 +61,19 @@ export default function AppointmentsPage() {
   };
 
   const handleFormSubmit = (values: AppointmentFormValues) => {
-    // In this commit we only close the dialog; data wiring comes later.
+    if (formMode === "add") {
+      const next: Appointment = {
+        id: typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : String(Date.now()),
+        appointmentNo: values.appointmentNo || `D${String(appointments.length + 1).padStart(3, "0")}`,
+        appointmentType: values.appointmentType || "General",
+        doctorName: values.doctor || "—",
+        date: values.date || new Date().toISOString().slice(0, 10),
+        hospitalLocation: values.address || "—",
+        status: "pending",
+      };
+      setAppointments((prev) => [next, ...prev]);
+    }
+    // Edit wiring comes in a later commit.
     setFormValues(values);
     setIsFormOpen(false);
   };
