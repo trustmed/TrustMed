@@ -132,7 +132,11 @@ export default function AppointmentsPage() {
           setPendingDelete(null);
         }}
         onConfirm={() => {
-          // Actual deletion of the row will be handled in a later commit.
+          if (pendingDelete) {
+            setAppointments((prev) =>
+              prev.filter((appt) => appt.id !== pendingDelete.id)
+            );
+          }
           setIsDeleteOpen(false);
           setPendingDelete(null);
         }}
