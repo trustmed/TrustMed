@@ -10,9 +10,10 @@ import { AppointmentStatusBadge } from "@/components/appointments/AppointmentSta
 
 type AppointmentsTableProps = {
   appointments: Appointment[];
+  onEditClick?: (appointment: Appointment) => void;
 };
 
-export function AppointmentsTable({ appointments }: AppointmentsTableProps) {
+export function AppointmentsTable({ appointments, onEditClick }: AppointmentsTableProps) {
   const hasRows = appointments.length > 0;
 
   return (
@@ -50,7 +51,10 @@ export function AppointmentsTable({ appointments }: AppointmentsTableProps) {
                       <IconButton aria-label="View details">
                         <Eye className="h-3.5 w-3.5" />
                       </IconButton>
-                      <IconButton aria-label="Edit appointment">
+                      <IconButton
+                        aria-label="Edit appointment"
+                        onClick={() => onEditClick?.(appt)}
+                      >
                         <Pencil className="h-3.5 w-3.5" />
                       </IconButton>
                       <IconButton aria-label="Delete appointment">
