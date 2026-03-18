@@ -23,6 +23,15 @@ interface AccessRequest {
 
 @Info({ title: 'TrustMedContract', description: 'TrustMed access request contract' })
 export class TrustMedContract extends Contract {
+  private getTxTimestampIsoString(ctx: Context): string {
+    const ts = ctx.stub.getTxTimestamp();
+    const millis =
+      Number(ts.seconds.low ?? ts.seconds) * 1000 +
+      Math.floor(ts.nanos / 1_000_000);
+
+    return new Date(millis).toISOString();
+  }
+
   @Transaction()
   public async CreateAccessRequest(
     ctx: Context,
@@ -30,7 +39,7 @@ export class TrustMedContract extends Contract {
     patientId: string,
     doctorId: string,
     hospitalId: string,
-    purpose: string
+    purpose: string,
   ): Promise<void> {
     const exists = await this.AssetExists(ctx, requestId);
     if (exists) {
@@ -43,7 +52,7 @@ export class TrustMedContract extends Contract {
       doctorId,
       hospitalId,
       purpose,
-      requestedAt: new Date().toISOString(),
+      requestedAt: this.getTxTimestampIsoString(ctx),
       status: 'REQUESTED',
     };
 
@@ -54,16 +63,18 @@ export class TrustMedContract extends Contract {
   public async ApproveAccessRequest(
     ctx: Context,
     requestId: string,
-    expiresAt: string
+    expiresAt: string,
   ): Promise<void> {
     const request = await this.GetRequest(ctx, requestId);
 
     if (request.status !== 'REQUESTED') {
-      throw new Error(`Only REQUESTED access requests can be approved. Current status: ${request.status}`);
+      throw new Error(
+        `Only REQUESTED access requests can be approved. Current status: ${request.status}`,
+      );
     }
 
     request.status = 'APPROVED';
-    request.approvedAt = new Date().toISOString();
+    request.approvedAt = this.getTxTimestampIsoString(ctx);
     request.expiresAt = expiresAt;
 
     await ctx.stub.putState(requestId, Buffer.from(JSON.stringify(request)));
@@ -74,11 +85,13 @@ export class TrustMedContract extends Contract {
     const request = await this.GetRequest(ctx, requestId);
 
     if (request.status !== 'REQUESTED') {
-      throw new Error(`Only REQUESTED access requests can be rejected. Current status: ${request.status}`);
+      throw new Error(
+        `Only REQUESTED access requests can be rejected. Current status: ${request.status}`,
+      );
     }
 
     request.status = 'REJECTED';
-    request.rejectedAt = new Date().toISOString();
+    request.rejectedAt = this.getTxTimestampIsoString(ctx);
 
     await ctx.stub.putState(requestId, Buffer.from(JSON.stringify(request)));
   }
@@ -88,11 +101,13 @@ export class TrustMedContract extends Contract {
     const request = await this.GetRequest(ctx, requestId);
 
     if (request.status !== 'APPROVED') {
-      throw new Error(`Only APPROVED access requests can be revoked. Current status: ${request.status}`);
+      throw new Error(
+        `Only APPROVED access requests can be revoked. Current status: ${request.status}`,
+      );
     }
 
     request.status = 'REVOKED';
-    request.revokedAt = new Date().toISOString();
+    request.revokedAt = this.getTxTimestampIsoString(ctx);
 
     await ctx.stub.putState(requestId, Buffer.from(JSON.stringify(request)));
   }
@@ -106,10 +121,7 @@ export class TrustMedContract extends Contract {
 
   @Transaction(false)
   @Returns('string')
-  public async CheckAccess(
-    ctx: Context,
-    requestId: string
-  ): Promise<string> {
+  public async CheckAccess(ctx: Context, requestId: string): Promise<string> {
     const request = await this.GetRequest(ctx, requestId);
 
     let allowed = false;
