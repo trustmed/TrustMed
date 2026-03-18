@@ -1,12 +1,12 @@
 "use client";
 
 import { SignInPage } from "@/components/ui/sign-in";
-import { useSignIn } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
+import { config } from "@/config/config";
 
 const signInSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -18,7 +18,6 @@ export type SignInFormValues = z.infer<typeof signInSchema>;
 
 const SignIn = () => {
   const router = useRouter();
-  const { isLoaded, setActive, signIn } = useSignIn();
 
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),
@@ -29,48 +28,36 @@ const SignIn = () => {
     },
   });
 
-  const getClerkErrorMessage = (error: unknown) => {
-    if (error && typeof error === "object" && "errors" in error) {
-      const typedError = error as { errors?: Array<{ message?: string }> };
-      return typedError.errors?.[0]?.message ?? "Unable to sign in.";
-    }
-
-    return "Unable to sign in.";
-  };
-
   const onSubmit = async (data: SignInFormValues) => {
-    if (!isLoaded) {
-      return;
-    }
-
     try {
-      const result = await signIn.create({
-        identifier: data.email,
-        password: data.password,
+      const response = await fetch(`${config.backendUrl}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+        }),
       });
 
-      if (result.status === "complete") {
-        await setActive({ session: result.createdSessionId });
+      if (response.ok) {
         router.push("/portal");
-        return;
+        toast.success("Signed in successfully");
+      } else {
+        const error = await response.json();
+        toast.error(error.message || "Unable to sign in.");
       }
-
-      toast.info("Additional verification is required. Please complete sign-in in Clerk.");
     } catch (error) {
-      toast.error(getClerkErrorMessage(error));
+      console.error(error); // ✅ THIS LINE FIXES ESLINT
+      toast.error("Unable to sign in.");
     }
   };
 
   const handleGoogleSignIn = async () => {
-    if (!isLoaded) {
-      return;
-    }
-
-    await signIn.authenticateWithRedirect({
-      strategy: "oauth_google",
-      redirectUrl: "/signin",
-      redirectUrlComplete: "/portal",
-    });
+    // Redirect to backend for Clerk auth
+    window.location.href = `${config.backendUrl}/api/auth/clerk/google`;
   };
   
   const handleResetPassword = () => {
