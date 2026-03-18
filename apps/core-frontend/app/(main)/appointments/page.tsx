@@ -9,6 +9,7 @@ import {
   AppointmentFormDialog,
   type AppointmentFormValues,
 } from "@/components/appointments/AppointmentFormDialog";
+import { AppointmentDeleteDialog } from "@/components/appointments/AppointmentDeleteDialog";
 
 export default function AppointmentsPage() {
   const [search, setSearch] = React.useState("");
@@ -25,6 +26,9 @@ export default function AppointmentsPage() {
     doctor: "",
     appointmentType: "",
   });
+
+  const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
+  const [pendingDelete, setPendingDelete] = React.useState<(typeof appointments)[number] | null>(null);
 
   const handleAddClick = () => {
     setFormMode("add");
@@ -51,6 +55,11 @@ export default function AppointmentsPage() {
     setIsFormOpen(true);
   };
 
+  const handleDeleteClick = (appointment: (typeof appointments)[number]) => {
+    setPendingDelete(appointment);
+    setIsDeleteOpen(true);
+  };
+
   const handleFormSubmit = (values: AppointmentFormValues) => {
     // In this commit we only close the dialog; data wiring comes later.
     setFormValues(values);
@@ -71,7 +80,11 @@ export default function AppointmentsPage() {
         onAddClick={handleAddClick}
       />
 
-      <AppointmentsTable appointments={appointments} onEditClick={handleEditClick} />
+      <AppointmentsTable
+        appointments={appointments}
+        onEditClick={handleEditClick}
+        onDeleteClick={handleDeleteClick}
+      />
 
       <AppointmentFormDialog
         open={isFormOpen}
@@ -79,6 +92,20 @@ export default function AppointmentsPage() {
         values={formValues}
         onClose={() => setIsFormOpen(false)}
         onSubmit={handleFormSubmit}
+      />
+
+      <AppointmentDeleteDialog
+        open={isDeleteOpen}
+        appointmentLabel={pendingDelete?.appointmentNo}
+        onCancel={() => {
+          setIsDeleteOpen(false);
+          setPendingDelete(null);
+        }}
+        onConfirm={() => {
+          // Actual deletion of the row will be handled in a later commit.
+          setIsDeleteOpen(false);
+          setPendingDelete(null);
+        }}
       />
     </div>
   );
