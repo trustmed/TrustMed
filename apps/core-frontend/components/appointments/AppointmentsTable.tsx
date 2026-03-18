@@ -4,6 +4,7 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 import type { Appointment } from "@/components/appointments/appointments-data";
+import { AppointmentStatusBadge } from "@/components/appointments/AppointmentStatusBadge";
 
 type AppointmentsTableProps = {
   appointments: Appointment[];
@@ -39,7 +40,9 @@ export function AppointmentsTable({ appointments }: AppointmentsTableProps) {
                   <BodyCell>{appt.doctorName}</BodyCell>
                   <BodyCell>{appt.date}</BodyCell>
                   <BodyCell>{appt.hospitalLocation}</BodyCell>
-                  <BodyCell className="capitalize">{appt.status}</BodyCell>
+                  <BodyCell>
+                    <AppointmentStatusBadge status={appt.status} />
+                  </BodyCell>
                   <BodyCell className="text-right text-xs text-muted-foreground">
                     {/* Actions will be added in later commits */}
                     Actions
