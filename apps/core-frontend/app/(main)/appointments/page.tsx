@@ -16,6 +16,7 @@ export default function AppointmentsPage() {
   const [appointments, setAppointments] = React.useState<Appointment[]>(DUMMY_APPOINTMENTS);
   const [isFormOpen, setIsFormOpen] = React.useState(false);
   const [formMode, setFormMode] = React.useState<"add" | "edit">("add");
+  const [editingId, setEditingId] = React.useState<string | null>(null);
   const [formValues, setFormValues] = React.useState<AppointmentFormValues>({
     appointmentNo: "",
     patientName: "Kate Wanigaratne",
@@ -32,6 +33,7 @@ export default function AppointmentsPage() {
 
   const handleAddClick = () => {
     setFormMode("add");
+    setEditingId(null);
     setFormValues((prev) => ({
       ...prev,
       appointmentNo: "",
@@ -42,6 +44,7 @@ export default function AppointmentsPage() {
 
   const handleEditClick = (appointment: (typeof appointments)[number]) => {
     setFormMode("edit");
+    setEditingId(appointment.id);
     setFormValues({
       appointmentNo: appointment.appointmentNo,
       patientName: "Kate Wanigaratne",
@@ -72,9 +75,24 @@ export default function AppointmentsPage() {
         status: "pending",
       };
       setAppointments((prev) => [next, ...prev]);
+    } else if (formMode === "edit" && editingId) {
+      setAppointments((prev) =>
+        prev.map((appt) =>
+          appt.id === editingId
+            ? {
+                ...appt,
+                appointmentNo: values.appointmentNo || appt.appointmentNo,
+                appointmentType: values.appointmentType || appt.appointmentType,
+                doctorName: values.doctor || appt.doctorName,
+                date: values.date || appt.date,
+                hospitalLocation: values.address || appt.hospitalLocation,
+              }
+            : appt
+        )
+      );
     }
-    // Edit wiring comes in a later commit.
     setFormValues(values);
+    setEditingId(null);
     setIsFormOpen(false);
   };
 
