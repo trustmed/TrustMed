@@ -55,18 +55,24 @@ export default function ProfilePage() {
     useEffect(() => {
         async function fetchProfile() {
             try {
-                const data = await ProfileApi.getProfileByEmail("sajini@gmail.com");
+                // /api/profile/me uses the JWT cookie to resolve the logged-in user
+                const data = await ProfileApi.getMyProfile();
                 setPersonId(data.id);
+
+                // firstName and lastName come from the joined authUser relation
+                const firstName: string = data.authUser?.firstName ?? "";
+                const lastName: string | undefined = data.authUser?.lastName ?? undefined;
 
                 // Personal & physical
                 const mapped: Partial<CoreIdentityValues> = {
-                    name: data.name,
+                    firstName,
+                    lastName: lastName ?? undefined,
                     email: data.email,
-                    phone: data.phone,
-                    addressLine1: data.addressLine1,
-                    addressLine2: data.addressLine2,
-                    city: data.city,
-                    zipCode: data.zipCode,
+                    phone: data.phone ?? "",
+                    addressLine1: data.addressLine1 ?? "",
+                    addressLine2: data.addressLine2 ?? "",
+                    city: data.city ?? "",
+                    zipCode: data.zipCode ?? "",
                     dob: data.dob ? new Date(data.dob) : undefined,
                     biologicalSex: (data.gender || undefined) as CoreIdentityValues['biologicalSex'] | undefined,
                 };
@@ -98,7 +104,7 @@ export default function ProfilePage() {
 
                 // Compute initial progress
                 setSectionsDone({
-                    identity: !!(data.name && data.email),
+                    identity: !!(firstName && data.email),
                     emergency: (data.emergencyContacts ?? []).length > 0,
                     medical:
                         (data.allergies ?? []).length > 0 ||
@@ -217,11 +223,16 @@ export default function ProfilePage() {
     }
 
     const progress = computeProgress(sectionsDone);
+    const displayName = personalData
+        ? [personalData.firstName, personalData.lastName].filter(Boolean).join(" ")
+        : "";
 
     return (
         <div className="container mx-auto max-w-6xl py-8">
             <div className="mb-8">
-                <h1 className="text-3xl font-bold tracking-tight">Your Health Profile</h1>
+                <h1 className="text-3xl font-bold tracking-tight">
+                    {displayName ? `${displayName}'s Health Profile` : "Your Health Profile"}
+                </h1>
                 <p className="text-muted-foreground mt-2">
                     Complete your profile to ensure you get the best personalized care.
                 </p>

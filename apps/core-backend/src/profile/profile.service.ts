@@ -2,16 +2,27 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Person } from '../entities/person.entity';
+import { AuthUser } from '../entities/auth-user.entity';
 import { MedicalProfile } from '../entities/medical-profile.entity';
 import { Allergy } from '../entities/allergy.entity';
 import { Medication } from '../entities/medication.entity';
 import { EmergencyContact } from '../entities/emergency-contact.entity';
+
+const PROFILE_RELATIONS = [
+  'authUser',
+  'medicalProfile',
+  'allergies',
+  'medications',
+  'emergencyContacts',
+];
 
 @Injectable()
 export class ProfileService {
   constructor(
     @InjectRepository(Person)
     private personRepository: Repository<Person>,
+    @InjectRepository(AuthUser)
+    private authUserRepository: Repository<AuthUser>,
     @InjectRepository(MedicalProfile)
     private medicalProfileRepository: Repository<MedicalProfile>,
     @InjectRepository(Allergy)
@@ -25,12 +36,7 @@ export class ProfileService {
   async getProfile(personId: string) {
     const person = await this.personRepository.findOne({
       where: { id: personId },
-      relations: [
-        'medicalProfile',
-        'allergies',
-        'medications',
-        'emergencyContacts',
-      ],
+      relations: PROFILE_RELATIONS,
     });
 
     if (!person) {
@@ -43,18 +49,47 @@ export class ProfileService {
   async getProfileByEmail(email: string) {
     const person = await this.personRepository.findOne({
       where: { email },
-      relations: [
-        'medicalProfile',
-        'allergies',
-        'medications',
-        'emergencyContacts',
-      ],
+      relations: PROFILE_RELATIONS,
     });
 
     if (!person) {
       throw new NotFoundException('Person not found');
     }
 
+    return person;
+  }
+
+  /**
+   * Load full profile using the Clerk auth user ID (clerkUserId).
+   * The Person is linked via AuthUser → Person (authUserId FK).
+   */
+  async getProfileByAuthUserId(clerkUserId: string) {
+    // First look up the auth_user row
+    const authUser = await this.authUserRepository.findOne({
+      where: { clerkUserId },
+    });
+    if (!authUser) {
+      throw new NotFoundException('Auth user not found');
+    }
+    // Then find the linked person
+    let person = await this.personRepository.findOne({
+      where: { authUserId: authUser.id },
+      relations: PROFILE_RELATIONS,
+    });
+    if (!person) {
+      // Auto-create the person record to ensure the profile page works
+      // even if the user was created before this migration or tables were wiped.
+      const newPerson = this.personRepository.create({
+        authUserId: authUser.id,
+        email: authUser.email,
+      });
+      await this.personRepository.save(newPerson);
+      // Reload with relations to ensure consistency
+      person = (await this.personRepository.findOne({
+        where: { id: newPerson.id },
+        relations: PROFILE_RELATIONS,
+      })) as Person;
+    }
     return person;
   }
 

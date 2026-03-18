@@ -1,5 +1,4 @@
 import axios from "axios";
-import { getAuthToken } from "./authTokenStore";
 import qs from "qs"; 
 import { config } from "../config";
 
@@ -18,16 +17,7 @@ const axiosInstance = axios.create({
 
 // Interceptors
 axiosInstance.interceptors.request.use((config) => {
-  const token = getAuthToken();
   console.log('📡 API Request:', config.method?.toUpperCase(), config.url);
-  console.log('🔑 Token available:', token ? 'YES (' + token.substring(0, 20) + '...)' : 'NO');
-
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-    console.log('✅ Authorization header set');
-  } else {
-    console.log('❌ No token - Authorization header NOT set');
-  }
 
   return config;
 });
