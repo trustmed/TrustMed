@@ -1,8 +1,10 @@
 "use client";
 
 import * as React from "react";
+import { Eye, Pencil, Trash2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import type { Appointment } from "@/components/appointments/appointments-data";
 import { AppointmentStatusBadge } from "@/components/appointments/AppointmentStatusBadge";
 
@@ -43,9 +45,18 @@ export function AppointmentsTable({ appointments }: AppointmentsTableProps) {
                   <BodyCell>
                     <AppointmentStatusBadge status={appt.status} />
                   </BodyCell>
-                  <BodyCell className="text-right text-xs text-muted-foreground">
-                    {/* Actions will be added in later commits */}
-                    Actions
+                  <BodyCell className="text-right">
+                    <div className="inline-flex items-center justify-end gap-1.5">
+                      <IconButton aria-label="View details">
+                        <Eye className="h-3.5 w-3.5" />
+                      </IconButton>
+                      <IconButton aria-label="Edit appointment">
+                        <Pencil className="h-3.5 w-3.5" />
+                      </IconButton>
+                      <IconButton aria-label="Delete appointment">
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </IconButton>
+                    </div>
                   </BodyCell>
                 </tr>
               ))
@@ -93,4 +104,22 @@ function BodyCell({
     </td>
   );
 }
+
+function IconButton({
+  children,
+  ...props
+}: React.ComponentProps<typeof Button>) {
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
+      className="h-7 w-7 rounded-full text-muted-foreground hover:bg-muted"
+      {...props}
+    >
+      {children}
+    </Button>
+  );
+}
+
 
