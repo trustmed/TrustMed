@@ -96,6 +96,23 @@ export default function AppointmentsPage() {
     setIsFormOpen(false);
   };
 
+  const filteredAppointments = React.useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return appointments;
+    return appointments.filter((appt) => {
+      const haystack = [
+        appt.appointmentNo,
+        appt.appointmentType,
+        appt.doctorName,
+        appt.date,
+        appt.hospitalLocation,
+      ]
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(q);
+    });
+  }, [appointments, search]);
+
   return (
     <div className="flex flex-1 flex-col gap-4">
       <div className="flex items-start justify-between gap-4">
@@ -111,7 +128,7 @@ export default function AppointmentsPage() {
       />
 
       <AppointmentsTable
-        appointments={appointments}
+        appointments={filteredAppointments}
         onEditClick={handleEditClick}
         onDeleteClick={handleDeleteClick}
       />
