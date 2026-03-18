@@ -11,9 +11,10 @@ import { AppointmentStatusBadge } from "@/components/appointments/AppointmentSta
 type AppointmentsTableProps = {
   appointments: Appointment[];
   onEditClick?: (appointment: Appointment) => void;
+  onDeleteClick?: (appointment: Appointment) => void;
 };
 
-export function AppointmentsTable({ appointments, onEditClick }: AppointmentsTableProps) {
+export function AppointmentsTable({ appointments, onEditClick, onDeleteClick }: AppointmentsTableProps) {
   const hasRows = appointments.length > 0;
 
   return (
@@ -57,7 +58,10 @@ export function AppointmentsTable({ appointments, onEditClick }: AppointmentsTab
                       >
                         <Pencil className="h-3.5 w-3.5" />
                       </IconButton>
-                      <IconButton aria-label="Delete appointment">
+                      <IconButton
+                        aria-label="Delete appointment"
+                        onClick={() => onDeleteClick?.(appt)}
+                      >
                         <Trash2 className="h-3.5 w-3.5" />
                       </IconButton>
                     </div>
