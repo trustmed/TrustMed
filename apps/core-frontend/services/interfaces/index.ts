@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 
+export * from './authMessageResponse';
 export * from './databaseHealth';
 export * from './databaseHealthStatus';
 export * from './healthResponse';

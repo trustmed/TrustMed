@@ -15,9 +15,11 @@ import { MedicalProfile } from '../entities/medical-profile.entity';
 import { Allergy } from '../entities/allergy.entity';
 import { Medication } from '../entities/medication.entity';
 import { EmergencyContact } from '../entities/emergency-contact.entity';
-import { InitialSchema1770563243972 } from '../entities/migrations/1770563243972-InitialSchema';
 import { AuthUser } from '../entities/auth-user.entity';
-//import { AuthUserTableCreate1773499292249 } from '../entities/migrations/1773499292249-AuthUserTableCreate';
+import { InitialSchema1770563243972 } from '../entities/migrations/1770563243972-InitialSchema';
+import { AddMissingPersonColumns1773778275906 } from '../entities/migrations/1773778275906-AddMissingPersonColumns';
+import { AuthUserTableCreate1773499292249 } from '../entities/migrations/1773499292249-AuthUserTableCreate';
+import { LinkAuthUserToPerson1773600000002 } from '../entities/migrations/1773600000002-LinkAuthUserToPerson';
 import { MedicalRecord } from '../entities/medical-record.entity';
 dotenv.config();
 
@@ -38,14 +40,19 @@ const baseConfig: DataSourceOptions = {
     GuardianLink,
     RecordRegistry,
     AccessRequest,
+    AuthUser,
     MedicalProfile,
     Allergy,
     Medication,
     EmergencyContact,
-    AuthUser,
     MedicalRecord,
   ],
-  migrations: [InitialSchema1770563243972],
+  migrations: [
+    InitialSchema1770563243972,
+    AddMissingPersonColumns1773778275906,
+    AuthUserTableCreate1773499292249,
+    LinkAuthUserToPerson1773600000002,
+  ],
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
 
@@ -69,7 +76,7 @@ export const getDatabaseConfig = (
     entities: [__dirname + '/../entities/*.entity{.ts,.js}'],
     migrations: [__dirname + '/../entities/migrations/*{.ts,.js}'],
     migrationsRun: configService.get<string>('RUN_MIGRATIONS') === 'true',
-    synchronize: configService.get<string>('NODE_ENV') !== 'production',
+    synchronize: false, // Temporarily disabled to avoid sync issues
     logging: configService.get<string>('NODE_ENV') === 'development',
     autoLoadEntities: true,
 

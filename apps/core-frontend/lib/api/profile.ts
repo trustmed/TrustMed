@@ -12,10 +12,51 @@ const API_URL = `${BASE_URL}/api`;
 const jsonHeaders = { "Content-Type": "application/json" };
 
 export const ProfileApi = {
+    /** Load profile by person UUID */
+    getProfileById: async (personId: string) => {
+        const response = await fetch(`${API_URL}/profile/${personId}`, {
+            method: "GET",
+            headers: jsonHeaders,
+            credentials: "include", // send the httpOnly JWT cookie
+        });
+        if (!response.ok) throw new Error("Failed to fetch profile");
+        return response.json();
+    },
+
+    /**
+     * Load the current logged-in user's profile.
+     * The backend reads the JWT from the httpOnly cookie to identify the user.
+     */
+    getMyProfile: async () => {
+        const response = await fetch(`${API_URL}/profile/me`, {
+            method: "GET",
+            headers: jsonHeaders,
+            credentials: "include", // send the httpOnly JWT cookie
+        });
+        if (!response.ok) throw new Error("Failed to fetch profile");
+        return response.json();
+    },
+
+    /** Load profile by email address */
     getProfileByEmail: async (email: string) => {
         const response = await fetch(`${API_URL}/profile/email/${email}`, {
             method: "GET",
             headers: jsonHeaders,
+            credentials: "include",
+        });
+        if (!response.ok) throw new Error("Failed to fetch profile");
+        return response.json();
+    },
+
+    /**
+     * Load profile by Clerk user ID (clerkUserId).
+     * Returns the Person + authUser relation (firstName, lastName) + all sub-relations.
+     */
+    getProfileByAuthUserId: async (clerkUserId: string) => {
+        const response = await fetch(`${API_URL}/profile/auth/${clerkUserId}`, {
+            method: "GET",
+            headers: jsonHeaders,
+            credentials: "include",
         });
         if (!response.ok) throw new Error("Failed to fetch profile");
         return response.json();
@@ -24,7 +65,6 @@ export const ProfileApi = {
     updatePersonalDetails: async (
         personId: string,
         data: Partial<CoreIdentityValues> & {
-            name?: string;
             email?: string;
             phone?: string;
             addressLine1?: string;
