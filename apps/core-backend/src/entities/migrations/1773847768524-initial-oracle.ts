@@ -1,11 +1,26 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class InitialSchema1770563243972 implements MigrationInterface {
-  name = 'InitialSchema1770563243972';
+export class InitialOracle1773847768524 implements MigrationInterface {
+  name = 'InitialOracle1773847768524';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `CREATE TABLE "persons" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdBy" character varying, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedBy" character varying, "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP, "name" character varying(100) NOT NULL, "email" character varying NOT NULL, "phone" character varying(100) NOT NULL, "addressLine1" character varying(100) NOT NULL, "addressLine2" character varying(100) NOT NULL, "city" character varying(100) NOT NULL, "zipCode" character varying(100) NOT NULL, "gender" character varying(100) NOT NULL, "dob" character varying(100) NOT NULL, "password_hash" character varying(100), "lastLogin" TIMESTAMP, CONSTRAINT "UQ_928155276ca8852f3c440cc2b2c" UNIQUE ("email"), CONSTRAINT "PK_74278d8812a049233ce41440ac7" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "auth_users" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdBy" character varying, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedBy" character varying, "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP, "clerkUserId" character varying NOT NULL, "email" character varying NOT NULL, "firstName" character varying(100) NOT NULL, "lastName" character varying(100), "isDemoDisabled" boolean NOT NULL DEFAULT false, "active" boolean NOT NULL DEFAULT true, CONSTRAINT "UQ_935cd86a07c11d84ef1c8bee8f1" UNIQUE ("clerkUserId"), CONSTRAINT "UQ_13d8b49e55a8b06bee6bbc828fb" UNIQUE ("email"), CONSTRAINT "PK_c88cc8077366b470dafc2917366" PRIMARY KEY ("id"))`,
+    );
+    await queryRunner.query(
+      `CREATE TABLE "medical_profiles" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdBy" character varying, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedBy" character varying, "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP, "dob" date, "biological_sex" character varying(20), "gender_identity" character varying(50), "blood_type" character varying(10), "height_cm" numeric(5,2), "weight_kg" numeric(5,2), "organ_donor" boolean NOT NULL DEFAULT false, "insurance_provider" character varying, "insurance_policy_no" character varying, "insurance_group_no" character varying, "insurance_card_front" character varying, "insurance_card_back" character varying, "primary_physician_name" character varying, "primary_physician_contact" character varying, "smoking_status" character varying, "alcohol_consumption" character varying, "exercise_level" character varying, "dietary_preferences" character varying, "person_id" uuid, CONSTRAINT "REL_88faa9691ec6ccc483fa08c2bc" UNIQUE ("person_id"), CONSTRAINT "PK_14c460cfc3e52e6e6fb5c03a54d" PRIMARY KEY ("id"))`,
+    );
+    await queryRunner.query(
+      `CREATE TABLE "allergies" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdBy" character varying, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedBy" character varying, "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP, "allergen_name" character varying NOT NULL, "category" character varying, "severity" character varying, "reaction" text, "person_id" uuid, CONSTRAINT "PK_f72e0cf363a832b8fa8cf657118" PRIMARY KEY ("id"))`,
+    );
+    await queryRunner.query(
+      `CREATE TABLE "medications" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdBy" character varying, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedBy" character varying, "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP, "name" character varying NOT NULL, "dosage" character varying, "frequency" character varying, "purpose" character varying, "is_active" boolean NOT NULL DEFAULT true, "person_id" uuid, CONSTRAINT "PK_cdee49fe7cd79db13340150d356" PRIMARY KEY ("id"))`,
+    );
+    await queryRunner.query(
+      `CREATE TABLE "emergency_contacts" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdBy" character varying, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedBy" character varying, "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP, "name" character varying NOT NULL, "relationship" character varying, "phone_number" character varying NOT NULL, "is_primary" boolean NOT NULL DEFAULT false, "person_id" uuid, CONSTRAINT "PK_8be191845b6fca1c4e5ba5bd7d1" PRIMARY KEY ("id"))`,
+    );
+    await queryRunner.query(
+      `CREATE TABLE "persons" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdBy" character varying, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedBy" character varying, "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP, "email" character varying NOT NULL, "phone" character varying(100), "addressLine1" character varying(100), "addressLine2" character varying(100), "city" character varying(100), "zipCode" character varying(100), "gender" character varying(100), "dob" character varying(100), "authUserId" uuid, CONSTRAINT "UQ_928155276ca8852f3c440cc2b2c" UNIQUE ("email"), CONSTRAINT "UQ_e07de5476a091b328b3b86cc847" UNIQUE ("authUserId"), CONSTRAINT "REL_e07de5476a091b328b3b86cc84" UNIQUE ("authUserId"), CONSTRAINT "PK_74278d8812a049233ce41440ac7" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
       `CREATE TABLE "global_patients" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdBy" character varying, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedBy" character varying, "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP, "did" character varying NOT NULL, "primary_doc_type" character varying, "doc_identifier_hash" character varying, "public_key" text, "enc_profile_blob" text, "is_verified" boolean NOT NULL DEFAULT false, "person_id" uuid, CONSTRAINT "UQ_59bfba8727c74ae24b023da8124" UNIQUE ("did"), CONSTRAINT "REL_f1588ada264c6b95949ea8b031" UNIQUE ("person_id"), CONSTRAINT "PK_b52fcbfa76e1bc08eb648310090" PRIMARY KEY ("id"))`,
@@ -39,6 +54,21 @@ export class InitialSchema1770563243972 implements MigrationInterface {
     );
     await queryRunner.query(
       `CREATE TABLE "access_requests" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdBy" character varying, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedBy" character varying, "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP, "requester_inst_id" uuid NOT NULL, "requester_staff_id" character varying, "patient_did" character varying NOT NULL, "record_registry_id" uuid, "status" "public"."access_requests_status_enum" NOT NULL DEFAULT 'PENDING', "rejection_reason" text, "requested_at" TIMESTAMP NOT NULL, "granted_at" TIMESTAMP, "expiry_at" TIMESTAMP, CONSTRAINT "PK_f89e51c15e3dbea13aa248fe128" PRIMARY KEY ("id"))`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "medical_profiles" ADD CONSTRAINT "FK_88faa9691ec6ccc483fa08c2bcf" FOREIGN KEY ("person_id") REFERENCES "persons"("id") ON DELETE CASCADE ON UPDATE NO ACTION`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "allergies" ADD CONSTRAINT "FK_44fd99f13b49b312f98f5de0a14" FOREIGN KEY ("person_id") REFERENCES "persons"("id") ON DELETE CASCADE ON UPDATE NO ACTION`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "medications" ADD CONSTRAINT "FK_c3c6efea78837f1be20bfe2dede" FOREIGN KEY ("person_id") REFERENCES "persons"("id") ON DELETE CASCADE ON UPDATE NO ACTION`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "emergency_contacts" ADD CONSTRAINT "FK_8804e7fd55a5f68091ce0dfd8b0" FOREIGN KEY ("person_id") REFERENCES "persons"("id") ON DELETE CASCADE ON UPDATE NO ACTION`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "persons" ADD CONSTRAINT "FK_e07de5476a091b328b3b86cc847" FOREIGN KEY ("authUserId") REFERENCES "auth_users"("id") ON DELETE SET NULL ON UPDATE NO ACTION`,
     );
     await queryRunner.query(
       `ALTER TABLE "global_patients" ADD CONSTRAINT "FK_f1588ada264c6b95949ea8b0318" FOREIGN KEY ("person_id") REFERENCES "persons"("id") ON DELETE CASCADE ON UPDATE NO ACTION`,
@@ -97,6 +127,21 @@ export class InitialSchema1770563243972 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "global_patients" DROP CONSTRAINT "FK_f1588ada264c6b95949ea8b0318"`,
     );
+    await queryRunner.query(
+      `ALTER TABLE "persons" DROP CONSTRAINT "FK_e07de5476a091b328b3b86cc847"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "emergency_contacts" DROP CONSTRAINT "FK_8804e7fd55a5f68091ce0dfd8b0"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "medications" DROP CONSTRAINT "FK_c3c6efea78837f1be20bfe2dede"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "allergies" DROP CONSTRAINT "FK_44fd99f13b49b312f98f5de0a14"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "medical_profiles" DROP CONSTRAINT "FK_88faa9691ec6ccc483fa08c2bcf"`,
+    );
     await queryRunner.query(`DROP TABLE "access_requests"`);
     await queryRunner.query(`DROP TYPE "public"."access_requests_status_enum"`);
     await queryRunner.query(`DROP TABLE "record_registry"`);
@@ -113,5 +158,10 @@ export class InitialSchema1770563243972 implements MigrationInterface {
     await queryRunner.query(`DROP TYPE "public"."institutions_status_enum"`);
     await queryRunner.query(`DROP TABLE "global_patients"`);
     await queryRunner.query(`DROP TABLE "persons"`);
+    await queryRunner.query(`DROP TABLE "emergency_contacts"`);
+    await queryRunner.query(`DROP TABLE "medications"`);
+    await queryRunner.query(`DROP TABLE "allergies"`);
+    await queryRunner.query(`DROP TABLE "medical_profiles"`);
+    await queryRunner.query(`DROP TABLE "auth_users"`);
   }
 }
