@@ -1,99 +1,167 @@
 import { Context, Contract, Info, Returns, Transaction } from 'fabric-contract-api';
 
-type ConsentStatus = 'REQUESTED' | 'GRANTED' | 'REVOKED';
+type AccessRequestStatus =
+  | 'REQUESTED'
+  | 'APPROVED'
+  | 'REJECTED'
+  | 'REVOKED'
+  | 'EXPIRED';
 
-interface Consent {
-  consentId: string;
+interface AccessRequest {
+  requestId: string;
   patientId: string;
+  doctorId: string;
   hospitalId: string;
-  insurerId: string;
   purpose: string;
-  status: ConsentStatus;
-  createdAt: string;
-  grantedAt?: string;
+  requestedAt: string;
+  status: AccessRequestStatus;
+  approvedAt?: string;
+  rejectedAt?: string;
+  revokedAt?: string;
+  expiresAt?: string;
 }
 
-@Info({ title: 'TrustMedContract', description: 'TrustMed consent smart contract' })
+@Info({ title: 'TrustMedContract', description: 'TrustMed access request contract' })
 export class TrustMedContract extends Contract {
   @Transaction()
-  public async CreateConsentRequest(
+  public async CreateAccessRequest(
     ctx: Context,
-    consentId: string,
+    requestId: string,
     patientId: string,
+    doctorId: string,
     hospitalId: string,
-    insurerId: string,
     purpose: string
   ): Promise<void> {
-    const exists = await this.AssetExists(ctx, consentId);
+    const exists = await this.AssetExists(ctx, requestId);
     if (exists) {
-      throw new Error(`Consent ${consentId} already exists`);
+      throw new Error(`Access request ${requestId} already exists`);
     }
 
-    const consent: Consent = {
-      consentId,
+    const request: AccessRequest = {
+      requestId,
       patientId,
+      doctorId,
       hospitalId,
-      insurerId,
       purpose,
+      requestedAt: new Date().toISOString(),
       status: 'REQUESTED',
-      createdAt: new Date().toISOString(),
     };
 
-    await ctx.stub.putState(consentId, Buffer.from(JSON.stringify(consent)));
+    await ctx.stub.putState(requestId, Buffer.from(JSON.stringify(request)));
   }
 
   @Transaction()
-  public async GrantConsent(ctx: Context, consentId: string): Promise<void> {
-    const data = await ctx.stub.getState(consentId);
-    if (!data || data.length === 0) {
-      throw new Error(`Consent ${consentId} does not exist`);
+  public async ApproveAccessRequest(
+    ctx: Context,
+    requestId: string,
+    expiresAt: string
+  ): Promise<void> {
+    const request = await this.GetRequest(ctx, requestId);
+
+    if (request.status !== 'REQUESTED') {
+      throw new Error(`Only REQUESTED access requests can be approved. Current status: ${request.status}`);
     }
 
-    const consent = JSON.parse(data.toString()) as Consent;
-    consent.status = 'GRANTED';
-    consent.grantedAt = new Date().toISOString();
+    request.status = 'APPROVED';
+    request.approvedAt = new Date().toISOString();
+    request.expiresAt = expiresAt;
 
-    await ctx.stub.putState(consentId, Buffer.from(JSON.stringify(consent)));
+    await ctx.stub.putState(requestId, Buffer.from(JSON.stringify(request)));
+  }
+
+  @Transaction()
+  public async RejectAccessRequest(ctx: Context, requestId: string): Promise<void> {
+    const request = await this.GetRequest(ctx, requestId);
+
+    if (request.status !== 'REQUESTED') {
+      throw new Error(`Only REQUESTED access requests can be rejected. Current status: ${request.status}`);
+    }
+
+    request.status = 'REJECTED';
+    request.rejectedAt = new Date().toISOString();
+
+    await ctx.stub.putState(requestId, Buffer.from(JSON.stringify(request)));
+  }
+
+  @Transaction()
+  public async RevokeAccessRequest(ctx: Context, requestId: string): Promise<void> {
+    const request = await this.GetRequest(ctx, requestId);
+
+    if (request.status !== 'APPROVED') {
+      throw new Error(`Only APPROVED access requests can be revoked. Current status: ${request.status}`);
+    }
+
+    request.status = 'REVOKED';
+    request.revokedAt = new Date().toISOString();
+
+    await ctx.stub.putState(requestId, Buffer.from(JSON.stringify(request)));
   }
 
   @Transaction(false)
   @Returns('string')
-  public async VerifyConsent(ctx: Context, consentId: string): Promise<string> {
-    const data = await ctx.stub.getState(consentId);
-    if (!data || data.length === 0) {
-      throw new Error(`Consent ${consentId} does not exist`);
+  public async ReadAccessRequest(ctx: Context, requestId: string): Promise<string> {
+    const request = await this.GetRequest(ctx, requestId);
+    return JSON.stringify(request);
+  }
+
+  @Transaction(false)
+  @Returns('string')
+  public async CheckAccess(
+    ctx: Context,
+    requestId: string
+  ): Promise<string> {
+    const request = await this.GetRequest(ctx, requestId);
+
+    let allowed = false;
+    let reason = 'Access not approved';
+
+    if (request.status === 'APPROVED') {
+      if (request.expiresAt) {
+        const now = new Date();
+        const expiry = new Date(request.expiresAt);
+
+        if (now <= expiry) {
+          allowed = true;
+          reason = 'Access approved and valid';
+        } else {
+          reason = 'Access approval expired';
+        }
+      } else {
+        allowed = true;
+        reason = 'Access approved';
+      }
+    } else if (request.status === 'REVOKED') {
+      reason = 'Access was revoked';
+    } else if (request.status === 'REJECTED') {
+      reason = 'Access was rejected';
     }
 
-    const consent = JSON.parse(data.toString()) as Consent;
-
     return JSON.stringify({
-      consentId: consent.consentId,
-      patientId: consent.patientId,
-      hospitalId: consent.hospitalId,
-      insurerId: consent.insurerId,
-      purpose: consent.purpose,
-      status: consent.status,
-      granted: consent.status === 'GRANTED',
-      createdAt: consent.createdAt,
-      grantedAt: consent.grantedAt ?? null
+      requestId: request.requestId,
+      patientId: request.patientId,
+      doctorId: request.doctorId,
+      hospitalId: request.hospitalId,
+      status: request.status,
+      allowed,
+      reason,
+      expiresAt: request.expiresAt ?? null,
     });
   }
 
   @Transaction(false)
   @Returns('boolean')
-  public async AssetExists(ctx: Context, consentId: string): Promise<boolean> {
-    const data = await ctx.stub.getState(consentId);
+  public async AssetExists(ctx: Context, requestId: string): Promise<boolean> {
+    const data = await ctx.stub.getState(requestId);
     return !!data && data.length > 0;
   }
 
-  @Transaction(false)
-  @Returns('string')
-  public async ReadConsent(ctx: Context, consentId: string): Promise<string> {
-    const data = await ctx.stub.getState(consentId);
+  private async GetRequest(ctx: Context, requestId: string): Promise<AccessRequest> {
+    const data = await ctx.stub.getState(requestId);
+
     if (!data || data.length === 0) {
-      throw new Error(`Consent ${consentId} does not exist`);
+      throw new Error(`Access request ${requestId} does not exist`);
     }
 
-    return data.toString();
+    return JSON.parse(data.toString()) as AccessRequest;
   }
 }
