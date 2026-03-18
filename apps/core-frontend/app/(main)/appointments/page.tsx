@@ -3,9 +3,12 @@
 import * as React from "react";
 
 import { AppointmentsToolbar } from "@/components/appointments/AppointmentsToolbar";
+import { AppointmentsTable } from "@/components/appointments/AppointmentsTable";
+import { DUMMY_APPOINTMENTS } from "@/components/appointments/appointments-data";
 
 export default function AppointmentsPage() {
   const [search, setSearch] = React.useState("");
+  const [appointments] = React.useState(DUMMY_APPOINTMENTS);
 
   return (
     <div className="flex flex-1 flex-col gap-4">
@@ -17,8 +20,7 @@ export default function AppointmentsPage() {
 
       <AppointmentsToolbar searchValue={search} onSearchChange={setSearch} />
 
-      {/* Table will be added in next commits */}
-      <div className="h-[560px] w-full rounded-xl border border-border bg-muted/20" />
+      <AppointmentsTable appointments={appointments} />
     </div>
   );
 }
