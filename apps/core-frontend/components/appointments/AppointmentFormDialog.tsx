@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X } from "lucide-react";
 
-type AppointmentFormValues = {
+export type AppointmentFormValues = {
   appointmentNo: string;
   patientName: string;
   date: string;
