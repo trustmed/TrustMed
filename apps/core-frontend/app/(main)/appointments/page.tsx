@@ -14,6 +14,7 @@ export default function AppointmentsPage() {
   const [search, setSearch] = React.useState("");
   const [appointments] = React.useState(DUMMY_APPOINTMENTS);
   const [isFormOpen, setIsFormOpen] = React.useState(false);
+  const [formMode, setFormMode] = React.useState<"add" | "edit">("add");
   const [formValues, setFormValues] = React.useState<AppointmentFormValues>({
     appointmentNo: "",
     patientName: "Kate Wanigaratne",
@@ -26,11 +27,27 @@ export default function AppointmentsPage() {
   });
 
   const handleAddClick = () => {
+    setFormMode("add");
     setFormValues((prev) => ({
       ...prev,
       appointmentNo: "",
       date: "",
     }));
+    setIsFormOpen(true);
+  };
+
+  const handleEditClick = (appointment: (typeof appointments)[number]) => {
+    setFormMode("edit");
+    setFormValues({
+      appointmentNo: appointment.appointmentNo,
+      patientName: "Kate Wanigaratne",
+      date: appointment.date,
+      address: "",
+      phoneNumber: "",
+      email: "",
+      doctor: appointment.doctorName,
+      appointmentType: appointment.appointmentType,
+    });
     setIsFormOpen(true);
   };
 
@@ -54,11 +71,11 @@ export default function AppointmentsPage() {
         onAddClick={handleAddClick}
       />
 
-      <AppointmentsTable appointments={appointments} />
+      <AppointmentsTable appointments={appointments} onEditClick={handleEditClick} />
 
       <AppointmentFormDialog
         open={isFormOpen}
-        mode="add"
+        mode={formMode}
         values={formValues}
         onClose={() => setIsFormOpen(false)}
         onSubmit={handleFormSubmit}
