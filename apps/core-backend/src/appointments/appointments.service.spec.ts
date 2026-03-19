@@ -6,7 +6,13 @@ import { Appointment } from '../entities/appointment.entity';
 import { Person } from '../entities/person.entity';
 import { AuthUser } from '../entities/auth-user.entity';
 
-type MockRepo<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>;
+type MockRepo<T> = Partial<Record<keyof Repository<T>, jest.Mock>> & {
+  find: jest.Mock;
+  findOne: jest.Mock;
+  create: jest.Mock;
+  save: jest.Mock;
+  softDelete: jest.Mock;
+};
 
 function createMockRepo<T>(): MockRepo<T> {
   return {
@@ -55,7 +61,6 @@ describe('AppointmentsService', () => {
       const authUser: Partial<AuthUser> = { id: 'auth_1', email: 'user@example.com' };
       const person: Partial<Person> = { id: 'person_1', email: 'user@example.com' };
       const dto = {
-        appointmentNo: 'D001',
         patientName: 'Kate',
         doctorName: 'Dr. Smith',
         appointmentType: 'General',
@@ -65,7 +70,8 @@ describe('AppointmentsService', () => {
 
       authUserRepo.findOne!.mockResolvedValue(authUser);
       personRepo.findOne!.mockResolvedValue(person);
-      const created = { id: 'appt_1', ...dto } as Appointment;
+      appointmentRepo.findOne!.mockResolvedValue(null);
+      const created = { id: 'appt_1', appointmentNo: '0001', ...dto } as unknown as Appointment;
       appointmentRepo.create!.mockReturnValue(created);
       appointmentRepo.save!.mockResolvedValue(created);
 
@@ -79,7 +85,7 @@ describe('AppointmentsService', () => {
       });
       expect(appointmentRepo.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          appointmentNo: 'D001',
+          appointmentNo: '0001',
           patientName: 'Kate',
           doctorName: 'Dr. Smith',
         }),

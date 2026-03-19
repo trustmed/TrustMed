@@ -45,9 +45,18 @@ export class AppointmentsService {
   async createForUser(clerkUserId: string, dto: CreateAppointmentDto): Promise<Appointment> {
     const person = await this.getOrCreatePersonForClerkUser(clerkUserId);
 
+    const lastForPerson = await this.appointmentsRepository.findOne({
+      where: { person: { id: person.id } },
+      order: { appointmentNo: 'DESC' },
+    });
+    const lastNumber = lastForPerson?.appointmentNo
+      ? parseInt(lastForPerson.appointmentNo, 10) || 0
+      : 0;
+    const nextNumber = (lastNumber + 1).toString().padStart(4, '0');
+
     const entity = this.appointmentsRepository.create({
       person,
-      appointmentNo: dto.appointmentNo,
+      appointmentNo: nextNumber,
       patientName: dto.patientName,
       doctorName: dto.doctorName,
       appointmentType: dto.appointmentType,
@@ -107,7 +116,7 @@ export class AppointmentsService {
     }
 
     Object.assign(existing, {
-      appointmentNo: dto.appointmentNo ?? existing.appointmentNo,
+      // appointmentNo is intentionally immutable
       patientName: dto.patientName ?? existing.patientName,
       doctorName: dto.doctorName ?? existing.doctorName,
       appointmentType: dto.appointmentType ?? existing.appointmentType,

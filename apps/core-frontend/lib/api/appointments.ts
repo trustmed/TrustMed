@@ -6,7 +6,6 @@ const API_URL = `${BASE_URL}/api`;
 const jsonHeaders = { "Content-Type": "application/json" };
 
 export type AppointmentPayload = {
-  appointmentNo?: string;
   patientName?: string;
   date?: string;
   address?: string;
@@ -36,7 +35,6 @@ export const AppointmentsApi = {
       headers: jsonHeaders,
       credentials: "include",
       body: JSON.stringify({
-        appointmentNo: payload.appointmentNo,
         patientName: payload.patientName,
         doctorName: payload.doctor,
         appointmentType: payload.appointmentType,
@@ -59,7 +57,6 @@ export const AppointmentsApi = {
       headers: jsonHeaders,
       credentials: "include",
       body: JSON.stringify({
-        appointmentNo: payload.appointmentNo,
         patientName: payload.patientName,
         doctorName: payload.doctor,
         appointmentType: payload.appointmentType,
