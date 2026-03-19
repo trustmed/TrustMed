@@ -7,6 +7,7 @@ import { dataSourceOptions } from './config/database.config';
 import { ProfileModule } from './profile/profile.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtCookieGuard } from './auth/jwt-cookie.guard';
+import { AppointmentsModule } from './appointments/appointments.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { JwtCookieGuard } from './auth/jwt-cookie.guard';
     AuthModule,
     HealthModule,
     ProfileModule,
+    AppointmentsModule,
   ],
   controllers: [],
   providers: [
