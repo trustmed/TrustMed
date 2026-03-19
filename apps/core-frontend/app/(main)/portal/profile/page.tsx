@@ -186,16 +186,13 @@ export default function ProfilePage() {
         // Allergies sync
         const existingAllergyIds = new Set(allergies.filter((a) => a.id).map((a) => a.id));
         const allergiesToDelete = medicalData.allergies.filter((a) => !existingAllergyIds.has(a.id));
-        //await Promise.all(allergiesToDelete.map((a) => ProfileApi.deleteAllergy(a.id)));
         await Promise.all(allergiesToDelete.map((a) => ProfileApi.deleteAllergy(a.id!)));
-        
         const newAllergies = allergies.filter((a) => !a.id);
         const addedAllergies = await Promise.all(newAllergies.map((a) => ProfileApi.addAllergy(personId, a)));
 
         // Medications sync
         const existingMedIds = new Set(medications.filter((m) => m.id).map((m) => m.id));
         const medsToDelete = medicalData.medications.filter((m) => !existingMedIds.has(m.id));
-        //await Promise.all(medsToDelete.map((m) => ProfileApi.deleteMedication(m.id)));
         await Promise.all(medsToDelete.map((m) => ProfileApi.deleteMedication(m.id!)));
         const newMeds = medications.filter((m) => !m.id);
         const addedMeds = await Promise.all(newMeds.map((m) => ProfileApi.addMedication(personId, m)));

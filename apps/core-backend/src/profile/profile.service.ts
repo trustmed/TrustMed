@@ -68,14 +68,17 @@ export class ProfileService {
     const authUser = await this.authUserRepository.findOne({
       where: { clerkUserId },
     });
+
     if (!authUser) {
       throw new NotFoundException('Auth user not found');
     }
+
     // Then find the linked person
     let person = await this.personRepository.findOne({
       where: { authUserId: authUser.id },
       relations: PROFILE_RELATIONS,
     });
+
     if (!person) {
       // Auto-create the person record to ensure the profile page works
       // even if the user was created before this migration or tables were wiped.
@@ -84,12 +87,14 @@ export class ProfileService {
         email: authUser.email,
       });
       await this.personRepository.save(newPerson);
+
       // Reload with relations to ensure consistency
       person = (await this.personRepository.findOne({
         where: { id: newPerson.id },
         relations: PROFILE_RELATIONS,
       })) as Person;
     }
+
     return person;
   }
 

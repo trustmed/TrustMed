@@ -62,6 +62,20 @@ export const ProfileApi = {
         return response.json();
     },
 
+    /**
+     * Load profile by Clerk user ID (clerkUserId).
+     * Returns the Person + authUser relation (firstName, lastName) + all sub-relations.
+     */
+    getProfileByAuthUserId: async (clerkUserId: string) => {
+        const response = await fetch(`${API_URL}/profile/auth/${clerkUserId}`, {
+            method: "GET",
+            headers: jsonHeaders,
+            credentials: "include",
+        });
+        if (!response.ok) throw new Error("Failed to fetch profile");
+        return response.json();
+    },
+
     updatePersonalDetails: async (
         personId: string,
         data: Partial<CoreIdentityValues> & {
