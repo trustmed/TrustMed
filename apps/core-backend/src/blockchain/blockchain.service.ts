@@ -25,6 +25,27 @@ type CheckAccessResult = {
   expiresAt: string | null;
 };
 
+type AccessRequestStatus =
+  | 'REQUESTED'
+  | 'APPROVED'
+  | 'REJECTED'
+  | 'REVOKED'
+  | 'EXPIRED';
+
+type ReadAccessRequestResult = {
+  requestId: string;
+  patientId: string;
+  doctorId: string;
+  hospitalId: string;
+  purpose: string;
+  requestedAt: string;
+  status: AccessRequestStatus;
+  approvedAt?: string;
+  rejectedAt?: string;
+  revokedAt?: string;
+  expiresAt?: string;
+};
+
 @Injectable()
 export class BlockchainService implements OnModuleDestroy {
   private client?: grpc.Client;
@@ -128,6 +149,25 @@ export class BlockchainService implements OnModuleDestroy {
   async checkAccess(requestId: string): Promise<CheckAccessResult> {
     const contract = await this.getContract();
     const result = await contract.evaluateTransaction('CheckAccess', requestId);
-    return JSON.parse(result.toString()) as CheckAccessResult;
+    const json = Buffer.from(result).toString('utf8');
+    return JSON.parse(json) as CheckAccessResult;
+  }
+
+  async readAccessRequest(requestId: string): Promise<ReadAccessRequestResult> {
+    try {
+      const contract = await this.getContract();
+      const result = await contract.evaluateTransaction(
+        'ReadAccessRequest',
+        requestId,
+      );
+
+      const json = Buffer.from(result).toString('utf8');
+
+      const parsed = JSON.parse(json) as ReadAccessRequestResult;
+      return parsed;
+    } catch (error) {
+      console.error('Fabric readAccessRequest failed:', error);
+      throw error;
+    }
   }
 }
