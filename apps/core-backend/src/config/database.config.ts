@@ -7,7 +7,6 @@ import { NotificationQueue } from '../entities/notification-queue.entity';
 import { GuardianLink } from '../entities/guardian-link.entity';
 import { RecordRegistry } from '../entities/record-registry.entity';
 import { AccessRequest } from '../entities/access-request.entity';
-
 import { Person } from '../entities/person.entity';
 import { MedicalProfile } from '../entities/medical-profile.entity';
 import { Allergy } from '../entities/allergy.entity';
@@ -17,6 +16,7 @@ import { InitialSchema1770563243972 } from '../entities/migrations/1770563243972
 import { AuthUser } from '../entities/auth-user.entity';
 import { AuthUserTableCreate1773499292249 } from '../entities/migrations/1773499292249-AuthUserTableCreate';
 import { LinkAuthUserToPerson1773600000002 } from '../entities/migrations/1773600000002-LinkAuthUserToPerson';
+import { Appointment } from '../entities/appointment.entity';
 dotenv.config();
 
 export const dataSourceOptions: DataSourceOptions = {
@@ -40,6 +40,7 @@ export const dataSourceOptions: DataSourceOptions = {
     Medication,
     EmergencyContact,
     AuthUser,
+    Appointment,
   ],
   migrations: [InitialSchema1770563243972, AuthUserTableCreate1773499292249, LinkAuthUserToPerson1773600000002],
   synchronize: process.env.NODE_ENV === 'development',
