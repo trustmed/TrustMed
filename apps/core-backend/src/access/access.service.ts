@@ -14,6 +14,10 @@ export class AccessService {
     return this.blockchainService.approveAccessRequest(requestId, expiresAt);
   }
 
+  getRequest(requestId: string) {
+    return this.blockchainService.readAccessRequest(requestId);
+  }
+
   checkAccess(requestId: string) {
     return this.blockchainService.checkAccess(requestId);
   }

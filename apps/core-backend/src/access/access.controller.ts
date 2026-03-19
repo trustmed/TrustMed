@@ -59,4 +59,18 @@ export class AccessController {
       });
     }
   }
+
+  @Public()
+  @Get(':id')
+  async getOne(@Param('id') id: string) {
+    try {
+      return await this.accessService.getRequest(id);
+    } catch (error) {
+      console.error('Read Request Error:', error);
+      throw new InternalServerErrorException({
+        message: 'Internal server error',
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
 }
