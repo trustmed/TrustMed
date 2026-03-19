@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Appointment } from '../entities/appointment.entity';
+import { Person } from '../entities/person.entity';
+import { AuthUser } from '../entities/auth-user.entity';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 
@@ -10,10 +12,41 @@ export class AppointmentsService {
   constructor(
     @InjectRepository(Appointment)
     private readonly appointmentsRepository: Repository<Appointment>,
+    @InjectRepository(Person)
+    private readonly personRepository: Repository<Person>,
+    @InjectRepository(AuthUser)
+    private readonly authUserRepository: Repository<AuthUser>,
   ) {}
 
-  async create(dto: CreateAppointmentDto): Promise<Appointment> {
+  private async getOrCreatePersonForClerkUser(clerkUserId: string): Promise<Person> {
+    const authUser = await this.authUserRepository.findOne({
+      where: { clerkUserId },
+    });
+
+    if (!authUser) {
+      throw new NotFoundException('Auth user not found');
+    }
+
+    let person = await this.personRepository.findOne({
+      where: { authUserId: authUser.id },
+    });
+
+    if (!person) {
+      person = this.personRepository.create({
+        authUserId: authUser.id,
+        email: authUser.email,
+      });
+      await this.personRepository.save(person);
+    }
+
+    return person;
+  }
+
+  async createForUser(clerkUserId: string, dto: CreateAppointmentDto): Promise<Appointment> {
+    const person = await this.getOrCreatePersonForClerkUser(clerkUserId);
+
     const entity = this.appointmentsRepository.create({
+      person,
       appointmentNo: dto.appointmentNo,
       patientName: dto.patientName,
       doctorName: dto.doctorName,
@@ -30,6 +63,14 @@ export class AppointmentsService {
 
   async findAll(): Promise<Appointment[]> {
     return this.appointmentsRepository.find();
+  }
+
+  async findAllForUser(clerkUserId: string): Promise<Appointment[]> {
+    const person = await this.getOrCreatePersonForClerkUser(clerkUserId);
+    return this.appointmentsRepository.find({
+      where: { person: { id: person.id } },
+      order: { date: 'ASC' },
+    });
   }
 
   async findOne(id: string): Promise<Appointment | null> {

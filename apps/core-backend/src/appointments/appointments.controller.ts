@@ -6,7 +6,9 @@ import {
   Param,
   Patch,
   Post,
+  Req,
 } from '@nestjs/common';
+import type { Request } from 'express';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
@@ -21,15 +23,20 @@ export class AppointmentsController {
   @Post()
   @ApiOperation({ summary: 'Create a new appointment' })
   @ApiResponse({ status: 201, type: Appointment })
-  create(@Body() dto: CreateAppointmentDto) {
-    return this.appointmentsService.create(dto);
+  create(
+    @Req() req: Request & { user?: { sub?: string } },
+    @Body() dto: CreateAppointmentDto,
+  ) {
+    const clerkUserId = req.user?.sub;
+    return this.appointmentsService.createForUser(clerkUserId as string, dto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'List all appointments' })
+  @ApiOperation({ summary: 'List appointments for the logged-in user' })
   @ApiResponse({ status: 200, type: [Appointment] })
-  findAll() {
-    return this.appointmentsService.findAll();
+  findAll(@Req() req: Request & { user?: { sub?: string } }) {
+    const clerkUserId = req.user?.sub;
+    return this.appointmentsService.findAllForUser(clerkUserId as string);
   }
 
   @Get(':id')
