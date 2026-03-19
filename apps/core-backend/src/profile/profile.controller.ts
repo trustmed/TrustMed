@@ -29,7 +29,9 @@ export class ProfileController {
    * NOTE: this route MUST be declared before :personId to avoid route conflict.
    */
   @Get('me')
-  @ApiOperation({ summary: 'Get profile for the logged-in user (via JWT cookie)' })
+  @ApiOperation({
+    summary: 'Get profile for the logged-in user (via JWT cookie)',
+  })
   async getMyProfile(@Req() req: Request & { user?: { sub?: string } }) {
     const clerkUserId = req.user?.sub;
     if (!clerkUserId) {
