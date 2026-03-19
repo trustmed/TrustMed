@@ -4,16 +4,17 @@ import * as React from "react";
 
 import { AppointmentsToolbar } from "@/components/appointments/AppointmentsToolbar";
 import { AppointmentsTable } from "@/components/appointments/AppointmentsTable";
-import { DUMMY_APPOINTMENTS, type Appointment } from "@/components/appointments/appointments-data";
+import { type Appointment } from "@/components/appointments/appointments-data";
 import {
   AppointmentFormDialog,
   type AppointmentFormValues,
 } from "@/components/appointments/AppointmentFormDialog";
 import { AppointmentDeleteDialog } from "@/components/appointments/AppointmentDeleteDialog";
+import { AppointmentsApi } from "@/lib/api/appointments";
 
 export default function AppointmentsPage() {
   const [search, setSearch] = React.useState("");
-  const [appointments, setAppointments] = React.useState<Appointment[]>(DUMMY_APPOINTMENTS);
+  const [appointments, setAppointments] = React.useState<Appointment[]>([]);
   const [isFormOpen, setIsFormOpen] = React.useState(false);
   const [formMode, setFormMode] = React.useState<"add" | "edit">("add");
   const [editingId, setEditingId] = React.useState<string | null>(null);
@@ -30,6 +31,23 @@ export default function AppointmentsPage() {
 
   const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
   const [pendingDelete, setPendingDelete] = React.useState<(typeof appointments)[number] | null>(null);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await AppointmentsApi.list();
+        if (!cancelled) {
+          setAppointments(data);
+        }
+      } catch (error) {
+        console.error("Failed to load appointments", error);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleAddClick = () => {
     setFormMode("add");
@@ -64,33 +82,41 @@ export default function AppointmentsPage() {
   };
 
   const handleFormSubmit = (values: AppointmentFormValues) => {
-    if (formMode === "add") {
-      const next: Appointment = {
-        id: typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : String(Date.now()),
-        appointmentNo: values.appointmentNo || `D${String(appointments.length + 1).padStart(3, "0")}`,
-        appointmentType: values.appointmentType || "General",
-        doctorName: values.doctor || "—",
-        date: values.date || new Date().toISOString().slice(0, 10),
-        hospitalLocation: values.address || "—",
-        status: "pending",
-      };
-      setAppointments((prev) => [next, ...prev]);
-    } else if (formMode === "edit" && editingId) {
-      setAppointments((prev) =>
-        prev.map((appt) =>
-          appt.id === editingId
-            ? {
-                ...appt,
-                appointmentNo: values.appointmentNo || appt.appointmentNo,
-                appointmentType: values.appointmentType || appt.appointmentType,
-                doctorName: values.doctor || appt.doctorName,
-                date: values.date || appt.date,
-                hospitalLocation: values.address || appt.hospitalLocation,
-              }
-            : appt
-        )
-      );
-    }
+    (async () => {
+      try {
+        if (formMode === "add") {
+          const created = await AppointmentsApi.create({
+            appointmentNo: values.appointmentNo,
+            patientName: values.patientName,
+            date: values.date,
+            address: values.address,
+            phoneNumber: values.phoneNumber,
+            email: values.email,
+            doctor: values.doctor,
+            appointmentType: values.appointmentType,
+            hospitalLocation: values.address,
+          });
+          setAppointments((prev) => [created, ...prev]);
+        } else if (formMode === "edit" && editingId) {
+          const updated = await AppointmentsApi.update(editingId, {
+            appointmentNo: values.appointmentNo,
+            patientName: values.patientName,
+            date: values.date,
+            address: values.address,
+            phoneNumber: values.phoneNumber,
+            email: values.email,
+            doctor: values.doctor,
+            appointmentType: values.appointmentType,
+            hospitalLocation: values.address,
+          });
+          setAppointments((prev) =>
+            prev.map((appt) => (appt.id === updated.id ? updated : appt))
+          );
+        }
+      } catch (error) {
+        console.error("Failed to save appointment", error);
+      }
+    })();
     setFormValues(values);
     setEditingId(null);
     setIsFormOpen(false);
@@ -150,9 +176,16 @@ export default function AppointmentsPage() {
         }}
         onConfirm={() => {
           if (pendingDelete) {
-            setAppointments((prev) =>
-              prev.filter((appt) => appt.id !== pendingDelete.id)
-            );
+            (async () => {
+              try {
+                await AppointmentsApi.remove(pendingDelete.id);
+                setAppointments((prev) =>
+                  prev.filter((appt) => appt.id !== pendingDelete.id)
+                );
+              } catch (error) {
+                console.error("Failed to delete appointment", error);
+              }
+            })();
           }
           setIsDeleteOpen(false);
           setPendingDelete(null);
