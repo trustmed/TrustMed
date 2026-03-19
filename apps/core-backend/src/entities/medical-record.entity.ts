@@ -5,6 +5,15 @@ import {
   CreateDateColumn,
 } from 'typeorm';
 
+export enum RecordCategory {
+  LAB_REPORT = 'lab_report',
+  PRESCRIPTION = 'prescription',
+  IMAGING = 'imaging',
+  DISCHARGE_SUMMARY = 'discharge_summary',
+  VACCINATION = 'vaccination',
+  OTHER = 'other',
+}
+
 /**
  * Stores metadata for each encrypted medical record uploaded to S3.
  *
@@ -52,6 +61,31 @@ export class MedicalRecord {
   @Column({ type: 'bigint' })
   fileSize: number;
 
+  @Column({
+    type: 'enum',
+    enum: RecordCategory,
+    default: RecordCategory.OTHER,
+  })
+  category: RecordCategory;
+
+  @Column({ type: 'text', nullable: true })
+  notes: string | null;
+
+  @Column({ name: 'doctor_name', type: 'varchar', length: 200, nullable: true })
+  doctorName: string | null;
+
+  @Column({
+    name: 'hospital_name',
+    type: 'varchar',
+    length: 200,
+    nullable: true,
+  })
+  hospitalName: string | null;
+
+  @Column({ name: 'record_date', type: 'date', nullable: true })
+  recordDate: Date | null;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 }
+

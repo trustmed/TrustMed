@@ -20,6 +20,7 @@ import { FileValidationPipe } from './file-validation.pipe';
 import { CurrentUser } from '../auth/current-user.decorator';
 import type { JwtPayload } from '../auth/jwt-payload.interface';
 import { AuthUser } from '../entities/auth-user.entity';
+import { RecordCategory } from '../entities/medical-record.entity';
 
 @ApiTags('s3-vault')
 @Controller('s3-vault')
@@ -28,7 +29,7 @@ export class S3VaultController {
     private readonly s3VaultService: S3VaultService,
     @InjectRepository(AuthUser)
     private readonly authUserRepo: Repository<AuthUser>,
-  ) {}
+  ) { }
 
   /**
    * Resolves Clerk user ID → AuthUser.id (UUID).
@@ -76,6 +77,28 @@ export class S3VaultController {
           format: 'uuid',
           description: 'UUID of the patient this record belongs to',
         },
+        category: {
+          type: 'string',
+          enum: Object.values(RecordCategory),
+          description: 'Category of the medical record',
+        },
+        notes: {
+          type: 'string',
+          description: 'Optional notes about the record',
+        },
+        doctorName: {
+          type: 'string',
+          description: 'Name of the doctor who issued the record',
+        },
+        hospitalName: {
+          type: 'string',
+          description: 'Name of the hospital/clinic',
+        },
+        recordDate: {
+          type: 'string',
+          format: 'date',
+          description: 'Date when the record was issued',
+        },
       },
       required: ['file', 'patientId'],
     },
@@ -84,10 +107,17 @@ export class S3VaultController {
     @UploadedFile(new FileValidationPipe()) file: Express.Multer.File,
     @Body('patientId', new ParseUUIDPipe({ version: '4' }))
     patientId: string,
+    @Body('category') category?: RecordCategory,
+    @Body('notes') notes?: string,
+    @Body('doctorName') doctorName?: string,
+    @Body('hospitalName') hospitalName?: string,
+    @Body('recordDate') recordDateStr?: string,
     @CurrentUser() user: JwtPayload,
     @Req() req: Request,
   ): Promise<UploadResponseDto> {
     const uploaderId = await this.resolveAuthUserId(user.sub);
+
+    const recordDate = recordDateStr ? new Date(recordDateStr) : undefined;
 
     const result = await this.s3VaultService.uploadEncryptedFile(
       file.buffer,
@@ -95,8 +125,16 @@ export class S3VaultController {
       file.mimetype,
       patientId,
       uploaderId,
+      {
+        category,
+        notes,
+        doctorName,
+        hospitalName,
+        recordDate,
+      },
       req.ip,
     );
+
 
     return {
       objectKey: result.objectKey,

@@ -30,15 +30,15 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased`}>
         <Providers>
-            {children}
-            <Toaster
-              richColors
-              position="top-right"
-              toastOptions={{ className: "text-sm sm:text-base" }}
-            />
-            <Analytics />
-            <SpeedInsights />
-          </Providers>
+          {children}
+          <Toaster
+            richColors
+            position="top-right"
+            toastOptions={{ className: "text-sm sm:text-base" }}
+          />
+          <Analytics />
+          <SpeedInsights />
+        </Providers>
       </body>
     </html>
   );

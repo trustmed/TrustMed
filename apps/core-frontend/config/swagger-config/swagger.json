@@ -72,6 +72,24 @@
         "tags": ["auth"]
       }
     },
+    "/api/auth/me": {
+      "get": {
+        "operationId": "authControllerGetMe",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Current user info",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          }
+        },
+        "summary": "Get current user info",
+        "tags": ["auth"]
+      }
+    },
     "/api/health": {
       "get": {
         "operationId": "getHealth",
@@ -257,10 +275,7 @@
     "version": "1.0.0",
     "contact": {}
   },
-  "tags": [
-    { "name": "auth", "description": "Authentication endpoints" },
-    { "name": "health", "description": "Health check endpoints" }
-  ],
+  "tags": [{ "name": "health", "description": "Health check endpoints" }],
   "servers": [],
   "components": {
     "schemas": {
@@ -288,6 +303,16 @@
           "message": { "type": "string", "example": "Login successful" }
         },
         "required": ["message"]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "sub": { "type": "string", "example": "user_123" },
+          "email": { "type": "string", "example": "user@example.com" },
+          "firstName": { "type": "string", "example": "John" },
+          "lastName": { "type": "string", "example": "Doe" }
+        },
+        "required": ["sub", "email"]
       },
       "DatabaseHealth": {
         "type": "object",

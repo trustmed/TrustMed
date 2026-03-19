@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import * as crypto from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
-import { MedicalRecord } from '../entities/medical-record.entity';
+import { MedicalRecord, RecordCategory } from '../entities/medical-record.entity';
 import { CryptoService } from './crypto.service';
 import { AuditService, AuditEventType } from '../audit/audit.service';
 
@@ -19,6 +19,15 @@ export interface UploadResult {
   documentHash: string;
   /** UUID of the persisted {@link MedicalRecord}. */
   medicalRecordId: string;
+}
+
+/** Extra metadata for medical records. */
+export interface UploadMetadata {
+  category?: RecordCategory;
+  notes?: string;
+  doctorName?: string;
+  hospitalName?: string;
+  recordDate?: Date;
 }
 
 @Injectable()
@@ -83,6 +92,7 @@ export class S3VaultService {
     mimeType: string,
     patientId: string,
     uploaderId: string,
+    metadata?: UploadMetadata,
     ipAddress?: string,
   ): Promise<UploadResult> {
     // 1. SHA-256 hash of raw file
@@ -137,9 +147,15 @@ export class S3VaultService {
       originalFileName: fileName,
       mimeType,
       fileSize: fileBuffer.length,
+      category: metadata?.category ?? RecordCategory.OTHER,
+      notes: metadata?.notes ?? null,
+      doctorName: metadata?.doctorName ?? null,
+      hospitalName: metadata?.hospitalName ?? null,
+      recordDate: metadata?.recordDate ?? null,
     });
 
     const savedRecord = await this.medicalRecordRepo.save(record);
+
 
     this.logger.log(
       `MedicalRecord saved — id: ${savedRecord.id}, hash: ${documentHash}`,

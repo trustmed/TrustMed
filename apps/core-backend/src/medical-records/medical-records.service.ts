@@ -70,6 +70,11 @@ export class MedicalRecordsService {
         'fileSize',
         'documentHash',
         'patientId',
+        'category',
+        'notes',
+        'doctorName',
+        'hospitalName',
+        'recordDate',
         'createdAt',
       ],
     });

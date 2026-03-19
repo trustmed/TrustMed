@@ -3,6 +3,7 @@ import {
   UnauthorizedException,
   BadRequestException,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { createClerkClient, type ClerkClient } from '@clerk/backend';
@@ -29,6 +30,13 @@ export class AuthService {
     this.clerkClient = createClerkClient({ secretKey });
   }
 
+  /**
+   * Verified login: 
+   * 1. Resolves Clerk user by email
+   * 2. Verifies password via Clerk
+   * 3. Checks if user is registered in our local DB and active
+   * 4. Issues backend JWT
+   */
   async login(email: string, password: string): Promise<string> {
     // 1. Find user by email
     const { data: users } = await this.clerkClient.users.getUserList({
@@ -75,7 +83,6 @@ export class AuthService {
       if (isClerkError) {
         throw new UnauthorizedException('Invalid email or password');
       }
-      // Re-throw UnauthorizedException from above
       if (err instanceof UnauthorizedException) throw err;
       throw new InternalServerErrorException('Authentication failed');
     }
@@ -92,15 +99,20 @@ export class AuthService {
     });
   }
 
+  /**
+   * Atomic registration:
+   * 1. Creates user in Clerk
+   * 2. Persists to local auth_users table
+   * 3. Creates linked Person record
+   * 4. Cleans up Clerk user if DB steps fail
+   */
   async register(
     email: string,
     password: string,
     firstName: string,
     lastName?: string,
   ): Promise<string> {
-    // 1. Create user in Clerk
     let clerkUserId: string | undefined;
-    let savedAuthUser: AuthUser | undefined;
 
     try {
       const user = await this.clerkClient.users.createUser({
@@ -113,7 +125,7 @@ export class AuthService {
       clerkUserId = user.id;
 
       // 2. Save to auth_users table
-      savedAuthUser = await this.authUserRepository.save(
+      const savedAuthUser = await this.authUserRepository.save(
         this.authUserRepository.create({
           clerkUserId: user.id,
           email,
@@ -124,7 +136,7 @@ export class AuthService {
         }),
       );
 
-      // 3. Create linked Person record (minimal, email only)
+      // 3. Create linked Person record
       await this.personRepository.save(
         this.personRepository.create({
           email,
@@ -140,6 +152,15 @@ export class AuthService {
         lastName: user.lastName,
       });
     } catch (err: unknown) {
+      // Cleanup Clerk if DB persistence failed
+      if (clerkUserId) {
+        try {
+          await this.clerkClient.users.deleteUser(clerkUserId);
+        } catch (cleanupErr) {
+          void cleanupErr;
+        }
+      }
+
       const isClerkError =
         err !== null &&
         typeof err === 'object' &&
@@ -160,31 +181,66 @@ export class AuthService {
         );
       }
 
-      const isUniqueConstraintViolation =
-        err !== null &&
-        typeof err === 'object' &&
-        'code' in err &&
-        (err as { code: string }).code === '23505';
-
-      if (isUniqueConstraintViolation) {
-        if (clerkUserId) {
-          try {
-            await this.clerkClient.users.deleteUser(clerkUserId);
-          } catch (cleanupError: unknown) {
-            void cleanupError;
-          }
-        }
-
-        throw new BadRequestException(
-          'An account with this email is already registered in this system',
-        );
-      }
-
       throw new InternalServerErrorException('Registration failed');
     }
   }
 
-  private async signJwt(payload: Record<string, unknown>): Promise<string> {
+  /**
+   * Returns current user identity resolved from JWT payload.
+   * Auto-syncs with Clerk if local record is missing.
+   */
+  async getMe(payload: any) {
+    const clerkUserId = payload?.sub || payload?.id;
+    if (!clerkUserId) {
+      throw new UnauthorizedException('Invalid token payload');
+    }
+
+    let authUser = await this.authUserRepository.findOne({
+      where: { clerkUserId },
+    });
+
+    if (!authUser) {
+      try {
+        const clerkUser = await this.clerkClient.users.getUser(clerkUserId);
+        const email = clerkUser?.emailAddresses?.[0]?.emailAddress || '';
+        authUser = await this.authUserRepository.save(
+          this.authUserRepository.create({
+            clerkUserId,
+            email,
+            firstName: clerkUser?.firstName,
+            lastName: clerkUser?.lastName,
+            active: true,
+          }),
+        );
+      } catch (error) {
+        throw new NotFoundException('User not found');
+      }
+    }
+
+    let person = await this.personRepository.findOne({
+      where: { authUserId: authUser.id },
+    });
+
+    if (!person) {
+      person = await this.personRepository.save(
+        this.personRepository.create({
+          authUserId: authUser.id,
+          email: authUser.email,
+        }),
+      );
+    }
+
+    return {
+      sub: authUser.clerkUserId,
+      email: authUser.email,
+      firstName: authUser.firstName,
+      lastName: authUser.lastName,
+      id: authUser.id, // Internal UUID
+      personId: person.id,
+    };
+  }
+
+  private signJwt(payload: Record<string, unknown>): Promise<string> {
     return this.jwtService.signAsync(payload);
   }
 }

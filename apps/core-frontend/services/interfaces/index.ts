@@ -13,3 +13,4 @@ export * from './healthResponse';
 export * from './healthResponseStatus';
 export * from './loginDto';
 export * from './registerDto';
+export * from './user';
