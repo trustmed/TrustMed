@@ -33,3 +33,27 @@ LICENSE
 
 # Monorepo specific cache
 .turbo
+
+# Generated org crypto
+fabric-samples/test-network/organizations/
+organizations/
+crypto-config/
+
+# Channel artifacts
+fabric-samples/test-network/channel-artifacts/
+fabric-samples/test-network/system-genesis-block/
+*.block
+*.tx
+
+# Wallets (VERY sensitive)
+wallet/
+**/wallet/
+
+# Explorer wallet
+explorer/walletstore/
+
+# Certificates / keys
+*.pem
+*.crt
+*.key
+*_sk
