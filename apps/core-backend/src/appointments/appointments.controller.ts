@@ -42,22 +42,39 @@ export class AppointmentsController {
   @Get(':id')
   @ApiOperation({ summary: 'Get a single appointment by ID' })
   @ApiResponse({ status: 200, type: Appointment })
-  findOne(@Param('id') id: string) {
-    return this.appointmentsService.findOne(id);
+  findOne(
+    @Req() req: Request & { user?: { sub?: string } },
+    @Param('id') id: string,
+  ) {
+    const clerkUserId = req.user?.sub;
+    return this.appointmentsService.findOneForUser(clerkUserId as string, id);
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update an appointment by ID' })
   @ApiResponse({ status: 200, type: Appointment })
-  update(@Param('id') id: string, @Body() dto: UpdateAppointmentDto) {
-    return this.appointmentsService.update(id, dto);
+  update(
+    @Req() req: Request & { user?: { sub?: string } },
+    @Param('id') id: string,
+    @Body() dto: UpdateAppointmentDto,
+  ) {
+    const clerkUserId = req.user?.sub;
+    return this.appointmentsService.updateForUser(
+      clerkUserId as string,
+      id,
+      dto,
+    );
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete an appointment by ID' })
   @ApiResponse({ status: 204 })
-  async remove(@Param('id') id: string) {
-    await this.appointmentsService.remove(id);
+  async remove(
+    @Req() req: Request & { user?: { sub?: string } },
+    @Param('id') id: string,
+  ) {
+    const clerkUserId = req.user?.sub;
+    await this.appointmentsService.removeForUser(clerkUserId as string, id);
     return { success: true };
   }
 }

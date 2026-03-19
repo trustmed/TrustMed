@@ -77,8 +77,26 @@ export class AppointmentsService {
     return this.appointmentsRepository.findOne({ where: { id } });
   }
 
-  async update(id: string, dto: UpdateAppointmentDto): Promise<Appointment> {
-    const existing = await this.appointmentsRepository.findOne({ where: { id } });
+  async findOneForUser(clerkUserId: string, id: string): Promise<Appointment> {
+    const person = await this.getOrCreatePersonForClerkUser(clerkUserId);
+    const appt = await this.appointmentsRepository.findOne({
+      where: { id, person: { id: person.id } },
+    });
+    if (!appt) {
+      throw new NotFoundException('Appointment not found');
+    }
+    return appt;
+  }
+
+  async updateForUser(
+    clerkUserId: string,
+    id: string,
+    dto: UpdateAppointmentDto,
+  ): Promise<Appointment> {
+    const person = await this.getOrCreatePersonForClerkUser(clerkUserId);
+    const existing = await this.appointmentsRepository.findOne({
+      where: { id, person: { id: person.id } },
+    });
     if (!existing) {
       throw new NotFoundException('Appointment not found');
     }
@@ -103,8 +121,12 @@ export class AppointmentsService {
     return this.appointmentsRepository.save(existing);
   }
 
-  async remove(id: string): Promise<void> {
-    const result = await this.appointmentsRepository.softDelete(id);
+  async removeForUser(clerkUserId: string, id: string): Promise<void> {
+    const person = await this.getOrCreatePersonForClerkUser(clerkUserId);
+    const result = await this.appointmentsRepository.softDelete({
+      id,
+      person: { id: person.id },
+    } as any);
     if (!result.affected) {
       throw new NotFoundException('Appointment not found');
     }
