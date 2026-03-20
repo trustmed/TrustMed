@@ -3,12 +3,15 @@ name: Deploy Dev Environment
 on:
   push:
     branches:
-      - dev-env
+      - feat/dev-env
 
 jobs:
   deploy-frontend:
     name: Deploy Frontends to Vercel
     runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
       - uses: actions/checkout@v4
       
@@ -51,24 +54,8 @@ jobs:
           key: ${{ secrets.BACKEND_ORACLE_SSH_KEY }}
           script: |
             cd /var/www/trustmed
-            git fetch origin dev-env
-            git checkout dev-env
-            git pull origin dev-env
+            git fetch origin feat/dev-env
+            git checkout feat/dev-env
+            git pull origin feat/dev-env
             docker compose -f docker-compose.dev-env.yml up -d --build core-backend
 
-  deploy-blockchain:
-    name: Deploy Blockchain to Oracle VM 2
-    runs-on: ubuntu-latest
-    steps:
-      - name: Executing remote ssh commands using ssh key
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.BLOCKCHAIN_ORACLE_HOST }}
-          username: ${{ secrets.ORACLE_USERNAME }}
-          key: ${{ secrets.BLOCKCHAIN_ORACLE_SSH_KEY }}
-          script: |
-            cd /var/www/trustmed-blockchain
-            git fetch origin dev-env
-            git checkout dev-env
-            git pull origin dev-env
-            bash restart-dev-network.sh
