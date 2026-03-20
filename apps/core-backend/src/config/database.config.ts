@@ -15,6 +15,7 @@ import { Allergy } from '../entities/allergy.entity';
 import { Medication } from '../entities/medication.entity';
 import { EmergencyContact } from '../entities/emergency-contact.entity';
 import { AuthUser } from '../entities/auth-user.entity';
+import { InitialOracle1773847768524 } from '../entities/migrations/1773847768524-initial-oracle';
 dotenv.config();
 
 export const dataSourceOptions: DataSourceOptions = {
@@ -40,7 +41,7 @@ export const dataSourceOptions: DataSourceOptions = {
     AuthUser,
     MedicalRecord,
   ],
-  migrations: [],
+  migrations: [InitialOracle1773847768524],
   synchronize: process.env.NODE_ENV === 'development',
   logging: process.env.NODE_ENV === 'development',
 };
