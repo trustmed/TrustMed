@@ -72,13 +72,17 @@ export class BlockchainService implements OnModuleDestroy {
     return { mspId: FABRIC.mspId, credentials };
   }
 
-  private async newSigner(): Promise<Signer> {
+private async newSigner(): Promise<Signer> {
+  try {
+    // Check if the directory exists first
     const files = await fs.readdir(FABRIC.keyDirPath);
+    
+    // Filter for the key file
     const keyFile = files.find((f) => f.endsWith("_sk") || f === "priv_sk");
 
     if (!keyFile) {
       throw new Error(
-        `No private key file found in ${FABRIC.keyDirPath}. Found: ${files.join(", ")}`,
+        `No private key file found in ${FABRIC.keyDirPath}. Files present: ${files.length > 0 ? files.join(", ") : "None"}`
       );
     }
 
@@ -87,7 +91,11 @@ export class BlockchainService implements OnModuleDestroy {
     const privateKey: KeyObject = createPrivateKey(privateKeyPem);
 
     return signers.newPrivateKeySigner(privateKey);
+  } catch (error) {
+    console.error(`[Fabric Service] newSigner error: ${error.message}`);
+    throw error;
   }
+}
 
   private async getContract(): Promise<Contract> {
     if (this.contract) return this.contract;
