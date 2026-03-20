@@ -3,6 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 export enum RecordCategory {
@@ -35,30 +36,30 @@ export class MedicalRecord {
   uploaderId: string;
 
   /** Full S3 URI (e.g. `s3://bucket/encrypted/uuid-filename.pdf`). */
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   s3Uri: string;
 
   /** SHA-256 hex digest of the **raw** (unencrypted) file. */
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   documentHash: string;
 
   /**
    * Envelope-encrypted AES-256-GCM key.
    * Format: `iv_hex:authTag_hex:ciphertext_hex` (sealed by CryptoService).
    */
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   encryptedAesKey: string;
 
   /** Original file name as provided by the uploader. */
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   originalFileName: string;
 
   /** MIME type of the uploaded file (e.g. `application/pdf`). */
-  @Column({ type: 'varchar', length: 100 })
+  @Column({ type: 'varchar', length: 100, nullable: true })
   mimeType: string;
 
   /** File size in bytes. */
-  @Column({ type: 'bigint' })
+  @Column({ type: 'bigint', nullable: true })
   fileSize: number;
 
   @Column({
@@ -87,5 +88,7 @@ export class MedicalRecord {
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
-}
 
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedAt: Date;
+}

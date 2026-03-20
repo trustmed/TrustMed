@@ -16,10 +16,22 @@ export class RecordListItemDto {
   originalFileName: string;
 
   @ApiProperty({
+    description: 'File name (frontend compatibility alias)',
+    example: 'blood-test-report.pdf',
+  })
+  fileName: string;
+
+  @ApiProperty({
     description: 'MIME type of the file',
     example: 'application/pdf',
   })
   mimeType: string;
+
+  @ApiProperty({
+    description: 'File type (frontend compatibility alias)',
+    example: 'application/pdf',
+  })
+  fileType: string;
 
   @ApiProperty({
     description: 'File size in bytes',
@@ -41,6 +53,12 @@ export class RecordListItemDto {
   patientId: string;
 
   @ApiProperty({
+    description: 'UUID of the person (frontend compatibility alias)',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  })
+  personId: string;
+
+  @ApiProperty({
     description: 'Category of the medical record',
     enum: RecordCategory,
     example: RecordCategory.LAB_REPORT,
@@ -51,30 +69,41 @@ export class RecordListItemDto {
     description: 'Optional notes about the record',
     example: 'Patient showed high glucose levels',
   })
-  notes?: string;
+  notes?: string | null;
 
   @ApiPropertyOptional({
     description: 'Name of the doctor who issued the record',
     example: 'Dr. Smith',
   })
-  doctorName?: string;
+  doctorName?: string | null;
 
   @ApiPropertyOptional({
     description: 'Name of the hospital/clinic',
     example: 'City General Hospital',
   })
-  hospitalName?: string;
+  hospitalName?: string | null;
 
   @ApiPropertyOptional({
     description: 'Date when the record was issued',
     example: '2026-03-15',
   })
-  recordDate?: Date;
+  recordDate?: Date | null;
 
   @ApiProperty({
     description: 'When the record was uploaded',
     example: '2026-03-18T14:30:00.000Z',
   })
   createdAt: Date;
-}
 
+  @ApiProperty({
+    description: 'When the record was last updated',
+    example: '2026-03-18T14:30:00.000Z',
+  })
+  updatedAt: Date;
+
+  @ApiPropertyOptional({
+    description: 'Direct download URL',
+    example: 'http://localhost:4000/api/medical-records/123/download',
+  })
+  fileUrl?: string;
+}
