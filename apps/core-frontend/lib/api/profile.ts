@@ -42,6 +42,7 @@ export const ProfileApi = {
         const response = await fetch(`${API_URL}/profile/email/${email}`, {
             method: "GET",
             headers: jsonHeaders,
+            credentials: "include",
         });
         if (!response.ok) throw new Error("Failed to fetch profile");
         return response.json();
@@ -63,18 +64,21 @@ export const ProfileApi = {
 
     updatePersonalDetails: async (
         personId: string,
-        data: Partial<CoreIdentityValues> & {
+        data: Omit<Partial<CoreIdentityValues>, 'dob'> & {
             email?: string;
             phone?: string;
             addressLine1?: string;
             addressLine2?: string;
             city?: string;
             zipCode?: string;
+            gender?: string;
+            dob?: string;
         },
     ) => {
         const response = await fetch(`${API_URL}/profile/${personId}/personal`, {
             method: "PATCH",
             headers: jsonHeaders,
+            credentials: "include",
             body: JSON.stringify(data),
         });
         if (!response.ok) throw new Error("Failed to update personal details");
@@ -82,11 +86,9 @@ export const ProfileApi = {
     },
 
     updateMedicalProfile: async (personId: string, data: {
-        biologicalSex?: string;
         bloodType?: string;
         heightCm?: number;
         weightKg?: number;
-        dob?: string;
         insuranceProvider?: string;
         insurancePolicyNo?: string;
         insuranceGroupNo?: string;
@@ -94,6 +96,7 @@ export const ProfileApi = {
         const response = await fetch(`${API_URL}/profile/${personId}/medical`, {
             method: "PATCH",
             headers: jsonHeaders,
+            credentials: "include",
             body: JSON.stringify(data),
         });
         if (!response.ok) throw new Error("Failed to update medical profile");
@@ -104,6 +107,7 @@ export const ProfileApi = {
         const response = await fetch(`${API_URL}/profile/${personId}/medical`, {
             method: "PATCH",
             headers: jsonHeaders,
+            credentials: "include",
             body: JSON.stringify({
                 insuranceProvider: data.provider,
                 insurancePolicyNo: data.policyNumber,
@@ -119,6 +123,7 @@ export const ProfileApi = {
         const response = await fetch(`${API_URL}/profile/${personId}/contacts`, {
             method: "POST",
             headers: jsonHeaders,
+            credentials: "include",
             body: JSON.stringify(data),
         });
         if (!response.ok) throw new Error("Failed to add emergency contact");
@@ -128,6 +133,7 @@ export const ProfileApi = {
     deleteEmergencyContact: async (id: string) => {
         const response = await fetch(`${API_URL}/profile/contacts/${id}`, {
             method: "DELETE",
+            credentials: "include",
         });
         if (!response.ok) throw new Error("Failed to delete emergency contact");
     },
@@ -137,6 +143,7 @@ export const ProfileApi = {
         const response = await fetch(`${API_URL}/profile/${personId}/allergies`, {
             method: "POST",
             headers: jsonHeaders,
+            credentials: "include",
             body: JSON.stringify(data),
         });
         if (!response.ok) throw new Error("Failed to add allergy");
@@ -146,6 +153,7 @@ export const ProfileApi = {
     deleteAllergy: async (id: string) => {
         const response = await fetch(`${API_URL}/profile/allergies/${id}`, {
             method: "DELETE",
+            credentials: "include",
         });
         if (!response.ok) throw new Error("Failed to delete allergy");
     },
@@ -155,6 +163,7 @@ export const ProfileApi = {
         const response = await fetch(`${API_URL}/profile/${personId}/medications`, {
             method: "POST",
             headers: jsonHeaders,
+            credentials: "include",
             body: JSON.stringify(data),
         });
         if (!response.ok) throw new Error("Failed to add medication");
@@ -164,6 +173,7 @@ export const ProfileApi = {
     deleteMedication: async (id: string) => {
         const response = await fetch(`${API_URL}/profile/medications/${id}`, {
             method: "DELETE",
+            credentials: "include",
         });
         if (!response.ok) throw new Error("Failed to delete medication");
     },
