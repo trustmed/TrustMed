@@ -30,7 +30,6 @@ export class AuthService {
   }
 
   async login(email: string, password: string): Promise<string> {
-    // 1. Find user by email
     const { data: users } = await this.clerkClient.users.getUserList({
       emailAddress: [email],
       limit: 1,
@@ -56,7 +55,6 @@ export class AuthService {
       throw new UnauthorizedException('User account is inactive');
     }
 
-    // 2. Verify password via Clerk
     try {
       const result = await this.clerkClient.users.verifyPassword({
         userId: user.id,
@@ -75,12 +73,10 @@ export class AuthService {
       if (isClerkError) {
         throw new UnauthorizedException('Invalid email or password');
       }
-      // Re-throw UnauthorizedException from above
       if (err instanceof UnauthorizedException) throw err;
       throw new InternalServerErrorException('Authentication failed');
     }
 
-    // 3. Issue backend JWT
     const primaryEmail = user.emailAddresses.find(
       (e) => e.id === user.primaryEmailAddressId,
     );
@@ -98,7 +94,6 @@ export class AuthService {
     firstName: string,
     lastName?: string,
   ): Promise<string> {
-    // 1. Create user in Clerk
     let clerkUserId: string | undefined;
     let savedAuthUser: AuthUser | undefined;
 
@@ -112,7 +107,6 @@ export class AuthService {
 
       clerkUserId = user.id;
 
-      // 2. Save to auth_users table
       savedAuthUser = await this.authUserRepository.save(
         this.authUserRepository.create({
           clerkUserId: user.id,
@@ -124,7 +118,6 @@ export class AuthService {
         }),
       );
 
-      // 3. Create linked Person record (minimal, email only)
       await this.personRepository.save(
         this.personRepository.create({
           email,
@@ -132,7 +125,6 @@ export class AuthService {
         }),
       );
 
-      // 4. Issue backend JWT
       return this.signJwt({
         sub: user.id,
         email,
@@ -182,6 +174,29 @@ export class AuthService {
 
       throw new InternalServerErrorException('Registration failed');
     }
+  }
+
+  async getMe(user: { sub: string }): Promise<{ sub: string; personId: string }> {
+    const authUser = await this.authUserRepository.findOne({
+      where: { clerkUserId: user.sub },
+    });
+
+    if (!authUser) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const person = await this.personRepository.findOne({
+      where: { authUserId: authUser.id },
+    });
+
+    if (!person) {
+      throw new UnauthorizedException('Person not found');
+    }
+
+    return {
+      sub: user.sub,
+      personId: person.id,
+    };
   }
 
   private async signJwt(payload: Record<string, unknown>): Promise<string> {
