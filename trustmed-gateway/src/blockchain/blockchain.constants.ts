@@ -1,4 +1,4 @@
-import path from 'node:path';
+import * as path from 'path';
 
 const testNetworkPath =
   '/home/ubuntu/TrustMed/blockchain/fabric-samples/fabric-samples/test-network';
