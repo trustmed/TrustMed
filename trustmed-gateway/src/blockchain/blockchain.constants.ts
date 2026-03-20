@@ -1,7 +1,6 @@
 import * as path from 'path';
 
-const testNetworkPath =
-  '/home/ubuntu/TrustMed/blockchain/fabric-samples/fabric-samples/test-network';
+const testNetworkPath = process.env.FABRIC_PATH!;
 
 export const FABRIC = {
   channelName: 'mychannel',
