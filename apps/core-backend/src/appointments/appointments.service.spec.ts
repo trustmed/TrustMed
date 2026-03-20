@@ -5,6 +5,7 @@ import { AppointmentsService } from './appointments.service';
 import { Appointment } from '../entities/appointment.entity';
 import { Person } from '../entities/person.entity';
 import { AuthUser } from '../entities/auth-user.entity';
+import { CreateAppointmentDto } from './dto/create-appointment.dto';
 
 type MockRepo<T> = Partial<Record<keyof Repository<T>, jest.Mock>> & {
   find: jest.Mock;
@@ -58,9 +59,15 @@ describe('AppointmentsService', () => {
   describe('createForUser', () => {
     it('creates an appointment linked to the current user person', async () => {
       const clerkUserId = 'clerk_123';
-      const authUser: Partial<AuthUser> = { id: 'auth_1', email: 'user@example.com' };
-      const person: Partial<Person> = { id: 'person_1', email: 'user@example.com' };
-      const dto = {
+      const authUser: Partial<AuthUser> = {
+        id: 'auth_1',
+        email: 'user@example.com',
+      };
+      const person: Partial<Person> = {
+        id: 'person_1',
+        email: 'user@example.com',
+      };
+      const dto: CreateAppointmentDto = {
         patientName: 'Kate',
         doctorName: 'Dr. Smith',
         appointmentType: 'General',
@@ -68,14 +75,18 @@ describe('AppointmentsService', () => {
         date: '2026-01-01',
       };
 
-      authUserRepo.findOne!.mockResolvedValue(authUser);
-      personRepo.findOne!.mockResolvedValue(person);
-      appointmentRepo.findOne!.mockResolvedValue(null);
-      const created = { id: 'appt_1', appointmentNo: '0001', ...dto } as unknown as Appointment;
-      appointmentRepo.create!.mockReturnValue(created);
-      appointmentRepo.save!.mockResolvedValue(created);
+      authUserRepo.findOne.mockResolvedValue(authUser);
+      personRepo.findOne.mockResolvedValue(person);
+      appointmentRepo.findOne.mockResolvedValue(null);
+      const created = {
+        id: 'appt_1',
+        appointmentNo: '0001',
+        ...dto,
+      } as unknown as Appointment;
+      appointmentRepo.create.mockReturnValue(created);
+      appointmentRepo.save.mockResolvedValue(created);
 
-      const result = await service.createForUser(clerkUserId, dto as any);
+      const result = await service.createForUser(clerkUserId, dto);
 
       expect(authUserRepo.findOne).toHaveBeenCalledWith({
         where: { clerkUserId },
@@ -97,13 +108,19 @@ describe('AppointmentsService', () => {
   describe('findAllForUser', () => {
     it('returns appointments only for the current user person', async () => {
       const clerkUserId = 'clerk_123';
-      const authUser: Partial<AuthUser> = { id: 'auth_1', email: 'user@example.com' };
-      const person: Partial<Person> = { id: 'person_1', email: 'user@example.com' };
+      const authUser: Partial<AuthUser> = {
+        id: 'auth_1',
+        email: 'user@example.com',
+      };
+      const person: Partial<Person> = {
+        id: 'person_1',
+        email: 'user@example.com',
+      };
       const rows: Appointment[] = [{ id: 'appt_1' } as Appointment];
 
-      authUserRepo.findOne!.mockResolvedValue(authUser);
-      personRepo.findOne!.mockResolvedValue(person);
-      appointmentRepo.find!.mockResolvedValue(rows);
+      authUserRepo.findOne.mockResolvedValue(authUser);
+      personRepo.findOne.mockResolvedValue(person);
+      appointmentRepo.find.mockResolvedValue(rows);
 
       const result = await service.findAllForUser(clerkUserId);
 
@@ -115,4 +132,3 @@ describe('AppointmentsService', () => {
     });
   });
 });
-

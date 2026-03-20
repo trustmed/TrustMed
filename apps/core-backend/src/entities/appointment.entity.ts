@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, JoinColumn, Unique } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { Person } from './person.entity';
 
@@ -9,6 +9,7 @@ export enum AppointmentStatus {
 }
 
 @Entity('appointments')
+@Unique(['person', 'appointmentNo'])
 export class Appointment extends BaseEntity {
   @ManyToOne(() => Person, {
     nullable: true,
@@ -17,19 +18,39 @@ export class Appointment extends BaseEntity {
   @JoinColumn({ name: 'person_id' })
   person: Person | null;
 
-  @Column({ name: 'appointment_no', type: 'varchar', length: 20, nullable: true })
+  @Column({
+    name: 'appointment_no',
+    type: 'varchar',
+    length: 20,
+    nullable: true,
+  })
   appointmentNo: string | null;
 
-  @Column({ name: 'patient_name', type: 'varchar', length: 150, nullable: true })
+  @Column({
+    name: 'patient_name',
+    type: 'varchar',
+    length: 150,
+    nullable: true,
+  })
   patientName: string | null;
 
   @Column({ name: 'doctor_name', type: 'varchar', length: 150, nullable: true })
   doctorName: string | null;
 
-  @Column({ name: 'appointment_type', type: 'varchar', length: 100, nullable: true })
+  @Column({
+    name: 'appointment_type',
+    type: 'varchar',
+    length: 100,
+    nullable: true,
+  })
   appointmentType: string | null;
 
-  @Column({ name: 'hospital_location', type: 'varchar', length: 150, nullable: true })
+  @Column({
+    name: 'hospital_location',
+    type: 'varchar',
+    length: 150,
+    nullable: true,
+  })
   hospitalLocation: string | null;
 
   @Column({ name: 'date', type: 'date', nullable: true })
@@ -52,4 +73,3 @@ export class Appointment extends BaseEntity {
   })
   status: AppointmentStatus;
 }
-

@@ -18,7 +18,9 @@ export class AppointmentsService {
     private readonly authUserRepository: Repository<AuthUser>,
   ) {}
 
-  private async getOrCreatePersonForClerkUser(clerkUserId: string): Promise<Person> {
+  private async getOrCreatePersonForClerkUser(
+    clerkUserId: string,
+  ): Promise<Person> {
     const authUser = await this.authUserRepository.findOne({
       where: { clerkUserId },
     });
@@ -42,7 +44,10 @@ export class AppointmentsService {
     return person;
   }
 
-  async createForUser(clerkUserId: string, dto: CreateAppointmentDto): Promise<Appointment> {
+  async createForUser(
+    clerkUserId: string,
+    dto: CreateAppointmentDto,
+  ): Promise<Appointment> {
     const person = await this.getOrCreatePersonForClerkUser(clerkUserId);
 
     const lastForPerson = await this.appointmentsRepository.findOne({
@@ -112,7 +117,6 @@ export class AppointmentsService {
 
     if (dto.date !== undefined) {
       existing.date = dto.date ? new Date(dto.date) : null;
-      delete (dto as any).date;
     }
 
     Object.assign(existing, {
@@ -131,14 +135,9 @@ export class AppointmentsService {
   }
 
   async removeForUser(clerkUserId: string, id: string): Promise<void> {
-    const person = await this.getOrCreatePersonForClerkUser(clerkUserId);
-    const result = await this.appointmentsRepository.softDelete({
-      id,
-      person: { id: person.id },
-    } as any);
-    if (!result.affected) {
-      throw new NotFoundException('Appointment not found');
-    }
+    // First ensure ownership (throws if not found for this user),
+    // then soft-delete by id.
+    await this.findOneForUser(clerkUserId, id);
+    await this.appointmentsRepository.softDelete(id);
   }
 }
-
