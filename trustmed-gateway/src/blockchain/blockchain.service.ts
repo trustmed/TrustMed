@@ -1,5 +1,5 @@
-import { Injectable, OnModuleDestroy } from '@nestjs/common';
-import * as grpc from '@grpc/grpc-js';
+import { Injectable, OnModuleDestroy } from "@nestjs/common";
+import * as grpc from "@grpc/grpc-js";
 import {
   connect,
   Contract,
@@ -8,29 +8,29 @@ import {
   Network,
   Signer,
   signers,
-} from '@hyperledger/fabric-gateway';
-import { promises as fs } from 'node:fs';
-import path from 'node:path';
-import { createPrivateKey, KeyObject } from 'node:crypto';
-import { FABRIC } from './blockchain.constants';
+} from "@hyperledger/fabric-gateway";
+import { promises as fs } from "node:fs";
+import * as path from "node:path";
+import { createPrivateKey, KeyObject } from "node:crypto";
+import { FABRIC } from "./blockchain.constants";
 
 type CheckAccessResult = {
   requestId: string;
   patientId: string;
   doctorId: string;
   hospitalId: string;
-  status: 'REQUESTED' | 'APPROVED' | 'REJECTED' | 'REVOKED' | 'EXPIRED';
+  status: "REQUESTED" | "APPROVED" | "REJECTED" | "REVOKED" | "EXPIRED";
   allowed: boolean;
   reason: string;
   expiresAt: string | null;
 };
 
 type AccessRequestStatus =
-  | 'REQUESTED'
-  | 'APPROVED'
-  | 'REJECTED'
-  | 'REVOKED'
-  | 'EXPIRED';
+  | "REQUESTED"
+  | "APPROVED"
+  | "REJECTED"
+  | "REVOKED"
+  | "EXPIRED";
 
 type ReadAccessRequestResult = {
   requestId: string;
@@ -63,7 +63,7 @@ export class BlockchainService implements OnModuleDestroy {
     const tlsCredentials = grpc.credentials.createSsl(tlsRootCert);
 
     return new grpc.Client(FABRIC.peerEndpoint, tlsCredentials, {
-      'grpc.ssl_target_name_override': FABRIC.peerHostAlias,
+      "grpc.ssl_target_name_override": FABRIC.peerHostAlias,
     });
   }
 
@@ -74,11 +74,15 @@ export class BlockchainService implements OnModuleDestroy {
 
   private async newSigner(): Promise<Signer> {
     const files = await fs.readdir(FABRIC.keyDirPath);
-    if (!files.length) {
-      throw new Error('No private key found in Fabric keystore');
+    const keyFile = files.find((f) => f.endsWith("_sk") || f === "priv_sk");
+
+    if (!keyFile) {
+      throw new Error(
+        `No private key file found in ${FABRIC.keyDirPath}. Found: ${files.join(", ")}`,
+      );
     }
 
-    const keyPath = path.join(FABRIC.keyDirPath, files[0]);
+    const keyPath = path.join(FABRIC.keyDirPath, keyFile);
     const privateKeyPem = await fs.readFile(keyPath);
     const privateKey: KeyObject = createPrivateKey(privateKeyPem);
 
@@ -114,7 +118,7 @@ export class BlockchainService implements OnModuleDestroy {
     const contract = await this.getContract();
 
     await contract.submitTransaction(
-      'CreateAccessRequest',
+      "CreateAccessRequest",
       input.requestId,
       input.patientId,
       input.doctorId,
@@ -124,7 +128,7 @@ export class BlockchainService implements OnModuleDestroy {
 
     return {
       ok: true,
-      message: 'Access request created',
+      message: "Access request created",
       requestId: input.requestId,
     };
   }
@@ -133,14 +137,14 @@ export class BlockchainService implements OnModuleDestroy {
     const contract = await this.getContract();
 
     await contract.submitTransaction(
-      'ApproveAccessRequest',
+      "ApproveAccessRequest",
       requestId,
       expiresAt,
     );
 
     return {
       ok: true,
-      message: 'Access request approved',
+      message: "Access request approved",
       requestId,
       expiresAt,
     };
@@ -148,8 +152,8 @@ export class BlockchainService implements OnModuleDestroy {
 
   async checkAccess(requestId: string): Promise<CheckAccessResult> {
     const contract = await this.getContract();
-    const result = await contract.evaluateTransaction('CheckAccess', requestId);
-    const json = Buffer.from(result).toString('utf8');
+    const result = await contract.evaluateTransaction("CheckAccess", requestId);
+    const json = Buffer.from(result).toString("utf8");
     return JSON.parse(json) as CheckAccessResult;
   }
 
@@ -157,16 +161,16 @@ export class BlockchainService implements OnModuleDestroy {
     try {
       const contract = await this.getContract();
       const result = await contract.evaluateTransaction(
-        'ReadAccessRequest',
+        "ReadAccessRequest",
         requestId,
       );
 
-      const json = Buffer.from(result).toString('utf8');
+      const json = Buffer.from(result).toString("utf8");
 
       const parsed = JSON.parse(json) as ReadAccessRequestResult;
       return parsed;
     } catch (error) {
-      console.error('Fabric readAccessRequest failed:', error);
+      console.error("Fabric readAccessRequest failed:", error);
       throw error;
     }
   }
