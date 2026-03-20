@@ -1,3 +1,143 @@
+# configtx.yaml
+
+################################################################################
+# SECTION 1: CAPABILITIES
+################################################################################
+Capabilities:
+    Channel: &ChannelCapabilities
+        V2_0: true
+    Orderer: &OrdererCapabilities
+        V2_0: true
+    Application: &ApplicationCapabilities
+        V2_5: true
+
+################################################################################
+# SECTION 2: ORGANIZATIONS
+################################################################################
+Organizations:
+    - &OrdererOrg
+        Name: OrdererOrg
+        ID: OrdererMSP
+        MSPDir: crypto-config/ordererOrganizations/trustmed.com/msp
+        Policies:
+            Readers: {Type: Signature, Rule: "OR('OrdererMSP.member')"}
+            Writers: {Type: Signature, Rule: "OR('OrdererMSP.member')"}
+            Admins:  {Type: Signature, Rule: "OR('OrdererMSP.admin')"}
+
+    - &Hospital1
+        Name: Hospital1
+        ID: Hospital1MSP
+        MSPDir: crypto-config/peerOrganizations/hospital1.trustmed.com/msp
+        Policies:
+            Readers: {Type: Signature, Rule: "OR('Hospital1MSP.admin', 'Hospital1MSP.peer', 'Hospital1MSP.client')"}
+            Writers: {Type: Signature, Rule: "OR('Hospital1MSP.admin', 'Hospital1MSP.client')"}
+            Admins:  {Type: Signature, Rule: "OR('Hospital1MSP.admin')"}
+            Endorsement: {Type: Signature, Rule: "OR('Hospital1MSP.peer')"}
+        OrdererEndpoints:
+            - orderer.trustmed.com:7050
+        AnchorPeers:
+            - Host: peer0.hospital1.trustmed.com
+              Port: 7051
+
+    - &Hospital2
+        Name: Hospital2
+        ID: Hospital2MSP
+        MSPDir: crypto-config/peerOrganizations/hospital2.trustmed.com/msp
+        Policies:
+            Readers: {Type: Signature, Rule: "OR('Hospital2MSP.admin', 'Hospital2MSP.peer', 'Hospital2MSP.client')"}
+            Writers: {Type: Signature, Rule: "OR('Hospital2MSP.admin', 'Hospital2MSP.client')"}
+            Admins:  {Type: Signature, Rule: "OR('Hospital2MSP.admin')"}
+            Endorsement: {Type: Signature, Rule: "OR('Hospital2MSP.peer')"}
+        OrdererEndpoints:
+            - orderer.trustmed.com:7050
+        AnchorPeers:
+            - Host: peer0.hospital2.trustmed.com
+              Port: 8051
+
+    - &Insurance
+        Name: Insurance
+        ID: InsuranceMSP
+        MSPDir: crypto-config/peerOrganizations/insurance.trustmed.com/msp
+        Policies:
+            Readers: {Type: Signature, Rule: "OR('InsuranceMSP.admin', 'InsuranceMSP.peer', 'InsuranceMSP.client')"}
+            Writers: {Type: Signature, Rule: "OR('InsuranceMSP.admin', 'InsuranceMSP.client')"}
+            Admins:  {Type: Signature, Rule: "OR('InsuranceMSP.admin')"}
+            Endorsement: {Type: Signature, Rule: "OR('InsuranceMSP.peer')"}
+        OrdererEndpoints:
+            - orderer.trustmed.com:7050
+        AnchorPeers:
+            - Host: peer0.insurance.trustmed.com
+              Port: 9051
+
+################################################################################
+# SECTION 3: ORDERER (Consensus Rules)
+################################################################################
+Orderer: &OrdererDefaults
+    OrdererType: etcdraft
+    EtcdRaft:
+        Consenters:
+            - Host: orderer.trustmed.com
+              Port: 7050
+              ClientTLSCert: crypto-config/ordererOrganizations/trustmed.com/orderers/orderer.trustmed.com/tls/server.crt
+              ServerTLSCert: crypto-config/ordererOrganizations/trustmed.com/orderers/orderer.trustmed.com/tls/server.crt
+    Addresses:
+        - orderer.trustmed.com:7050
+    BatchTimeout: 2s
+    BatchSize:
+        MaxMessageCount: 10
+        AbsoluteMaxBytes: 99 MB
+        PreferredMaxBytes: 512 KB
+    Organizations:
+    Capabilities:
+        <<: *OrdererCapabilities 
+    Policies:
+        Readers: {Type: ImplicitMeta, Rule: "ANY Readers"}
+        Writers: {Type: ImplicitMeta, Rule: "ANY Writers"}
+        Admins: {Type: ImplicitMeta, Rule: "MAJORITY Admins"}
+        BlockValidation: {Type: ImplicitMeta, Rule: "ANY Writers"}
+
+################################################################################
+# SECTION 4: CHANNEL & APPLICATION DEFAULTS
+################################################################################
+Channel: &ChannelDefaults
+    Policies:
+        Readers: {Type: ImplicitMeta, Rule: "ANY Readers"}
+        Writers: {Type: ImplicitMeta, Rule: "ANY Writers"}
+        Admins: {Type: ImplicitMeta, Rule: "MAJORITY Admins"}
+    Capabilities:
+        <<: *ChannelCapabilities
+
+Application: &ApplicationDefaults
+    Organizations:
+    Policies:
+        Readers: {Type: ImplicitMeta, Rule: "ANY Readers"}
+        Writers: {Type: ImplicitMeta, Rule: "ANY Writers"}
+        Admins: {Type: ImplicitMeta, Rule: "MAJORITY Admins"}
+        LifecycleEndorsement: {Type: ImplicitMeta, Rule: "MAJORITY Endorsement"}
+        Endorsement: {Type: ImplicitMeta, Rule: "MAJORITY Endorsement"}
+    Capabilities:
+        <<: *ApplicationCapabilities
+
+################################################################################
+# SECTION 5: PROFILES (The Genesis Block Blueprint)
+################################################################################
+Profiles:
+    TrustMedChannel:
+        <<: *ChannelDefaults
+        Orderer:
+            <<: *OrdererDefaults
+            Organizations:
+                - *OrdererOrg
+            Capabilities:
+                <<: *OrdererCapabilities
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - *Hospital1
+                - *Hospital2
+                - *Insurance
+            Capabilities:
+                <<: *ApplicationCapabilities
 Organizations:
     - &OrdererOrg
         Name: OrdererOrg
