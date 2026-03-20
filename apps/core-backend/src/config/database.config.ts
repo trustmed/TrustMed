@@ -40,7 +40,7 @@ export const dataSourceOptions: DataSourceOptions = {
     AuthUser,
   ],
   migrations: [InitialOracle1773847768524],
-  synchronize: process.env.NODE_ENV === 'development',
+  synchronize: false,
   logging: process.env.NODE_ENV === 'development',
 };
 
