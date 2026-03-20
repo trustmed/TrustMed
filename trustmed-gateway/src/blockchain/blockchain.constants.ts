@@ -41,6 +41,6 @@ export const FABRIC = {
     'ca.crt',
   ),
 
-  peerEndpoint: 'localhost:7051',
+  peerEndpoint: 'peer0.org1.example.com:7051',
   peerHostAlias: 'peer0.org1.example.com',
 };

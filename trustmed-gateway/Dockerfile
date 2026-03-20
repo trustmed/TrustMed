@@ -3,7 +3,7 @@ FROM node:20
 
 # Install prerequisites
 RUN apt-get update && \
-    apt-get install -y curl git jq docker-cli && \
+    apt-get install -y curl git jq && \
     rm -rf /var/lib/apt/lists/*
 
 # Set working directory
@@ -13,7 +13,10 @@ WORKDIR /app
 RUN npm install -g pnpm
 
 # Copy package files first for caching
-COPY package.json pnpm-lock.yaml ./
+COPY package.json ./
+
+# Optional: only copy lockfile if it exists
+COPY pnpm-lock.yaml* ./
 
 # Install dependencies
 RUN pnpm install
