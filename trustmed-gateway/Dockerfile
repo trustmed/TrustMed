@@ -23,4 +23,4 @@ RUN pnpm build
 EXPOSE 4001
 
 # Start app
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/src/main.js"]

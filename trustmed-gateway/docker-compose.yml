@@ -1,8 +1,7 @@
-version: "3.8"
 
 services:
   gateway:
-    build: ./trustmed-gateway
+    build: .
     container_name: trustmed-gateway
     ports:
       - "4001:4001"
