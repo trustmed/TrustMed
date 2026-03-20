@@ -1,0 +1,12 @@
+services:
+  core-backend:
+    build:
+      context: .
+      dockerfile: apps/core-backend/Dockerfile
+    ports:
+      - "4000:4000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: always
+    env_file:
+      - apps/core-backend/.env

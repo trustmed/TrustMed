@@ -1,0 +1,74 @@
+name: Deploy Dev Environment
+
+on:
+  push:
+    branches:
+      - dev-env
+
+jobs:
+  deploy-frontend:
+    name: Deploy Frontends to Vercel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+        
+      - name: Pull Vercel Environment Information (core-frontend)
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: apps/core-frontend
+        
+      - name: Build Project Artifacts (core-frontend)
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: apps/core-frontend
+        
+      - name: Deploy Project Artifacts to Vercel (core-frontend)
+        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: apps/core-frontend
+
+      - name: Pull Vercel Environment Information (hms-frontend)
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: apps/hms-frontend
+        
+      - name: Build Project Artifacts (hms-frontend)
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: apps/hms-frontend
+        
+      - name: Deploy Project Artifacts to Vercel (hms-frontend)
+        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: apps/hms-frontend
+
+  deploy-backend:
+    name: Deploy Backend to Oracle VM 1
+    runs-on: ubuntu-latest
+    steps:
+      - name: Executing remote ssh commands using ssh key
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.BACKEND_ORACLE_HOST }}
+          username: ${{ secrets.ORACLE_USERNAME }}
+          key: ${{ secrets.BACKEND_ORACLE_SSH_KEY }}
+          script: |
+            cd /var/www/trustmed
+            git fetch origin dev-env
+            git checkout dev-env
+            git pull origin dev-env
+            docker compose -f docker-compose.dev-env.yml up -d --build core-backend
+
+  deploy-blockchain:
+    name: Deploy Blockchain to Oracle VM 2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Executing remote ssh commands using ssh key
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.BLOCKCHAIN_ORACLE_HOST }}
+          username: ${{ secrets.ORACLE_USERNAME }}
+          key: ${{ secrets.BLOCKCHAIN_ORACLE_SSH_KEY }}
+          script: |
+            cd /var/www/trustmed-blockchain
+            git fetch origin dev-env
+            git checkout dev-env
+            git pull origin dev-env
+            bash restart-dev-network.sh
