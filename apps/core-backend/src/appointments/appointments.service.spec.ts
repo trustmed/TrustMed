@@ -1,13 +1,13 @@
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ObjectLiteral, Repository } from 'typeorm';
 import { AppointmentsService } from './appointments.service';
 import { Appointment } from '../entities/appointment.entity';
 import { Person } from '../entities/person.entity';
 import { AuthUser } from '../entities/auth-user.entity';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 
-type MockRepo<T> = Partial<Record<keyof Repository<T>, jest.Mock>> & {
+type MockRepo<T extends ObjectLiteral> = Partial<Record<keyof Repository<T>, jest.Mock>> & {
   find: jest.Mock;
   findOne: jest.Mock;
   create: jest.Mock;
@@ -15,7 +15,7 @@ type MockRepo<T> = Partial<Record<keyof Repository<T>, jest.Mock>> & {
   softDelete: jest.Mock;
 };
 
-function createMockRepo<T>(): MockRepo<T> {
+function createMockRepo<T extends ObjectLiteral>(): MockRepo<T> {
   return {
     find: jest.fn(),
     findOne: jest.fn(),
@@ -77,7 +77,7 @@ describe('AppointmentsService', () => {
 
       authUserRepo.findOne.mockResolvedValue(authUser);
       personRepo.findOne.mockResolvedValue(person);
-      appointmentRepo.findOne.mockResolvedValue(null);
+      appointmentRepo.find.mockResolvedValue([]);
       const created = {
         id: 'appt_1',
         appointmentNo: '0001',

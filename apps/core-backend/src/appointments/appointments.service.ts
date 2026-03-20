@@ -50,14 +50,23 @@ export class AppointmentsService {
   ): Promise<Appointment> {
     const person = await this.getOrCreatePersonForClerkUser(clerkUserId);
 
-    const lastForPerson = await this.appointmentsRepository.findOne({
+    // Generate the next numeric appointment number for this user.
+    // Ignore non-numeric legacy values (e.g. "D001") to avoid collisions.
+    const recent = await this.appointmentsRepository.find({
       where: { person: { id: person.id } },
-      order: { appointmentNo: 'DESC' },
+      order: { createdAt: 'DESC' },
+      take: 20,
     });
-    const lastNumber = lastForPerson?.appointmentNo
-      ? parseInt(lastForPerson.appointmentNo, 10) || 0
-      : 0;
-    const nextNumber = (lastNumber + 1).toString().padStart(4, '0');
+
+    const maxNumeric = recent.reduce((max, appt) => {
+      const raw = appt.appointmentNo;
+      if (!raw) return max;
+      if (!/^\d+$/.test(raw)) return max;
+      const n = parseInt(raw, 10);
+      return Number.isFinite(n) ? Math.max(max, n) : max;
+    }, 0);
+
+    const nextNumber = (maxNumeric + 1).toString().padStart(4, '0');
 
     const entity = this.appointmentsRepository.create({
       person,

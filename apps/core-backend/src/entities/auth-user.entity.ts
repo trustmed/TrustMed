@@ -10,8 +10,8 @@ export class AuthUser extends BaseEntity {
   @Column({ type: 'varchar', unique: true })
   email: string;
 
-  @Column({ type: 'varchar', length: 100 })
-  firstName: string;
+  @Column({ type: 'varchar', length: 100 , nullable: true })
+  firstName: string | null;
 
   @Column({ type: 'varchar', length: 100, nullable: true })
   lastName: string | null;
