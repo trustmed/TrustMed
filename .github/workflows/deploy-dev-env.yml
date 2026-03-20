@@ -7,41 +7,31 @@ on:
 
 jobs:
   deploy-frontend:
-    name: Deploy Frontends to Vercel
+    name: Deploy Frontend to Vercel
     runs-on: ubuntu-latest
-    env:
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
       - uses: actions/checkout@v4
       
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
         
-      - name: Pull Vercel Environment Information (core-frontend)
+      - name: Pull Vercel Environment (core-frontend)
         run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: apps/core-frontend
-        
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          
       - name: Build Project Artifacts (core-frontend)
         run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: apps/core-frontend
-        
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          
       - name: Deploy Project Artifacts to Vercel (core-frontend)
         run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: apps/core-frontend
-
-      - name: Pull Vercel Environment Information (hms-frontend)
-        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: apps/hms-frontend
-        
-      - name: Build Project Artifacts (hms-frontend)
-        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: apps/hms-frontend
-        
-      - name: Deploy Project Artifacts to Vercel (hms-frontend)
-        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: apps/hms-frontend
-
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
   deploy-backend:
     name: Deploy Backend to Oracle VM 1
     runs-on: ubuntu-latest
@@ -50,7 +40,7 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.BACKEND_ORACLE_HOST }}
-          username: ${{ secrets.ORACLE_USERNAME }}
+          username: ${{ secrets.BACKEND_ORACLE_USERNAME }}
           key: ${{ secrets.BACKEND_ORACLE_SSH_KEY }}
           script: |
             cd /var/www/trustmed

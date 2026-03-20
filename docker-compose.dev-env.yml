@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: apps/core-backend/Dockerfile
     ports:
-      - "4000:3001"
+      - "4000:4000"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: always
