@@ -11,6 +11,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuthUser } from '../entities/auth-user.entity';
 import { Person } from '../entities/person.entity';
+import type { JwtPayload } from './jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
@@ -31,7 +32,7 @@ export class AuthService {
   }
 
   /**
-   * Verified login: 
+   * Verified login:
    * 1. Resolves Clerk user by email
    * 2. Verifies password via Clerk
    * 3. Checks if user is registered in our local DB and active
@@ -125,16 +126,15 @@ export class AuthService {
       clerkUserId = user.id;
 
       // 2. Save to auth_users table
-      const savedAuthUser = await this.authUserRepository.save(
-        this.authUserRepository.create({
-          clerkUserId: user.id,
-          email,
-          firstName: user.firstName ?? firstName,
-          lastName: user.lastName ?? lastName ?? null,
-          isDemoDisabled: false,
-          active: true,
-        }),
-      );
+      const authUserEntity = this.authUserRepository.create({
+        clerkUserId: user.id,
+        email,
+        firstName: user.firstName ?? firstName,
+        lastName: user.lastName ?? lastName ?? undefined,
+        active: true,
+      });
+
+      const savedAuthUser = await this.authUserRepository.save(authUserEntity);
 
       // 3. Create linked Person record
       await this.personRepository.save(
@@ -189,8 +189,8 @@ export class AuthService {
    * Returns current user identity resolved from JWT payload.
    * Auto-syncs with Clerk if local record is missing.
    */
-  async getMe(payload: any) {
-    const clerkUserId = payload?.sub || payload?.id;
+  async getMe(payload: JwtPayload) {
+    const clerkUserId = (payload.sub || payload.id) as string;
     if (!clerkUserId) {
       throw new UnauthorizedException('Invalid token payload');
     }
@@ -203,18 +203,21 @@ export class AuthService {
       try {
         const clerkUser = await this.clerkClient.users.getUser(clerkUserId);
         const email = clerkUser?.emailAddresses?.[0]?.emailAddress || '';
-        authUser = await this.authUserRepository.save(
-          this.authUserRepository.create({
-            clerkUserId,
-            email,
-            firstName: clerkUser?.firstName,
-            lastName: clerkUser?.lastName,
-            active: true,
-          }),
-        );
-      } catch (error) {
+        const newAuthUser = this.authUserRepository.create({
+          clerkUserId,
+          email,
+          firstName: clerkUser?.firstName ?? undefined,
+          lastName: clerkUser?.lastName ?? undefined,
+          active: true,
+        });
+        authUser = await this.authUserRepository.save(newAuthUser);
+      } catch {
         throw new NotFoundException('User not found');
       }
+    }
+
+    if (!authUser) {
+      throw new NotFoundException('User could not be resolved');
     }
 
     let person = await this.personRepository.findOne({
@@ -235,7 +238,7 @@ export class AuthService {
       email: authUser.email,
       firstName: authUser.firstName,
       lastName: authUser.lastName,
-      id: authUser.id, // Internal UUID
+      id: authUser.id, // Internal UUID from BaseEntity
       personId: person.id,
     };
   }

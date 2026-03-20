@@ -14,4 +14,6 @@ export interface JwtPayload {
   iat?: number;
   /** Expiration (epoch seconds) — injected by NestJS JwtService. */
   exp?: number;
+  /** Internal UUID (optional) */
+  id?: string;
 }
