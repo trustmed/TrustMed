@@ -29,7 +29,7 @@ export class S3VaultController {
     private readonly s3VaultService: S3VaultService,
     @InjectRepository(AuthUser)
     private readonly authUserRepo: Repository<AuthUser>,
-  ) { }
+  ) {}
 
   /**
    * Resolves Clerk user ID → AuthUser.id (UUID).
@@ -107,13 +107,13 @@ export class S3VaultController {
     @UploadedFile(new FileValidationPipe()) file: Express.Multer.File,
     @Body('patientId', new ParseUUIDPipe({ version: '4' }))
     patientId: string,
+    @CurrentUser() user: JwtPayload,
+    @Req() req: Request,
     @Body('category') category?: RecordCategory,
     @Body('notes') notes?: string,
     @Body('doctorName') doctorName?: string,
     @Body('hospitalName') hospitalName?: string,
     @Body('recordDate') recordDateStr?: string,
-    @CurrentUser() user: JwtPayload,
-    @Req() req: Request,
   ): Promise<UploadResponseDto> {
     const uploaderId = await this.resolveAuthUserId(user.sub);
 
@@ -134,7 +134,6 @@ export class S3VaultController {
       },
       req.ip,
     );
-
 
     return {
       objectKey: result.objectKey,

@@ -5,7 +5,10 @@ import { Repository } from 'typeorm';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import * as crypto from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
-import { MedicalRecord, RecordCategory } from '../entities/medical-record.entity';
+import {
+  MedicalRecord,
+  RecordCategory,
+} from '../entities/medical-record.entity';
 import { CryptoService } from './crypto.service';
 import { AuditService, AuditEventType } from '../audit/audit.service';
 
@@ -19,6 +22,8 @@ export interface UploadResult {
   documentHash: string;
   /** UUID of the persisted {@link MedicalRecord}. */
   medicalRecordId: string;
+  /** The full saved record entity. */
+  savedRecord: MedicalRecord;
 }
 
 /** Extra metadata for medical records. */
@@ -156,7 +161,6 @@ export class S3VaultService {
 
     const savedRecord = await this.medicalRecordRepo.save(record);
 
-
     this.logger.log(
       `MedicalRecord saved — id: ${savedRecord.id}, hash: ${documentHash}`,
     );
@@ -180,6 +184,7 @@ export class S3VaultService {
       s3Uri,
       documentHash,
       medicalRecordId: savedRecord.id,
+      savedRecord,
     };
   }
 
