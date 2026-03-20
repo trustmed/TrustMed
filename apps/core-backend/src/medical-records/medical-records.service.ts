@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import * as crypto from 'crypto';
 import { MedicalRecord } from '../entities/medical-record.entity';
 import { CryptoService } from '../s3-vault/crypto.service';
@@ -263,6 +263,22 @@ export class MedicalRecordsService {
       throw new ForbiddenException('Not authorized to delete this record');
     }
 
+    // 3. Delete from S3
+    try {
+      const objectKey = record.s3Uri.replace(`s3://${this.bucketName}/`, '');
+      await this.s3Client.send(
+        new DeleteObjectCommand({
+          Bucket: this.bucketName,
+          Key: objectKey,
+        }),
+      );
+      this.logger.log(`Deleted S3 object: ${objectKey}`);
+    } catch (err) {
+      // Log but don't fail the whole deletion if S3 fails (the object might be gone already)
+      this.logger.error(`Failed to delete S3 object: ${record.s3Uri}`, err);
+    }
+
+    // 4. Remove from DB
     await this.medicalRecordRepo.remove(record);
 
     void this.auditService.log({
