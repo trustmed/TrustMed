@@ -59,6 +59,7 @@ export class MedicalRecordsService {
   async listMyRecords(
     authUserId: string,
     ipAddress?: string,
+    baseUrl?: string,
   ): Promise<RecordListItemDto[]> {
     const records = await this.medicalRecordRepo.find({
       where: [{ patientId: authUserId }, { uploaderId: authUserId }],
@@ -76,17 +77,28 @@ export class MedicalRecordsService {
         'hospitalName',
         'recordDate',
         'createdAt',
+        'updatedAt',
       ],
     });
+
+    const mappedRecords: RecordListItemDto[] = records.map((r) => ({
+      ...r,
+      fileName: r.originalFileName,
+      fileType: r.mimeType,
+      personId: r.patientId,
+      fileUrl: baseUrl
+        ? `${baseUrl}/api/medical-records/${r.id}/download`
+        : `/api/medical-records/${r.id}/download`,
+    }));
 
     void this.auditService.log({
       eventType: AuditEventType.RECORD_LISTED,
       actorId: authUserId,
       ipAddress,
-      additionalData: { count: records.length },
+      additionalData: { count: mappedRecords.length },
     });
 
-    return records;
+    return mappedRecords;
   }
 
   /**
@@ -183,5 +195,81 @@ export class MedicalRecordsService {
       originalFileName: record.originalFileName,
       mimeType: record.mimeType,
     };
+  }
+
+  /**
+   * Update record metadata.
+   */
+  async updateRecord(
+    recordId: string,
+    authUserId: string,
+    updates: Partial<MedicalRecord>,
+    ipAddress?: string,
+    baseUrl?: string,
+  ): Promise<RecordListItemDto> {
+    const record = await this.medicalRecordRepo.findOne({
+      where: { id: recordId },
+    });
+
+    if (!record) {
+      throw new NotFoundException('Medical record not found');
+    }
+
+    // Basic ownership check
+    if (record.patientId !== authUserId && record.uploaderId !== authUserId) {
+      throw new ForbiddenException('Not authorized to update this record');
+    }
+
+    Object.assign(record, updates);
+    const saved = await this.medicalRecordRepo.save(record);
+
+    void this.auditService.log({
+      eventType: AuditEventType.RECORD_UPLOADED, // Reusing for now or add RECORD_UPDATED
+      actorId: authUserId,
+      targetResource: recordId,
+      ipAddress,
+      additionalData: { updates },
+    });
+
+    return {
+      ...saved,
+      fileName: saved.originalFileName,
+      fileType: saved.mimeType,
+      personId: saved.patientId,
+      fileUrl: baseUrl
+        ? `${baseUrl}/api/medical-records/${saved.id}/download`
+        : `/api/medical-records/${saved.id}/download`,
+    };
+  }
+
+  /**
+   * Delete a record.
+   */
+  async deleteRecord(
+    recordId: string,
+    authUserId: string,
+    ipAddress?: string,
+  ): Promise<void> {
+    const record = await this.medicalRecordRepo.findOne({
+      where: { id: recordId },
+    });
+
+    if (!record) {
+      throw new NotFoundException('Medical record not found');
+    }
+
+    // Basic ownership check
+    if (record.patientId !== authUserId && record.uploaderId !== authUserId) {
+      throw new ForbiddenException('Not authorized to delete this record');
+    }
+
+    await this.medicalRecordRepo.remove(record);
+
+    void this.auditService.log({
+      eventType: AuditEventType.RECORD_ACCESS_DENIED, // Reusing for now or add RECORD_DELETED
+      actorId: authUserId,
+      targetResource: recordId,
+      ipAddress,
+    });
   }
 }
