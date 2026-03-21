@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  gateway:
+    build: .
+    container_name: trustmed-gateway
+    ports:
+      - "4001:4001"
+    volumes:
+      # Mount Fabric test-network folder
+      - /home/ubuntu/TrustMed/blockchain/fabric-samples/test-network:/fabric
+      # Mount Fabric binaries 
+      - /home/ubuntu/TrustMed/blockchain/fabric-samples/bin:/fabric/bin
+    environment:
+      - PORT=4001
+      - FABRIC_PATH=/fabric
+      - DISCOVERY_AS_LOCALHOST=false
+    # maps the domain to the IP
+    extra_hosts:
+      - "peer0.org1.example.com:172.19.0.9"
+      - "orderer.example.com:172.19.0.8" 
+    networks:
+      - fabric_test
+    restart: always
+
+# Notify Compose the network already exists from  ./network.sh up
+networks:
+  fabric_test:
+    external: true
