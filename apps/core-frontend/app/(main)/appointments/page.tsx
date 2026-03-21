@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { SEED_APPOINTMENTS } from "@/lib/appointments/seed-data";
 import type { Appointment } from "@/lib/appointments/types";
+import { AppointmentDeleteDialog } from "@/components/appointments/AppointmentDeleteDialog";
 import {
     AppointmentFormDialog,
     type AppointmentFormMode,
@@ -10,15 +11,6 @@ import {
 } from "@/components/appointments/AppointmentFormDialog";
 import { AppointmentsTable } from "@/components/appointments/AppointmentsTable";
 import { AppointmentsToolbar } from "@/components/appointments/AppointmentsToolbar";
-import {
-    AlertDialog,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Card, CardContent } from "@/components/ui/card";
 
 const PATIENT_ID = "0054";
@@ -96,19 +88,14 @@ export default function AppointmentsPage() {
                 onSubmit={handleFormSubmit}
             />
 
-            <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Delete appointment (placeholder)</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Dialog wiring only — content arrives in a later step.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+            <AppointmentDeleteDialog
+                open={deleteDialogOpen}
+                onOpenChange={setDeleteDialogOpen}
+                appointmentNo={activeAppointment?.appointmentNo}
+                onConfirm={async () => {
+                    setDeleteDialogOpen(false);
+                }}
+            />
         </div>
     );
 }
