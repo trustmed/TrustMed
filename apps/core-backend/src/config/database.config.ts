@@ -15,6 +15,7 @@ import { Allergy } from '../entities/allergy.entity';
 import { Medication } from '../entities/medication.entity';
 import { EmergencyContact } from '../entities/emergency-contact.entity';
 import { AuthUser } from '../entities/auth-user.entity';
+import { ConsentRequest } from '../entities/consent-request.entity';
 dotenv.config();
 
 export const dataSourceOptions: DataSourceOptions = {
@@ -39,6 +40,7 @@ export const dataSourceOptions: DataSourceOptions = {
     EmergencyContact,
     AuthUser,
     MedicalRecord,
+    ConsentRequest,
   ],
   migrations: [],
   synchronize: process.env.NODE_ENV === 'development',

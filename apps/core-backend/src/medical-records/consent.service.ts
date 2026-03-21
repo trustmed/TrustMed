@@ -1,17 +1,19 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, MoreThan } from 'typeorm';
 import { MedicalRecord } from '../entities/medical-record.entity';
+import { ConsentRequest, ConsentRequestStatus } from '../entities/consent-request.entity';
 
-/**
- * Consent verification stub.
- *
- * Currently grants access only to the record owner (patient or uploader).
- * When Hyperledger Fabric is integrated, {@link verifyAccess} will query the
- * chaincode consent ledger to determine if the requester has been
- * explicitly granted time-limited access by the patient.
- */
 @Injectable()
 export class ConsentService {
   private readonly logger = new Logger(ConsentService.name);
+
+  constructor(
+    @InjectRepository(ConsentRequest)
+    private readonly consentRequestRepo: Repository<ConsentRequest>,
+    @InjectRepository(MedicalRecord)
+    private readonly medicalRecordRepo: Repository<MedicalRecord>,
+  ) {}
 
   /**
    * Checks whether `requesterId` is allowed to access the given record.
@@ -29,15 +31,117 @@ export class ConsentService {
       return true;
     }
 
-    // TODO: Query Hyperledger Fabric chaincode for consent state.
-    // The chaincode should:
-    //   1. Look up ConsentRecord { patientId, granteeId, recordId, expiresAt }
-    //   2. Verify that the consent has not expired
-    //   3. Return true/false
+    // Check if there is an ACCEPTED consent request that hasn't expired
+    const activeConsent = await this.consentRequestRepo.findOne({
+      where: {
+        recordId: record.id,
+        requesterId: requesterId,
+        status: ConsentRequestStatus.ACCEPTED,
+        expiresAt: MoreThan(new Date()),
+      },
+    });
+
+    if (activeConsent) {
+      return true;
+    }
+
     this.logger.warn(
-      `Consent denied: requester=${requesterId}, record=${record.id} (Fabric not yet integrated)`,
+      `Consent denied or expired: requester=${requesterId}, record=${record.id}`,
     );
 
     return false;
+  }
+
+  async requestAccess(requesterId: string, recordId: string): Promise<ConsentRequest> {
+    const record = await this.medicalRecordRepo.findOne({ where: { id: recordId } });
+    if (!record) {
+      throw new NotFoundException('Medical record not found');
+    }
+
+    // Don't create duplicate pending requests
+    const existingPending = await this.consentRequestRepo.findOne({
+      where: {
+        recordId,
+        requesterId,
+        status: ConsentRequestStatus.PENDING,
+      },
+    });
+
+    if (existingPending) {
+      return existingPending;
+    }
+
+    const consentRequest = this.consentRequestRepo.create({
+      requesterId,
+      patientId: record.patientId,
+      recordId,
+      status: ConsentRequestStatus.PENDING,
+    });
+
+    return this.consentRequestRepo.save(consentRequest);
+  }
+
+  async getReceivedRequests(patientId: string): Promise<ConsentRequest[]> {
+    return this.consentRequestRepo.find({
+      where: { patientId },
+      relations: ['requester', 'record'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async getSentRequests(requesterId: string): Promise<ConsentRequest[]> {
+    return this.consentRequestRepo.find({
+      where: { requesterId },
+      relations: ['patient', 'record'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  private parseDuration(duration: string): number {
+    const value = parseInt(duration.slice(0, -1), 10);
+    const unit = duration.slice(-1);
+
+    if (isNaN(value)) {
+      throw new BadRequestException('Invalid duration format');
+    }
+
+    switch (unit) {
+      case 'm': return value * 60 * 1000;
+      case 'h': return value * 60 * 60 * 1000;
+      default: throw new BadRequestException('Unsupported duration unit');
+    }
+  }
+
+  async acceptRequest(requestId: string, patientId: string, duration: string): Promise<ConsentRequest> {
+    const request = await this.consentRequestRepo.findOne({ where: { id: requestId } });
+    if (!request) {
+      throw new NotFoundException('Consent request not found');
+    }
+
+    if (request.patientId !== patientId) {
+      throw new ForbiddenException('Not authorized to accept this request');
+    }
+
+    const durationMs = this.parseDuration(duration);
+    
+    request.status = ConsentRequestStatus.ACCEPTED;
+    request.expiresAt = new Date(Date.now() + durationMs);
+
+    return this.consentRequestRepo.save(request);
+  }
+
+  async rejectRequest(requestId: string, patientId: string): Promise<ConsentRequest> {
+    const request = await this.consentRequestRepo.findOne({ where: { id: requestId } });
+    if (!request) {
+      throw new NotFoundException('Consent request not found');
+    }
+
+    if (request.patientId !== patientId) {
+      throw new ForbiddenException('Not authorized to reject this request');
+    }
+
+    request.status = ConsentRequestStatus.REJECTED;
+
+    return this.consentRequestRepo.save(request);
   }
 }
