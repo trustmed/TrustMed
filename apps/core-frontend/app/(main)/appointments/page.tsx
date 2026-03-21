@@ -1,3 +1,4 @@
+import { AppointmentsToolbar } from "@/components/appointments/AppointmentsToolbar";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default function AppointmentsPage() {
@@ -11,7 +12,10 @@ export default function AppointmentsPage() {
             </div>
 
             <Card className="border-border/80 shadow-sm">
-                <CardContent className="p-4 md:p-6 flex flex-col gap-6">{/* toolbar + table */}</CardContent>
+                <CardContent className="p-4 md:p-6 flex flex-col gap-6">
+                    <AppointmentsToolbar />
+                    {/* table */}
+                </CardContent>
             </Card>
         </div>
     );
