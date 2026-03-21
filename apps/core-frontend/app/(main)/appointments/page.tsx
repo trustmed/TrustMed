@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { SEED_APPOINTMENTS } from "@/lib/appointments/seed-data";
 import type { Appointment } from "@/lib/appointments/types";
 import { AppointmentDeleteDialog } from "@/components/appointments/AppointmentDeleteDialog";
@@ -16,12 +17,34 @@ import { Card, CardContent } from "@/components/ui/card";
 const PATIENT_ID = "0054";
 const PATIENT_NAME = "Kate Wanigaratne";
 
+const ADD_SUBMIT_DELAY_MS = 600;
+
+function nextAppointmentKeys(appointments: Appointment[]): { id: string; appointmentNo: string } {
+    let maxId = 0;
+    let maxNo = 0;
+    for (const a of appointments) {
+        const idNum = Number.parseInt(a.id, 10);
+        if (!Number.isNaN(idNum) && idNum > maxId) maxId = idNum;
+        const match = /^D(\d+)$/i.exec(a.appointmentNo.trim());
+        if (match) {
+            const n = Number.parseInt(match[1], 10);
+            if (!Number.isNaN(n) && n > maxNo) maxNo = n;
+        }
+    }
+    const next = Math.max(maxId, maxNo) + 1;
+    return {
+        id: String(next),
+        appointmentNo: `D${String(next).padStart(3, "0")}`,
+    };
+}
+
 export default function AppointmentsPage() {
     const [searchQuery, setSearchQuery] = useState("");
-    const [appointments] = useState(() => [...SEED_APPOINTMENTS]);
+    const [appointments, setAppointments] = useState(() => [...SEED_APPOINTMENTS]);
 
     const [formDialogOpen, setFormDialogOpen] = useState(false);
     const [formMode, setFormMode] = useState<AppointmentFormMode>("add");
+    const [formSubmitLoading, setFormSubmitLoading] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [activeAppointment, setActiveAppointment] = useState<Appointment | null>(null);
 
@@ -49,7 +72,33 @@ export default function AppointmentsPage() {
     };
 
     const handleFormSubmit = async (values: AppointmentFormValues) => {
-        void values;
+        if (formMode === "add") {
+            setFormSubmitLoading(true);
+            try {
+                await new Promise((r) => setTimeout(r, ADD_SUBMIT_DELAY_MS));
+                setAppointments((prev) => {
+                    const keys = nextAppointmentKeys(prev);
+                    const row: Appointment = {
+                        ...keys,
+                        appointmentType: values.appointmentType,
+                        doctorName: values.doctor.trim(),
+                        date: values.date,
+                        hospitalLocation: "Colombo",
+                        status: "pending",
+                        address: values.address.trim(),
+                        phone: values.phone.trim(),
+                        email: values.email.trim(),
+                    };
+                    return [...prev, row];
+                });
+                toast.success("Appointment added");
+                setFormDialogOpen(false);
+            } finally {
+                setFormSubmitLoading(false);
+            }
+            return;
+        }
+
         setFormDialogOpen(false);
     };
 
@@ -85,6 +134,7 @@ export default function AppointmentsPage() {
                 patientId={PATIENT_ID}
                 patientName={PATIENT_NAME}
                 appointment={activeAppointment}
+                loading={formSubmitLoading}
                 onSubmit={handleFormSubmit}
             />
 
