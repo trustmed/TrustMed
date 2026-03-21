@@ -1,13 +1,18 @@
 "use client";
 
 import { AppointmentStatusBadge } from "@/components/appointments/AppointmentStatusBadge";
+import { Button } from "@/components/ui/button";
 import type { Appointment } from "@/lib/appointments/types";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { Eye, Pencil, Trash2 } from "lucide-react";
 
 export interface AppointmentsTableProps {
     appointments: Appointment[];
     className?: string;
+    onView?: (appointment: Appointment) => void;
+    onEdit?: (appointment: Appointment) => void;
+    onDelete?: (appointment: Appointment) => void;
 }
 
 function formatDisplayDate(isoDate: string) {
@@ -18,7 +23,13 @@ function formatDisplayDate(isoDate: string) {
     }
 }
 
-export function AppointmentsTable({ appointments, className }: AppointmentsTableProps) {
+export function AppointmentsTable({
+    appointments,
+    className,
+    onView,
+    onEdit,
+    onDelete,
+}: AppointmentsTableProps) {
     return (
         <div className={cn("w-full overflow-x-auto rounded-md border border-border", className)}>
             <table className="w-full min-w-[720px] border-collapse text-sm">
@@ -44,7 +55,40 @@ export function AppointmentsTable({ appointments, className }: AppointmentsTable
                             <td className="px-4 py-3">
                                 <AppointmentStatusBadge status={row.status} />
                             </td>
-                            <td className="px-4 py-3 text-right" />
+                            <td className="px-4 py-3">
+                                <div className="flex justify-end gap-1.5">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="icon"
+                                        className="h-9 w-9 rounded-full border-border"
+                                        aria-label="View appointment"
+                                        onClick={() => onView?.(row)}
+                                    >
+                                        <Eye className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="icon"
+                                        className="h-9 w-9 rounded-full border-border"
+                                        aria-label="Edit appointment"
+                                        onClick={() => onEdit?.(row)}
+                                    >
+                                        <Pencil className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="icon"
+                                        className="h-9 w-9 rounded-full border-border text-destructive hover:text-destructive"
+                                        aria-label="Delete appointment"
+                                        onClick={() => onDelete?.(row)}
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            </td>
                         </tr>
                     ))}
                 </tbody>
