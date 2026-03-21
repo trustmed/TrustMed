@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import type { Appointment } from "@/lib/appointments/types";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { CalendarOff, Eye, Pencil, Trash2 } from "lucide-react";
 
 export interface AppointmentsTableProps {
     appointments: Appointment[];
@@ -30,6 +30,23 @@ export function AppointmentsTable({
     onEdit,
     onDelete,
 }: AppointmentsTableProps) {
+    if (appointments.length === 0) {
+        return (
+            <div
+                className={cn(
+                    "flex flex-col items-center justify-center gap-2 rounded-md border border-dashed border-border bg-muted/20 px-6 py-14 text-center",
+                    className
+                )}
+            >
+                <CalendarOff className="h-10 w-10 text-muted-foreground" aria-hidden />
+                <p className="text-base font-semibold text-foreground">No appointments found</p>
+                <p className="max-w-sm text-sm text-muted-foreground">
+                    Try a different search, clear the status filter, or add a new appointment.
+                </p>
+            </div>
+        );
+    }
+
     return (
         <div className={cn("w-full overflow-x-auto rounded-md border border-border", className)}>
             <table className="w-full min-w-[720px] border-collapse text-sm">
