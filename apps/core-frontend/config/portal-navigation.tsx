@@ -1,4 +1,4 @@
-import { CalendarClock, LayoutDashboard, Settings, UserCog } from "lucide-react";
+import { CalendarClock, LayoutDashboard, Settings, UserCog, TestTube } from "lucide-react";
 import Image from "next/image";
 
 export const PORTAL_LINKS = [
@@ -29,7 +29,14 @@ export const PORTAL_LINKS = [
         icon: (
             <Settings className="text-neutral-700 dark:text-neutral-200 h-5 w-5 shrink-0" />
         ),
-    }
+    },
+    {
+        label: "Test",
+        href: "/test",
+        icon: (
+            <TestTube className="text-neutral-700 dark:text-neutral-200 h-5 w-5 shrink-0" />
+        ),
+    },
 
 ];
 
