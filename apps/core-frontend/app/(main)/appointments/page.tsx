@@ -18,6 +18,7 @@ const PATIENT_ID = "0054";
 const PATIENT_NAME = "Kate Wanigaratne";
 
 const FORM_SUBMIT_DELAY_MS = 600;
+const DELETE_DELAY_MS = 600;
 
 function nextAppointmentKeys(appointments: Appointment[]): { id: string; appointmentNo: string } {
     let maxId = 0;
@@ -46,6 +47,7 @@ export default function AppointmentsPage() {
     const [formMode, setFormMode] = useState<AppointmentFormMode>("add");
     const [formSubmitLoading, setFormSubmitLoading] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [deleteLoading, setDeleteLoading] = useState(false);
     const [activeAppointment, setActiveAppointment] = useState<Appointment | null>(null);
 
     const openAdd = () => {
@@ -131,6 +133,24 @@ export default function AppointmentsPage() {
         }
     };
 
+    const handleDeleteConfirm = async () => {
+        if (!activeAppointment) {
+            toast.error("No appointment selected");
+            return;
+        }
+        const targetId = activeAppointment.id;
+        setDeleteLoading(true);
+        try {
+            await new Promise((r) => setTimeout(r, DELETE_DELAY_MS));
+            setAppointments((prev) => prev.filter((a) => a.id !== targetId));
+            toast.success("Appointment removed");
+            setDeleteDialogOpen(false);
+            setActiveAppointment(null);
+        } finally {
+            setDeleteLoading(false);
+        }
+    };
+
     return (
         <div className="container mx-auto max-w-6xl py-6 md:py-8 flex flex-col gap-6">
             <div>
@@ -169,11 +189,13 @@ export default function AppointmentsPage() {
 
             <AppointmentDeleteDialog
                 open={deleteDialogOpen}
-                onOpenChange={setDeleteDialogOpen}
-                appointmentNo={activeAppointment?.appointmentNo}
-                onConfirm={async () => {
-                    setDeleteDialogOpen(false);
+                onOpenChange={(open) => {
+                    if (!open && deleteLoading) return;
+                    setDeleteDialogOpen(open);
                 }}
+                appointmentNo={activeAppointment?.appointmentNo}
+                loading={deleteLoading}
+                onConfirm={handleDeleteConfirm}
             />
         </div>
     );
