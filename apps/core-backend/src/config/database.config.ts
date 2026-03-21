@@ -13,9 +13,8 @@ import { MedicalProfile } from '../entities/medical-profile.entity';
 import { Allergy } from '../entities/allergy.entity';
 import { Medication } from '../entities/medication.entity';
 import { EmergencyContact } from '../entities/emergency-contact.entity';
-import { InitialSchema1770563243972 } from '../entities/migrations/1770563243972-InitialSchema';
 import { AuthUser } from '../entities/auth-user.entity';
-import { AuthUserTableCreate1773499292249 } from '../entities/migrations/1773499292249-AuthUserTableCreate';
+import { InitialOracle1773847768524 } from '../entities/migrations/1773847768524-initial-oracle';
 dotenv.config();
 
 export const dataSourceOptions: DataSourceOptions = {
@@ -40,7 +39,7 @@ export const dataSourceOptions: DataSourceOptions = {
     EmergencyContact,
     AuthUser,
   ],
-  migrations: [InitialSchema1770563243972, AuthUserTableCreate1773499292249],
+  migrations: [InitialOracle1773847768524],
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
 };

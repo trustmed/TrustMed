@@ -55,18 +55,24 @@ export default function ProfilePage() {
     useEffect(() => {
         async function fetchProfile() {
             try {
-                const data = await ProfileApi.getProfileByEmail("pramodmaneesha26@gmail.com");
+                // /api/profile/me uses the JWT cookie to resolve the logged-in user
+                const data = await ProfileApi.getMyProfile();
                 setPersonId(data.id);
+
+                // firstName and lastName come from the joined authUser relation
+                const firstName: string = data.authUser?.firstName ?? "";
+                const lastName: string | undefined = data.authUser?.lastName ?? undefined;
 
                 // Personal & physical
                 const mapped: Partial<CoreIdentityValues> = {
-                    name: data.name,
+                    firstName,
+                    lastName: lastName ?? undefined,
                     email: data.email,
-                    phone: data.phone,
-                    addressLine1: data.addressLine1,
-                    addressLine2: data.addressLine2,
-                    city: data.city,
-                    zipCode: data.zipCode,
+                    phone: data.phone ?? "",
+                    addressLine1: data.addressLine1 ?? "",
+                    addressLine2: data.addressLine2 ?? "",
+                    city: data.city ?? "",
+                    zipCode: data.zipCode ?? "",
                     dob: data.dob ? new Date(data.dob) : undefined,
                     biologicalSex: (data.gender || undefined) as CoreIdentityValues['biologicalSex'] | undefined,
                 };
@@ -98,7 +104,7 @@ export default function ProfilePage() {
 
                 // Compute initial progress
                 setSectionsDone({
-                    identity: !!(data.name && data.email),
+                    identity: !!(firstName && data.email),
                     emergency: (data.emergencyContacts ?? []).length > 0,
                     medical:
                         (data.allergies ?? []).length > 0 ||
@@ -139,13 +145,13 @@ export default function ProfilePage() {
             addressLine2: data.addressLine2,
             city: data.city,
             zipCode: data.zipCode,
+            gender: data.biologicalSex,
+            dob: data.dob ? format(data.dob, "yyyy-MM-dd") : undefined,
         });
         await ProfileApi.updateMedicalProfile(personId, {
-            biologicalSex: data.biologicalSex,
             bloodType: data.bloodType,
             heightCm: data.heightCm,
             weightKg: data.weightKg,
-            dob: data.dob ? format(data.dob, "yyyy-MM-dd") : undefined,
         });
         setSectionsDone((prev) => ({ ...prev, identity: true }));
     };
@@ -156,7 +162,7 @@ export default function ProfilePage() {
         // Delete contacts that were removed (existed in DB but not in the new list)
         const existingIds = new Set(contacts.filter((c) => c.id).map((c) => c.id));
         const toDelete = emergencyData.filter((c) => !existingIds.has(c.id));
-        await Promise.all(toDelete.map((c) => ProfileApi.deleteEmergencyContact(c.id)));
+        await Promise.all(toDelete.map((c) => ProfileApi.deleteEmergencyContact(c.id!)));
 
         // Add contacts that are new (no id)
         const toAdd = contacts.filter((c) => !c.id);
@@ -180,14 +186,14 @@ export default function ProfilePage() {
         // Allergies sync
         const existingAllergyIds = new Set(allergies.filter((a) => a.id).map((a) => a.id));
         const allergiesToDelete = medicalData.allergies.filter((a) => !existingAllergyIds.has(a.id));
-        await Promise.all(allergiesToDelete.map((a) => ProfileApi.deleteAllergy(a.id)));
+        await Promise.all(allergiesToDelete.map((a) => ProfileApi.deleteAllergy(a.id!)));
         const newAllergies = allergies.filter((a) => !a.id);
         const addedAllergies = await Promise.all(newAllergies.map((a) => ProfileApi.addAllergy(personId, a)));
 
         // Medications sync
         const existingMedIds = new Set(medications.filter((m) => m.id).map((m) => m.id));
         const medsToDelete = medicalData.medications.filter((m) => !existingMedIds.has(m.id));
-        await Promise.all(medsToDelete.map((m) => ProfileApi.deleteMedication(m.id)));
+        await Promise.all(medsToDelete.map((m) => ProfileApi.deleteMedication(m.id!)));
         const newMeds = medications.filter((m) => !m.id);
         const addedMeds = await Promise.all(newMeds.map((m) => ProfileApi.addMedication(personId, m)));
 
@@ -214,11 +220,16 @@ export default function ProfilePage() {
     }
 
     const progress = computeProgress(sectionsDone);
+    const displayName = personalData
+        ? [personalData.firstName, personalData.lastName].filter(Boolean).join(" ")
+        : "";
 
     return (
         <div className="container mx-auto max-w-6xl py-8">
             <div className="mb-8">
-                <h1 className="text-3xl font-bold tracking-tight">Your Health Profile</h1>
+                <h1 className="text-3xl font-bold tracking-tight">
+                    {displayName ? `${displayName}'s Health Profile` : "Your Health Profile"}
+                </h1>
                 <p className="text-muted-foreground mt-2">
                     Complete your profile to ensure you get the best personalized care.
                 </p>
@@ -273,19 +284,19 @@ export default function ProfilePage() {
                 {/* Right Column: Active Form */}
                 <div className="lg:col-span-8">
                     <Card className="min-h-[500px]">
-                        <CardHeader className="flex flex-row items-start justify-between gap-4">
-                            <div>
+                        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                            <div className="flex-1">
                                 <CardTitle>{SECTIONS.find(s => s.id === activeSection)?.label}</CardTitle>
                                 <CardDescription>
                                     {SECTIONS.find(s => s.id === activeSection)?.description}
                                 </CardDescription>
                             </div>
-                            <div className="flex items-center gap-2 shrink-0">
+                            <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto mt-2 sm:mt-0">
                                 {savedMsg && (
                                     <span className="text-sm text-green-600 dark:text-green-400 font-medium">{savedMsg}</span>
                                 )}
                                 {hasChanges && (
-                                    <Button onClick={triggerSave} disabled={saving}>
+                                    <Button onClick={triggerSave} disabled={saving} className="w-full sm:w-auto">
                                         {saving ? (
                                             <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</>
                                         ) : (
