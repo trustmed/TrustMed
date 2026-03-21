@@ -1,5 +1,6 @@
 "use client";
 
+import { AppointmentStatusBadge } from "@/components/appointments/AppointmentStatusBadge";
 import type { Appointment } from "@/lib/appointments/types";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -40,7 +41,9 @@ export function AppointmentsTable({ appointments, className }: AppointmentsTable
                             <td className="px-4 py-3 text-foreground">{row.doctorName}</td>
                             <td className="px-4 py-3 text-foreground tabular-nums">{formatDisplayDate(row.date)}</td>
                             <td className="px-4 py-3 text-foreground">{row.hospitalLocation}</td>
-                            <td className="px-4 py-3 text-foreground capitalize">{row.status}</td>
+                            <td className="px-4 py-3">
+                                <AppointmentStatusBadge status={row.status} />
+                            </td>
                             <td className="px-4 py-3 text-right" />
                         </tr>
                     ))}
