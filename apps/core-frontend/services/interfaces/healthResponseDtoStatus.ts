@@ -6,10 +6,10 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type HealthResponseStatus = typeof HealthResponseStatus[keyof typeof HealthResponseStatus];
+export type HealthResponseDtoStatus = typeof HealthResponseDtoStatus[keyof typeof HealthResponseDtoStatus];
 
 
-export const HealthResponseStatus = {
+export const HealthResponseDtoStatus = {
   up: 'up',
   down: 'down',
 } as const;

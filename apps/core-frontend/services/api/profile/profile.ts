@@ -24,8 +24,10 @@ import type {
   UseQueryResult
 } from '@tanstack/react-query';
 
+import profileControllerGetMyProfileMutator from '../../../config/api-config/axios';
 import profileControllerGetProfileMutator from '../../../config/api-config/axios';
 import profileControllerGetProfileByEmailMutator from '../../../config/api-config/axios';
+import profileControllerGetProfileByAuthUserIdMutator from '../../../config/api-config/axios';
 import profileControllerUpdatePersonMutator from '../../../config/api-config/axios';
 import profileControllerUpdateMedicalProfileMutator from '../../../config/api-config/axios';
 import profileControllerAddAllergyMutator from '../../../config/api-config/axios';
@@ -39,7 +41,97 @@ import profileControllerDeleteEmergencyContactMutator from '../../../config/api-
 
 
 /**
- * @summary Get full user profile
+ * @summary Get profile for the logged-in user (via JWT cookie)
+ */
+export const profileControllerGetMyProfile = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return profileControllerGetMyProfileMutator<void>(
+      {url: `/api/profile/me`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getProfileControllerGetMyProfileQueryKey = () => {
+    return [
+    `/api/profile/me`
+    ] as const;
+    }
+
+    
+export const getProfileControllerGetMyProfileQueryOptions = <TData = Awaited<ReturnType<typeof profileControllerGetMyProfile>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof profileControllerGetMyProfile>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getProfileControllerGetMyProfileQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof profileControllerGetMyProfile>>> = ({ signal }) => profileControllerGetMyProfile(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof profileControllerGetMyProfile>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ProfileControllerGetMyProfileQueryResult = NonNullable<Awaited<ReturnType<typeof profileControllerGetMyProfile>>>
+export type ProfileControllerGetMyProfileQueryError = unknown
+
+
+export function useProfileControllerGetMyProfile<TData = Awaited<ReturnType<typeof profileControllerGetMyProfile>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof profileControllerGetMyProfile>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof profileControllerGetMyProfile>>,
+          TError,
+          Awaited<ReturnType<typeof profileControllerGetMyProfile>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProfileControllerGetMyProfile<TData = Awaited<ReturnType<typeof profileControllerGetMyProfile>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof profileControllerGetMyProfile>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof profileControllerGetMyProfile>>,
+          TError,
+          Awaited<ReturnType<typeof profileControllerGetMyProfile>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProfileControllerGetMyProfile<TData = Awaited<ReturnType<typeof profileControllerGetMyProfile>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof profileControllerGetMyProfile>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get profile for the logged-in user (via JWT cookie)
+ */
+
+export function useProfileControllerGetMyProfile<TData = Awaited<ReturnType<typeof profileControllerGetMyProfile>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof profileControllerGetMyProfile>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getProfileControllerGetMyProfileQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+/**
+ * @summary Get full user profile by person ID
  */
 export const profileControllerGetProfile = (
     personId: string,
@@ -110,7 +202,7 @@ export function useProfileControllerGetProfile<TData = Awaited<ReturnType<typeof
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary Get full user profile
+ * @summary Get full user profile by person ID
  */
 
 export function useProfileControllerGetProfile<TData = Awaited<ReturnType<typeof profileControllerGetProfile>>, TError = unknown>(
@@ -209,6 +301,96 @@ export function useProfileControllerGetProfileByEmail<TData = Awaited<ReturnType
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getProfileControllerGetProfileByEmailQueryOptions(email,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+/**
+ * @summary Get full user profile by Clerk user ID
+ */
+export const profileControllerGetProfileByAuthUserId = (
+    clerkUserId: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return profileControllerGetProfileByAuthUserIdMutator<void>(
+      {url: `/api/profile/auth/${clerkUserId}`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getProfileControllerGetProfileByAuthUserIdQueryKey = (clerkUserId: string,) => {
+    return [
+    `/api/profile/auth/${clerkUserId}`
+    ] as const;
+    }
+
+    
+export const getProfileControllerGetProfileByAuthUserIdQueryOptions = <TData = Awaited<ReturnType<typeof profileControllerGetProfileByAuthUserId>>, TError = unknown>(clerkUserId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof profileControllerGetProfileByAuthUserId>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getProfileControllerGetProfileByAuthUserIdQueryKey(clerkUserId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof profileControllerGetProfileByAuthUserId>>> = ({ signal }) => profileControllerGetProfileByAuthUserId(clerkUserId, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(clerkUserId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof profileControllerGetProfileByAuthUserId>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ProfileControllerGetProfileByAuthUserIdQueryResult = NonNullable<Awaited<ReturnType<typeof profileControllerGetProfileByAuthUserId>>>
+export type ProfileControllerGetProfileByAuthUserIdQueryError = unknown
+
+
+export function useProfileControllerGetProfileByAuthUserId<TData = Awaited<ReturnType<typeof profileControllerGetProfileByAuthUserId>>, TError = unknown>(
+ clerkUserId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof profileControllerGetProfileByAuthUserId>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof profileControllerGetProfileByAuthUserId>>,
+          TError,
+          Awaited<ReturnType<typeof profileControllerGetProfileByAuthUserId>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProfileControllerGetProfileByAuthUserId<TData = Awaited<ReturnType<typeof profileControllerGetProfileByAuthUserId>>, TError = unknown>(
+ clerkUserId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof profileControllerGetProfileByAuthUserId>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof profileControllerGetProfileByAuthUserId>>,
+          TError,
+          Awaited<ReturnType<typeof profileControllerGetProfileByAuthUserId>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProfileControllerGetProfileByAuthUserId<TData = Awaited<ReturnType<typeof profileControllerGetProfileByAuthUserId>>, TError = unknown>(
+ clerkUserId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof profileControllerGetProfileByAuthUserId>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get full user profile by Clerk user ID
+ */
+
+export function useProfileControllerGetProfileByAuthUserId<TData = Awaited<ReturnType<typeof profileControllerGetProfileByAuthUserId>>, TError = unknown>(
+ clerkUserId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof profileControllerGetProfileByAuthUserId>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getProfileControllerGetProfileByAuthUserIdQueryOptions(clerkUserId,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
