@@ -1,7 +1,7 @@
 packages:
   - apps/*
   - packages/*
-
+  - trustmed-gateway
 onlyBuiltDependencies:
   - '@nestjs/core'
   - '@scarf/scarf'
