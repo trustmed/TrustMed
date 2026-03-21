@@ -1,4 +1,5 @@
-import { LayoutDashboard, UserCog, Settings, TestTube, FileText } from "lucide-react";
+
+import { LayoutDashboard, UserCog, Settings, TestTube, FileText, FileClock } from "lucide-react";
 import Image from "next/image";
 
 export const PORTAL_LINKS = [
@@ -7,6 +8,13 @@ export const PORTAL_LINKS = [
         href: "/portal",
         icon: (
             <LayoutDashboard className="text-neutral-700 dark:text-neutral-200 h-5 w-5 shrink-0" />
+        ),
+    },
+    {
+        label: "Medical History",
+        href: "/medical-history",
+        icon: (
+            <FileClock className="text-neutral-700 dark:text-neutral-200 h-5 w-5 shrink-0" />
         ),
     },
     {
