@@ -3,6 +3,11 @@
 import { useState } from "react";
 import { SEED_APPOINTMENTS } from "@/lib/appointments/seed-data";
 import type { Appointment } from "@/lib/appointments/types";
+import {
+    AppointmentFormDialog,
+    type AppointmentFormMode,
+    type AppointmentFormValues,
+} from "@/components/appointments/AppointmentFormDialog";
 import { AppointmentsTable } from "@/components/appointments/AppointmentsTable";
 import { AppointmentsToolbar } from "@/components/appointments/AppointmentsToolbar";
 import {
@@ -15,27 +20,33 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
+const PATIENT_ID = "0054";
+const PATIENT_NAME = "Kate Wanigaratne";
 
 export default function AppointmentsPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [appointments] = useState(() => [...SEED_APPOINTMENTS]);
 
     const [formDialogOpen, setFormDialogOpen] = useState(false);
+    const [formMode, setFormMode] = useState<AppointmentFormMode>("add");
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [activeAppointment, setActiveAppointment] = useState<Appointment | null>(null);
 
     const openAdd = () => {
+        setFormMode("add");
         setActiveAppointment(null);
         setFormDialogOpen(true);
     };
 
     const openView = (a: Appointment) => {
+        setFormMode("view");
         setActiveAppointment(a);
         setFormDialogOpen(true);
     };
 
     const openEdit = (a: Appointment) => {
+        setFormMode("edit");
         setActiveAppointment(a);
         setFormDialogOpen(true);
     };
@@ -43,6 +54,11 @@ export default function AppointmentsPage() {
     const openDelete = (a: Appointment) => {
         setActiveAppointment(a);
         setDeleteDialogOpen(true);
+    };
+
+    const handleFormSubmit = async (values: AppointmentFormValues) => {
+        void values;
+        setFormDialogOpen(false);
     };
 
     return (
@@ -70,15 +86,15 @@ export default function AppointmentsPage() {
                 </CardContent>
             </Card>
 
-            <Dialog open={formDialogOpen} onOpenChange={setFormDialogOpen}>
-                <DialogContent className="sm:max-w-lg">
-                    <DialogHeader>
-                        <DialogTitle>
-                            {activeAppointment ? "Appointment" : "Add appointment"} (placeholder)
-                        </DialogTitle>
-                    </DialogHeader>
-                </DialogContent>
-            </Dialog>
+            <AppointmentFormDialog
+                open={formDialogOpen}
+                onOpenChange={setFormDialogOpen}
+                mode={formMode}
+                patientId={PATIENT_ID}
+                patientName={PATIENT_NAME}
+                appointment={activeAppointment}
+                onSubmit={handleFormSubmit}
+            />
 
             <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
                 <AlertDialogContent>
