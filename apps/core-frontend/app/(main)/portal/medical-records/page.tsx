@@ -13,7 +13,6 @@ import { DeleteRecordModal } from '@/components/medical-records/delete-record-mo
 import { RecordCard } from '@/components/medical-records/record-card';
 import { MedicalRecord, RecordCategory, CATEGORY_LABELS } from '@/types/medical-records';
 import { MedicalRecordsApi } from '@/lib/api/medicalRecords';
-import { useState as useLocalState } from 'react';
 
 type ModalState = 'upload' | 'edit' | 'delete' | null;
 type Toast = { id: number; message: string; type: 'success' | 'error' };

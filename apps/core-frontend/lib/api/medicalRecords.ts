@@ -36,14 +36,14 @@ const DUMMY_RECORDS: MedicalRecord[] = [
 
 let mockRecords = [...DUMMY_RECORDS];
 
+
 export const MedicalRecordsApi = {
-  getRecords: async (_personId: string): Promise<MedicalRecord[]> => {
+  getRecords: async (): Promise<MedicalRecord[]> => {
     await new Promise((r) => setTimeout(r, 500));
     return mockRecords;
   },
 
   uploadRecord: async (
-    _personId: string,
     file: File,
     category: RecordCategory,
     notes?: string,
@@ -72,7 +72,7 @@ export const MedicalRecordsApi = {
   },
 
   updateRecord: async (
-    _personId: string,
+
     id: string,
     updates: {
       category?: RecordCategory;
@@ -89,12 +89,12 @@ export const MedicalRecordsApi = {
     return mockRecords[idx];
   },
 
-  deleteRecord: async (_personId: string, id: string): Promise<void> => {
+  deleteRecord: async ( id: string): Promise<void> => {
     await new Promise((r) => setTimeout(r, 500));
     mockRecords = mockRecords.filter((r) => r.id !== id);
   },
 
-  getDownloadUrl: async (_personId: string, _id: string): Promise<string> => {
+  getDownloadUrl: async ( ): Promise<string> => {
     await new Promise((r) => setTimeout(r, 300));
     return '#';
   },
