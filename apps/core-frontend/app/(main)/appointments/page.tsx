@@ -17,7 +17,7 @@ import { Card, CardContent } from "@/components/ui/card";
 const PATIENT_ID = "0054";
 const PATIENT_NAME = "Kate Wanigaratne";
 
-const ADD_SUBMIT_DELAY_MS = 600;
+const FORM_SUBMIT_DELAY_MS = 600;
 
 function nextAppointmentKeys(appointments: Appointment[]): { id: string; appointmentNo: string } {
     let maxId = 0;
@@ -75,7 +75,7 @@ export default function AppointmentsPage() {
         if (formMode === "add") {
             setFormSubmitLoading(true);
             try {
-                await new Promise((r) => setTimeout(r, ADD_SUBMIT_DELAY_MS));
+                await new Promise((r) => setTimeout(r, FORM_SUBMIT_DELAY_MS));
                 setAppointments((prev) => {
                     const keys = nextAppointmentKeys(prev);
                     const row: Appointment = {
@@ -99,7 +99,36 @@ export default function AppointmentsPage() {
             return;
         }
 
-        setFormDialogOpen(false);
+        if (formMode === "edit") {
+            if (!activeAppointment) {
+                toast.error("No appointment selected");
+                return;
+            }
+            setFormSubmitLoading(true);
+            try {
+                await new Promise((r) => setTimeout(r, FORM_SUBMIT_DELAY_MS));
+                const targetId = activeAppointment.id;
+                setAppointments((prev) =>
+                    prev.map((a) =>
+                        a.id === targetId
+                            ? {
+                                  ...a,
+                                  appointmentType: values.appointmentType,
+                                  doctorName: values.doctor.trim(),
+                                  date: values.date,
+                                  address: values.address.trim(),
+                                  phone: values.phone.trim(),
+                                  email: values.email.trim(),
+                              }
+                            : a
+                    )
+                );
+                toast.success("Appointment updated");
+                setFormDialogOpen(false);
+            } finally {
+                setFormSubmitLoading(false);
+            }
+        }
     };
 
     return (
