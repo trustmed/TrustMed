@@ -1,6 +1,8 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useMemo, useState } from "react";
+import { toast } from "sonner";
+import { HOSPITAL_LOCATIONS } from "@/lib/appointments/hospital-locations";
 import type { Appointment } from "@/lib/appointments/types";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -19,6 +21,7 @@ export type AppointmentFormMode = "add" | "edit" | "view";
 
 export interface AppointmentFormValues {
     date: string;
+    hospitalLocation: string;
     address: string;
     phone: string;
     email: string;
@@ -41,6 +44,7 @@ const APPOINTMENT_TYPES = [
 function emptyForm(): AppointmentFormValues {
     return {
         date: "",
+        hospitalLocation: "",
         address: "",
         phone: "",
         email: "",
@@ -52,6 +56,7 @@ function emptyForm(): AppointmentFormValues {
 function appointmentToForm(a: Appointment): AppointmentFormValues {
     return {
         date: a.date,
+        hospitalLocation: a.hospitalLocation,
         address: a.address,
         phone: a.phone,
         email: a.email,
@@ -117,9 +122,22 @@ function AppointmentFormDialogInner({
     const title =
         mode === "add" ? "Add appointment" : mode === "edit" ? "Edit appointment" : "View appointment";
 
+    const hospitalLocationOptions = useMemo(() => {
+        const known = HOSPITAL_LOCATIONS as readonly string[];
+        const current = values.hospitalLocation.trim();
+        if (current && !known.includes(current)) {
+            return [current, ...known];
+        }
+        return [...known];
+    }, [values.hospitalLocation]);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (readOnly) return;
+        if (!values.hospitalLocation.trim()) {
+            toast.error("Please select a hospital location");
+            return;
+        }
         await onSubmit(values);
     };
 
@@ -153,6 +171,25 @@ function AppointmentFormDialogInner({
                             required={!readOnly}
                             className="h-10"
                         />
+                    </div>
+                    <div className="space-y-2">
+                        <Label>Hospital location</Label>
+                        <Select
+                            value={values.hospitalLocation || undefined}
+                            onValueChange={(v) => setValues((prev) => ({ ...prev, hospitalLocation: v }))}
+                            disabled={readOnly || loading}
+                        >
+                            <SelectTrigger className="h-10 w-full min-w-0 shadow-none">
+                                <SelectValue placeholder="Select hospital" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {hospitalLocationOptions.map((loc) => (
+                                    <SelectItem key={loc} value={loc}>
+                                        {loc}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor={`${formId}-address`}>Address</Label>
