@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AppointmentsTable } from "@/components/appointments/AppointmentsTable";
 import { AppointmentsToolbar } from "@/components/appointments/AppointmentsToolbar";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -23,7 +24,7 @@ export default function AppointmentsPage() {
                         onSearchChange={setSearchQuery}
                         onAddClick={() => {}}
                     />
-                    {/* table */}
+                    <AppointmentsTable />
                 </CardContent>
             </Card>
         </div>
