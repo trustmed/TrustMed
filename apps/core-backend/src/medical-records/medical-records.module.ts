@@ -10,7 +10,10 @@ import { ConsentRequest } from '../entities/consent-request.entity';
 import { ConsentRequestsController } from './consent-requests.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([MedicalRecord, AuthUser, ConsentRequest]), S3VaultModule],
+  imports: [
+    TypeOrmModule.forFeature([MedicalRecord, AuthUser, ConsentRequest]),
+    S3VaultModule,
+  ],
   controllers: [MedicalRecordsController, ConsentRequestsController],
   providers: [MedicalRecordsService, ConsentService],
   exports: [MedicalRecordsService],

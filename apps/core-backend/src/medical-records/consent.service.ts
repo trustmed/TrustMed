@@ -1,8 +1,17 @@
-import { Injectable, Logger, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThan } from 'typeorm';
 import { MedicalRecord } from '../entities/medical-record.entity';
-import { ConsentRequest, ConsentRequestStatus } from '../entities/consent-request.entity';
+import {
+  ConsentRequest,
+  ConsentRequestStatus,
+} from '../entities/consent-request.entity';
 
 @Injectable()
 export class ConsentService {
@@ -52,8 +61,13 @@ export class ConsentService {
     return false;
   }
 
-  async requestAccess(requesterId: string, recordId: string): Promise<ConsentRequest> {
-    const record = await this.medicalRecordRepo.findOne({ where: { id: recordId } });
+  async requestAccess(
+    requesterId: string,
+    recordId: string,
+  ): Promise<ConsentRequest> {
+    const record = await this.medicalRecordRepo.findOne({
+      where: { id: recordId },
+    });
     if (!record) {
       throw new NotFoundException('Medical record not found');
     }
@@ -106,14 +120,23 @@ export class ConsentService {
     }
 
     switch (unit) {
-      case 'm': return value * 60 * 1000;
-      case 'h': return value * 60 * 60 * 1000;
-      default: throw new BadRequestException('Unsupported duration unit');
+      case 'm':
+        return value * 60 * 1000;
+      case 'h':
+        return value * 60 * 60 * 1000;
+      default:
+        throw new BadRequestException('Unsupported duration unit');
     }
   }
 
-  async acceptRequest(requestId: string, patientId: string, duration: string): Promise<ConsentRequest> {
-    const request = await this.consentRequestRepo.findOne({ where: { id: requestId } });
+  async acceptRequest(
+    requestId: string,
+    patientId: string,
+    duration: string,
+  ): Promise<ConsentRequest> {
+    const request = await this.consentRequestRepo.findOne({
+      where: { id: requestId },
+    });
     if (!request) {
       throw new NotFoundException('Consent request not found');
     }
@@ -123,15 +146,20 @@ export class ConsentService {
     }
 
     const durationMs = this.parseDuration(duration);
-    
+
     request.status = ConsentRequestStatus.ACCEPTED;
     request.expiresAt = new Date(Date.now() + durationMs);
 
     return this.consentRequestRepo.save(request);
   }
 
-  async rejectRequest(requestId: string, patientId: string): Promise<ConsentRequest> {
-    const request = await this.consentRequestRepo.findOne({ where: { id: requestId } });
+  async rejectRequest(
+    requestId: string,
+    patientId: string,
+  ): Promise<ConsentRequest> {
+    const request = await this.consentRequestRepo.findOne({
+      where: { id: requestId },
+    });
     if (!request) {
       throw new NotFoundException('Consent request not found');
     }
