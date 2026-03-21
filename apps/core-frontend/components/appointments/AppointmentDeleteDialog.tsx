@@ -46,8 +46,7 @@ export function AppointmentDeleteDialog({
                     </AlertDialogCancel>
                     <Button
                         type="button"
-                        variant="destructive"
-                        className="rounded-md font-semibold"
+                        className="min-w-[120px] rounded-md bg-[#c94435] font-semibold text-white hover:bg-[#c94435]/90"
                         disabled={loading}
                         onClick={() => void onConfirm()}
                     >
