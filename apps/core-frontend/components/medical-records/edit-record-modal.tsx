@@ -126,28 +126,30 @@ export function EditRecordModal({ record, open, onClose, onSave }: Props) {
               />
             </div>
 
-            <div className="space-y-1.5">
-              <Label>
-                Doctor Name{" "}
-                <span className="text-neutral-400 font-normal">(optional)</span>
-              </Label>
-              <Input
-                placeholder="e.g. Dr. Malik Perera"
-                value={doctorName}
-                onChange={(e) => setDoctorName(e.target.value)}
-              />
-            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label className="truncate block">
+                  Doctor Name{" "}
+                  <span className="text-neutral-400 font-normal hidden sm:inline">(optional)</span>
+                </Label>
+                <Input
+                  placeholder="e.g. Dr. Perera"
+                  value={doctorName}
+                  onChange={(e) => setDoctorName(e.target.value)}
+                />
+              </div>
 
-            <div className="space-y-1.5">
-              <Label>
-                Hospital Name{" "}
-                <span className="text-neutral-400 font-normal">(optional)</span>
-              </Label>
-              <Input
-                placeholder="e.g. City General Hospital"
-                value={hospitalName}
-                onChange={(e) => setHospitalName(e.target.value)}
-              />
+              <div className="space-y-1.5">
+                <Label className="truncate block">
+                  Hospital Name{" "}
+                  <span className="text-neutral-400 font-normal hidden sm:inline">(optional)</span>
+                </Label>
+                <Input
+                  placeholder="e.g. General Hosp."
+                  value={hospitalName}
+                  onChange={(e) => setHospitalName(e.target.value)}
+                />
+              </div>
             </div>
 
             <div className="space-y-1.5">
@@ -169,11 +171,16 @@ export function EditRecordModal({ record, open, onClose, onSave }: Props) {
           </div>
         )}
 
-        <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={onClose} disabled={saving}>
+        <DialogFooter className="gap-2 pt-2">
+          <Button 
+            variant="ghost" 
+            onClick={onClose} 
+            disabled={saving}
+            className="text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+          >
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={saving}>
+          <Button onClick={handleSave} disabled={saving} className="px-8 bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-indigo-600 dark:hover:bg-indigo-700">
             {saving ? (
               <span className="flex items-center gap-2">
                 <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

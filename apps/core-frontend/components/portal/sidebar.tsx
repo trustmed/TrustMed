@@ -46,7 +46,7 @@ export function SidebarNav({ children, links, userProfile }: Readonly<SidebarNav
   const handleLogout = () => logout();
 
   return (
-    <div className="fixed inset-0 flex flex-col md:flex-row bg-gray-100 dark:bg-neutral-800 w-full overflow-hidden">
+    <div className="fixed inset-0 flex flex-col md:flex-row bg-slate-50 dark:bg-neutral-900 w-full overflow-hidden">
       <Sidebar open={open} setOpen={setOpen}>
         <SidebarBody className="justify-between gap-10">
           <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
