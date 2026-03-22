@@ -6,10 +6,17 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export * from './authMessageResponse';
+export * from './authMessageDto';
+export * from './blockchainHealthResponseDto';
+export * from './blockchainHealthResponseDtoStatus';
 export * from './databaseHealth';
 export * from './databaseHealthStatus';
-export * from './healthResponse';
-export * from './healthResponseStatus';
+export * from './errorResponseDto';
+export * from './healthResponseDto';
+export * from './healthResponseDtoStatus';
 export * from './loginDto';
+export * from './networkStatusDto';
+export * from './networkStatusDtoStatus';
 export * from './registerDto';
+export * from './subStatusDto';
+export * from './subStatusDtoStatus';

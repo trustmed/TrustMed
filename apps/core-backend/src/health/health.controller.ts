@@ -1,14 +1,21 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { HealthService } from './health.service';
-import { HealthResponseDto } from './dto/health-response.dto';
+import {
+  BlockchainHealthResponseDto,
+  HealthResponseDto,
+} from './dto/health-response.dto';
 import { Public } from '../auth/public.decorator';
+import { BlockchainConnectorService } from 'src/blockchain/blockchain-connector.service';
 
 @ApiTags('health')
 @Controller('health')
 @Public()
 export class HealthController {
-  constructor(private readonly healthService: HealthService) {}
+  constructor(
+    private readonly healthService: HealthService,
+    private readonly blockchainConnectorService: BlockchainConnectorService,
+  ) {}
 
   @Get()
   @ApiOperation({
@@ -22,5 +29,19 @@ export class HealthController {
   })
   async checkHealth(): Promise<HealthResponseDto> {
     return this.healthService.getHealth();
+  }
+
+  @Get('blockchainhealth')
+  @ApiOperation({
+    operationId: 'getBlockchainHealth',
+    summary: 'Get Blockchain network health',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Blockchain network health status',
+    type: BlockchainHealthResponseDto,
+  })
+  async getBlockchainHealth(): Promise<BlockchainHealthResponseDto> {
+    return this.blockchainConnectorService.checkGatewayHealth();
   }
 }

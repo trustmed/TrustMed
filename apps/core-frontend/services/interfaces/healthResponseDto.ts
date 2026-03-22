@@ -6,10 +6,10 @@
  * OpenAPI spec version: 1.0.0
  */
 import type { DatabaseHealth } from './databaseHealth';
-import type { HealthResponseStatus } from './healthResponseStatus';
+import type { HealthResponseDtoStatus } from './healthResponseDtoStatus';
 
-export interface HealthResponse {
-  status: HealthResponseStatus;
+export interface HealthResponseDto {
+  status: HealthResponseDtoStatus;
   /** Application uptime in seconds */
   uptime: number;
   /** ISO timestamp of the health check */
