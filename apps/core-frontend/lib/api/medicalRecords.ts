@@ -1,49 +1,19 @@
 import { MedicalRecord, RecordCategory } from '@/types/medical-records';
+import axios from 'axios';
 
-// DUMMY DATA — replace with real API calls when backend is ready
-const DUMMY_RECORDS: MedicalRecord[] = [
-  {
-    id: '1',
-    fileName: 'Prescription1.png',
-    fileUrl: '#',
-    fileType: 'image/png',
-    fileSize: 634000,
-    category: RecordCategory.PRESCRIPTION,
-    notes: 'test 1',
-    doctorName: 'Dr. Malik Perera',
-    hospitalName: 'City General Hospital',
-    recordDate: '2026-03-15',
-    personId: 'dummy-person-1',
-    createdAt: '2026-03-15T10:00:00Z',
-    updatedAt: '2026-03-15T10:00:00Z',
-  },
-  {
-    id: '2',
-    fileName: 'P1.jpeg',
-    fileUrl: '#',
-    fileType: 'image/jpeg',
-    fileSize: 21000,
-    category: RecordCategory.DISCHARGE_SUMMARY,
-    notes: 'test 2',
-    doctorName: 'Dr. Nirosha Fernando',
-    hospitalName: 'Lanka Private Hospital',
-    recordDate: '2026-03-15',
-    personId: 'dummy-person-1',
-    createdAt: '2026-03-15T11:00:00Z',
-    updatedAt: '2026-03-15T11:00:00Z',
-  },
-];
-
-let mockRecords = [...DUMMY_RECORDS];
 
 
 export const MedicalRecordsApi = {
   getRecords: async (): Promise<MedicalRecord[]> => {
-    await new Promise((r) => setTimeout(r, 500));
-    return mockRecords;
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/medical-records`,
+      { withCredentials: true }
+    );
+    return response.data as MedicalRecord[];
   },
 
   uploadRecord: async (
+    personId: string,
     file: File,
     category: RecordCategory,
     notes?: string,
@@ -51,29 +21,26 @@ export const MedicalRecordsApi = {
     hospitalName?: string,
     recordDate?: string,
   ): Promise<MedicalRecord> => {
-    await new Promise((r) => setTimeout(r, 800));
-    const newRecord: MedicalRecord = {
-      id: `${Date.now()}`,
-      fileName: file.name,
-      fileUrl: URL.createObjectURL(file),
-      fileType: file.type,
-      fileSize: file.size,
-      category,
-      notes,
-      doctorName,
-      hospitalName,
-      recordDate,
-      personId: 'dummy-person-1',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    mockRecords = [newRecord, ...mockRecords];
-    return newRecord;
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('category', category);
+    if (notes) formData.append('notes', notes);
+    if (doctorName) formData.append('doctorName', doctorName);
+    if (hospitalName) formData.append('hospitalName', hospitalName);
+    if (recordDate) formData.append('recordDate', recordDate);
+    formData.append('personId', personId);
+
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/medical-records`,
+      formData,
+      { withCredentials: true }
+    );
+    return response.data as MedicalRecord;
   },
 
   updateRecord: async (
-
-    id: string,
+    personId: string,
+    recordId: string,
     updates: {
       category?: RecordCategory;
       notes?: string;
@@ -82,20 +49,32 @@ export const MedicalRecordsApi = {
       recordDate?: string;
     },
   ): Promise<MedicalRecord> => {
-    await new Promise((r) => setTimeout(r, 600));
-    const idx = mockRecords.findIndex((r) => r.id === id);
-    if (idx === -1) throw new Error('Record not found');
-    mockRecords[idx] = { ...mockRecords[idx], ...updates, updatedAt: new Date().toISOString() };
-    return mockRecords[idx];
+    const response = await axios.put(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/medical-records/${recordId}`,
+      { personId, ...updates },
+      { withCredentials: true }
+    );
+    return response.data as MedicalRecord;
   },
 
-  deleteRecord: async ( id: string): Promise<void> => {
-    await new Promise((r) => setTimeout(r, 500));
-    mockRecords = mockRecords.filter((r) => r.id !== id);
+  deleteRecord: async (personId: string, recordId: string): Promise<void> => {
+    await axios.delete(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/medical-records/${recordId}`,
+      {
+        params: { personId },
+        withCredentials: true,
+      }
+    );
   },
 
-  getDownloadUrl: async ( ): Promise<string> => {
-    await new Promise((r) => setTimeout(r, 300));
-    return '#';
+  getDownloadUrl: async (personId: string, recordId: string): Promise<string> => {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/medical-records/${recordId}/download`,
+      {
+        params: { personId },
+        withCredentials: true,
+      }
+    );
+    return response.data.url as string;
   },
 };
