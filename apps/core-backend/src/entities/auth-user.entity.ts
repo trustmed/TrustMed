@@ -19,6 +19,9 @@ export class AuthUser extends BaseEntity {
   @Column({ type: 'boolean', default: true })
   active: boolean;
 
+  @Column({ type: 'boolean', default: false })
+  isDemoDisabled: boolean;
+
   @OneToOne(() => Person, (person) => person.authUser)
   person: Person;
 }

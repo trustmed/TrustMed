@@ -17,7 +17,7 @@ async function bootstrap() {
   });
 
   // TODO: Comment due to fix auth issues.
-  
+
   // app.useGlobalPipes(
   //   new ValidationPipe({
   //     whitelist: true,

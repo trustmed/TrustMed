@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { MedicalRecord } from '../entities/medical-record.entity';
+import {
+  MedicalRecord,
+  RecordCategory,
+} from '../entities/medical-record.entity';
 import { Person } from '../entities/person.entity';
 import { CreateMedicalRecordRequestDto } from './dto/create-medical-record-request.dto';
 import { CreateMedicalRecordResponseDto } from './dto/create-medical-record-response.dto';
@@ -35,30 +38,32 @@ export class MedicalRecordService {
     const file = dto.file;
     const record = this.recordRepo.create({
       person,
+      patientId: person.id,
+      uploaderId: person.authUserId,
       fileName: file?.originalname,
       fileType: file?.mimetype,
-      fileSize: file?.size,
+      fileSize: file?.size ? Number(file.size) : 0,
       // fileUrl should be set to the storage location; for now, set to empty or a placeholder
       fileUrl: '',
-      category: dto.category,
+      category: dto.category as RecordCategory,
       notes: dto.notes,
       doctorName: dto.doctorName,
       hospitalName: dto.hospitalName,
-      recordDate: dto.recordDate,
+      recordDate: dto.recordDate ? new Date(dto.recordDate) : undefined,
     });
     const saved = await this.recordRepo.save(record);
     return {
       id: saved.id,
-      personId: saved.person.id,
-      fileName: saved.fileName,
-      fileUrl: saved.fileUrl,
-      fileType: saved.fileType,
-      fileSize: saved.fileSize,
+      personId: saved.person?.id || person.id,
+      fileName: saved.fileName || '',
+      fileUrl: saved.fileUrl || '',
+      fileType: saved.fileType || '',
+      fileSize: Number(saved.fileSize),
       category: saved.category,
-      notes: saved.notes,
-      doctorName: saved.doctorName,
-      hospitalName: saved.hospitalName,
-      recordDate: saved.recordDate,
+      notes: saved.notes || undefined,
+      doctorName: saved.doctorName || undefined,
+      hospitalName: saved.hospitalName || undefined,
+      recordDate: saved.recordDate?.toISOString(),
       createdAt: saved.createdAt,
       updatedAt: saved.updatedAt,
     };
