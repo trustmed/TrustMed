@@ -65,18 +65,16 @@ export const FormPasswordInput = <T extends FieldValues>({
           type="button"
           variant="ghost"
           size="sm"
-          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+          className="absolute right-0 top-0 h-full px-3 py-2 text-muted-foreground hover:bg-transparent hover:text-foreground focus-visible:bg-transparent focus-visible:text-foreground"
           onClick={togglePasswordVisibility}
+          aria-label={showPassword ? "Hide password" : "Show password"}
           tabIndex={-1}
         >
           {showPassword ? (
-            <EyeOff className="h-4 w-4 text-gray-500" aria-hidden="true" />
+            <EyeOff className="h-4 w-4" aria-hidden="true" />
           ) : (
-            <Eye className="h-4 w-4 text-gray-500" aria-hidden="true" />
+            <Eye className="h-4 w-4" aria-hidden="true" />
           )}
-          <span className="sr-only">
-            {showPassword ? "Hide password" : "Show password"}
-          </span>
         </Button>
       </div>
       {(error?.message || errorMessage) && (

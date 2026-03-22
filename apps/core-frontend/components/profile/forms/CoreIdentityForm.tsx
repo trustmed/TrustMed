@@ -261,38 +261,63 @@ export function CoreIdentityForm({
                             </FormItem>
                         )}
                     />
-
-
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                     <FormField
                         control={form.control}
-                        name="bloodType"
+                        name="heightCm"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Blood Type</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value ?? ""}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select a blood type" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", "Unknown"].map(
-                                            (type) => (
-                                                <SelectItem key={type} value={type}>
-                                                    {type}
-                                                </SelectItem>
-                                            )
-                                        )}
-                                    </SelectContent>
-                                </Select>
+                                <FormLabel>Height (cm)</FormLabel>
+                                <FormControl>
+                                    <Input type="number" placeholder="175" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="weightKg"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Weight (kg)</FormLabel>
+                                <FormControl>
+                                    <Input type="number" placeholder="70" {...field} />
+                                </FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
                 </div>
+
+                <FormField
+                    control={form.control}
+                    name="bloodType"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Blood Type</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value ?? ""}>
+                                <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select a blood type" />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", "Unknown"].map(
+                                        (type) => (
+                                            <SelectItem key={type} value={type}>
+                                                {type}
+                                            </SelectItem>
+                                        )
+                                    )}
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
 
                 {/* Hidden submit — triggered by the global Save Changes button in the page */}
                 <button type="submit" id="profile-form-submit" className="hidden" aria-hidden />

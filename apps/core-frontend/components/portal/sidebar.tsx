@@ -5,9 +5,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { useAuthControllerLogout } from "@/services/api/auth/auth";
+import { toast } from "sonner";
 
 interface LinkItem {
   label: string;
@@ -29,6 +32,18 @@ interface SidebarNavProps {
 
 export function SidebarNav({ children, links, userProfile }: Readonly<SidebarNavProps>) {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const { mutate: logout } = useAuthControllerLogout({
+    mutation: {
+      onSuccess: () => {
+        router.push("/signin");
+        router.refresh();
+      },
+      onError: () => toast.error("Unable to logout. Please try again."),
+    },
+  });
+
+  const handleLogout = () => logout();
 
   return (
     <div
@@ -56,7 +71,7 @@ export function SidebarNav({ children, links, userProfile }: Readonly<SidebarNav
               <PopoverContent className="w-56 p-2" side="top" align="start" sideOffset={10}>
                 <Button
                   variant="secondary"
-                  onClick={() => console.log("Logout clicked")}
+                  onClick={handleLogout}
                   className="w-full justify-start gap-2"
                 >
                   <LogOut size={16} />
