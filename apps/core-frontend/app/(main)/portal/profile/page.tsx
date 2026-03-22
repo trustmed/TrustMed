@@ -238,8 +238,13 @@ export default function ProfilePage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Left Column: Progress & Navigation */}
                 <div className="lg:col-span-4 space-y-6">
-                    <Card>
+                    <Card className="border-0 shadow-none bg-transparent sm:bg-card sm:border sm:shadow-sm">
                         <CardContent className="pt-6 flex flex-col items-center justify-center text-center">
+                            <div className="mb-3">
+                                <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                                    Step {SECTIONS.findIndex((s) => s.id === activeSection) + 1} of {SECTIONS.length}
+                                </span>
+                            </div>
                             <ProgressRing progress={progress} size={160} />
                             <div className="mt-4">
                                 <h3 className="font-semibold text-lg">Profile Completion</h3>
@@ -259,21 +264,31 @@ export default function ProfilePage() {
                                     key={section.id}
                                     onClick={() => { setActiveSection(section.id); setHasChanges(false); setSavedMsg(""); }}
                                     className={cn(
-                                        "w-full flex items-center p-3 rounded-lg text-left transition-colors border",
+                                        "w-full flex items-center p-3 rounded-lg text-left transition-colors relative overflow-hidden",
                                         activeSection === section.id
-                                            ? "bg-primary/10 border-primary text-primary"
-                                            : "bg-white dark:bg-card hover:bg-neutral-100 dark:hover:bg-neutral-800 border-transparent"
+                                            ? "bg-indigo-50/50 dark:bg-indigo-500/10 text-indigo-900 dark:text-indigo-100"
+                                            : "text-neutral-400 hover:text-neutral-900 dark:text-neutral-500 dark:hover:text-neutral-200"
                                     )}
                                 >
-                                    <div className={cn("p-2 rounded-full mr-3", activeSection === section.id ? "bg-primary/20" : "bg-neutral-100 dark:bg-neutral-800")}>
+                                    {/* Active Left Accent Bar */}
+                                    {activeSection === section.id && (
+                                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-600 dark:bg-indigo-500 rounded-r" />
+                                    )}
+
+                                    <div className={cn(
+                                        "p-2 rounded-full mr-3 transition-colors", 
+                                        activeSection === section.id ? "bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400" : "bg-neutral-50 dark:bg-neutral-800/50 text-neutral-400"
+                                    )}>
                                         <Icon className="w-5 h-5" />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <div className="font-medium">{section.label}</div>
-                                        <div className="text-xs text-muted-foreground line-clamp-1">{section.description}</div>
+                                        <div className={cn("font-medium", activeSection === section.id ? "text-indigo-900 dark:text-indigo-100" : "text-neutral-500 dark:text-neutral-400")}>{section.label}</div>
+                                        <div className="text-xs text-neutral-400 dark:text-neutral-500 line-clamp-1">{section.description}</div>
                                     </div>
                                     {done && (
-                                        <span className="ml-2 text-xs font-medium text-green-600 dark:text-green-400">✓</span>
+                                        <div className="ml-2 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-500">
+                                            <span className="text-[10px] font-bold">✓</span>
+                                        </div>
                                     )}
                                 </button>
                             );
@@ -288,25 +303,11 @@ export default function ProfilePage() {
                             <div className="flex-1">
                                 <CardTitle>{SECTIONS.find(s => s.id === activeSection)?.label}</CardTitle>
                                 <CardDescription>
-                                    {SECTIONS.find(s => s.id === activeSection)?.description}
+                                    Complete your details to unlock full health insights.
                                 </CardDescription>
                             </div>
-                            <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto mt-2 sm:mt-0">
-                                {savedMsg && (
-                                    <span className="text-sm text-green-600 dark:text-green-400 font-medium">{savedMsg}</span>
-                                )}
-                                {hasChanges && (
-                                    <Button onClick={triggerSave} disabled={saving} className="w-full sm:w-auto">
-                                        {saving ? (
-                                            <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</>
-                                        ) : (
-                                            <><Save className="mr-2 h-4 w-4" />Save Changes</>
-                                        )}
-                                    </Button>
-                                )}
-                            </div>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="pb-24 sm:pb-6 relative">
                             {activeSection === "identity" && (
                                 <CoreIdentityForm
                                     onSave={handleSavePersonal}
@@ -335,6 +336,34 @@ export default function ProfilePage() {
                                     onDirtyChange={setHasChanges}
                                 />
                             )}
+
+                            {/* Sticky Action Footer */}
+                            <div className="fixed bottom-0 left-0 right-0 z-10 p-4 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border-t border-neutral-200 dark:border-neutral-800 sm:absolute sm:inset-x-0 sm:bottom-0 sm:transform-none sm:rounded-b-xl sm:bg-neutral-50 sm:dark:bg-neutral-900/50 sm:p-6 sm:border-x-0 sm:border-b-0 flex items-center justify-between sm:justify-end gap-4 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] sm:shadow-none transition-all">
+                                <div className="sm:hidden flex-1">
+                                    {savedMsg && (
+                                        <span className="text-sm text-green-600 dark:text-green-400 font-medium">{savedMsg}</span>
+                                    )}
+                                </div>
+                                <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                                    <div className="hidden sm:block">
+                                        {savedMsg && (
+                                            <span className="text-sm text-green-600 dark:text-green-400 font-medium">{savedMsg}</span>
+                                        )}
+                                    </div>
+                                    <Button 
+                                        size="lg"
+                                        onClick={triggerSave} 
+                                        disabled={saving || !hasChanges} 
+                                        className="w-full sm:w-auto shadow-sm"
+                                    >
+                                        {saving ? (
+                                            <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</>
+                                        ) : (
+                                            <>Save & Next<Save className="ml-2 h-4 w-4" /></>
+                                        )}
+                                    </Button>
+                                </div>
+                            </div>
                         </CardContent>
                     </Card>
                 </div>

@@ -7,7 +7,6 @@ import { dataSourceOptions } from './config/database.config';
 import { ProfileModule } from './profile/profile.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtCookieGuard } from './auth/jwt-cookie.guard';
-import { AccessModule } from './access/access.module';
 import { MedicalRecordModule } from './medical-record/medical-record.module';
 import { AuditModule } from './audit/audit.module';
 import { S3VaultModule } from './s3-vault/s3-vault.module';
@@ -22,7 +21,6 @@ import { S3VaultModule } from './s3-vault/s3-vault.module';
     AuthModule,
     HealthModule,
     ProfileModule,
-    AccessModule,
     MedicalRecordModule,
     AuditModule,
     S3VaultModule,

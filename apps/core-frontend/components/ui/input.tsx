@@ -8,10 +8,10 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
       type={type}
       data-slot="input"
       className={cn(
-        "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-        "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-        "hover:border-primary/50 transition-colors",
-        "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+        "file:text-neutral-900 dark:file:text-neutral-50 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 selection:bg-indigo-500/30 selection:text-indigo-900 border-neutral-200 dark:border-neutral-800 h-10 w-full min-w-0 rounded-lg border bg-white dark:bg-neutral-900 px-3.5 py-2 text-[15px] shadow-sm transition-[color,box-shadow,border-color] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
+        "focus-visible:border-indigo-500 focus-visible:ring-indigo-500/20 focus-visible:ring-[4px]",
+        "hover:border-neutral-300 dark:hover:border-neutral-700",
+        "aria-invalid:ring-red-500/20 dark:aria-invalid:ring-red-500/40 aria-invalid:border-red-500",
         className
       )}
       {...props}

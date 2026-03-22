@@ -21,10 +21,12 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  HealthResponse
+  BlockchainHealthResponseDto,
+  HealthResponseDto
 } from '../../interfaces';
 
 import getHealthMutator from '../../../config/api-config/axios';
+import getBlockchainHealthMutator from '../../../config/api-config/axios';
 
 
 
@@ -38,7 +40,7 @@ export const getHealth = (
 ) => {
       
       
-      return getHealthMutator<HealthResponse>(
+      return getHealthMutator<HealthResponseDto>(
       {url: `/api/health`, method: 'GET', signal
     },
       );
@@ -110,6 +112,96 @@ export function useGetHealth<TData = Awaited<ReturnType<typeof getHealth>>, TErr
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetHealthQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+/**
+ * @summary Get Blockchain network health
+ */
+export const getBlockchainHealth = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return getBlockchainHealthMutator<BlockchainHealthResponseDto>(
+      {url: `/api/health/blockchainhealth`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getGetBlockchainHealthQueryKey = () => {
+    return [
+    `/api/health/blockchainhealth`
+    ] as const;
+    }
+
+    
+export const getGetBlockchainHealthQueryOptions = <TData = Awaited<ReturnType<typeof getBlockchainHealth>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBlockchainHealth>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetBlockchainHealthQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getBlockchainHealth>>> = ({ signal }) => getBlockchainHealth(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getBlockchainHealth>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetBlockchainHealthQueryResult = NonNullable<Awaited<ReturnType<typeof getBlockchainHealth>>>
+export type GetBlockchainHealthQueryError = unknown
+
+
+export function useGetBlockchainHealth<TData = Awaited<ReturnType<typeof getBlockchainHealth>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBlockchainHealth>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getBlockchainHealth>>,
+          TError,
+          Awaited<ReturnType<typeof getBlockchainHealth>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetBlockchainHealth<TData = Awaited<ReturnType<typeof getBlockchainHealth>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBlockchainHealth>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getBlockchainHealth>>,
+          TError,
+          Awaited<ReturnType<typeof getBlockchainHealth>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetBlockchainHealth<TData = Awaited<ReturnType<typeof getBlockchainHealth>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBlockchainHealth>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Blockchain network health
+ */
+
+export function useGetBlockchainHealth<TData = Awaited<ReturnType<typeof getBlockchainHealth>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBlockchainHealth>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetBlockchainHealthQueryOptions(options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

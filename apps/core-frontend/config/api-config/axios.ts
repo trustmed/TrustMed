@@ -61,11 +61,18 @@ export default async function orvalMutator<TData = unknown, TVariables = unknown
   params?: Record<string, unknown>;
   signal?: AbortSignal;
 }): Promise<TData> {
+  const isFormData = data instanceof FormData;
+  const finalHeaders = { ...headers };
+  
+  if (isFormData && finalHeaders['Content-Type'] === 'application/json') {
+    delete finalHeaders['Content-Type'];
+  }
+
   const response = await axiosInstance.request<TData>({
     url,
     method,
-    data: data,
-    headers,
+    data,
+    headers: finalHeaders,
     params,
     signal,
   });
