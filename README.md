@@ -1,7 +1,7 @@
 [![core-frontend-auto-deploy](https://github.com/trustmed/TrustMed/actions/workflows/core-frontend-dev.yml/badge.svg)](https://github.com/trustmed/TrustMed/actions/workflows/core-frontend-dev.yml)
 [![core-backend-auto-deploy](https://github.com/trustmed/TrustMed/actions/workflows/core-backend-dev.yml/badge.svg)](https://github.com/trustmed/TrustMed/actions/workflows/core-backend-dev.yml)
 
-# TrustMed
+# TrustMed  
 
 **TrustMed** is a blockchain-based healthcare platform designed to ensure data integrity and patient trust. This repository contains the frontend application, engineered with a focus on security, scalability, and modern web standards.
 

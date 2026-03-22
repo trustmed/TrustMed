@@ -11,6 +11,7 @@ import { S3VaultModule } from './s3-vault/s3-vault.module';
 import { AuditModule } from './audit/audit.module';
 import { MedicalRecordsModule } from './medical-records/medical-records.module';
 import { AccessModule } from './access/access.module';
+import { MedicalRecordModule } from './medical-record/medical-record.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { AccessModule } from './access/access.module';
     S3VaultModule,
     MedicalRecordsModule,
     AccessModule,
+    MedicalRecordModule,
   ],
   controllers: [],
   providers: [

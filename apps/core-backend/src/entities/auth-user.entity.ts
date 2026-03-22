@@ -10,11 +10,11 @@ export class AuthUser extends BaseEntity {
   @Column({ unique: true })
   email: string;
 
-  @Column({ nullable: true })
-  firstName?: string;
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  firstName: string | null;
 
-  @Column({ nullable: true })
-  lastName?: string;
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  lastName: string | null;
 
   @Column({ type: 'boolean', default: true })
   active: boolean;

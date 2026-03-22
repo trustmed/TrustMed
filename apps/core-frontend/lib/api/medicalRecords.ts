@@ -1,0 +1,80 @@
+import { MedicalRecord, RecordCategory } from '@/types/medical-records';
+import axios from 'axios';
+
+
+
+export const MedicalRecordsApi = {
+  getRecords: async (): Promise<MedicalRecord[]> => {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/medical-records`,
+      { withCredentials: true }
+    );
+    return response.data as MedicalRecord[];
+  },
+
+  uploadRecord: async (
+    personId: string,
+    file: File,
+    category: RecordCategory,
+    notes?: string,
+    doctorName?: string,
+    hospitalName?: string,
+    recordDate?: string,
+  ): Promise<MedicalRecord> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('category', category);
+    if (notes) formData.append('notes', notes);
+    if (doctorName) formData.append('doctorName', doctorName);
+    if (hospitalName) formData.append('hospitalName', hospitalName);
+    if (recordDate) formData.append('recordDate', recordDate);
+    formData.append('personId', personId);
+
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/medical-records`,
+      formData,
+      { withCredentials: true }
+    );
+    return response.data as MedicalRecord;
+  },
+
+  updateRecord: async (
+    personId: string,
+    recordId: string,
+    updates: {
+      category?: RecordCategory;
+      notes?: string;
+      doctorName?: string;
+      hospitalName?: string;
+      recordDate?: string;
+    },
+  ): Promise<MedicalRecord> => {
+    const response = await axios.put(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/medical-records/${recordId}`,
+      { personId, ...updates },
+      { withCredentials: true }
+    );
+    return response.data as MedicalRecord;
+  },
+
+  deleteRecord: async (personId: string, recordId: string): Promise<void> => {
+    await axios.delete(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/medical-records/${recordId}`,
+      {
+        params: { personId },
+        withCredentials: true,
+      }
+    );
+  },
+
+  getDownloadUrl: async (personId: string, recordId: string): Promise<string> => {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/medical-records/${recordId}/download`,
+      {
+        params: { personId },
+        withCredentials: true,
+      }
+    );
+    return response.data.url as string;
+  },
+};

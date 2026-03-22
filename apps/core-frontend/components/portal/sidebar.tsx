@@ -33,8 +33,7 @@ export function SidebarNav({ children, links, userProfile }: Readonly<SidebarNav
   return (
     <div
       className={cn(
-        "flex flex-col md:flex-row bg-gray-100 dark:bg-neutral-800 w-full flex-1 overflow-hidden",
-        "h-screen"
+        "fixed inset-0 flex flex-col md:flex-row bg-gray-100 dark:bg-neutral-800 w-full overflow-hidden"
       )}
     >
       <Sidebar open={open} setOpen={setOpen}>
@@ -68,7 +67,7 @@ export function SidebarNav({ children, links, userProfile }: Readonly<SidebarNav
           </div>
         </SidebarBody>
       </Sidebar>
-      <div className="flex flex-1">
+      <div className="flex flex-1 min-h-0 overflow-hidden">
         <div className="p-2 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-full h-full overflow-y-auto">
           {children}
         </div>

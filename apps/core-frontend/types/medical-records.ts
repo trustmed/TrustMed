@@ -3,6 +3,7 @@ export interface MedicalRecord {
   fileName: string;
   fileUrl: string;
   fileType: string;
+  fileSize: number;
   category: RecordCategory;
   notes?: string;
   doctorName?: string;

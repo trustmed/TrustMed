@@ -1,10 +1,11 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
-  CreateDateColumn,
-  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
+import { BaseEntity } from './base.entity';
+import { Person } from './person.entity';
 
 export enum RecordCategory {
   LAB_REPORT = 'lab_report',
@@ -23,9 +24,10 @@ export enum RecordCategory {
  * The AES key is envelope-encrypted with a master key before storage.
  */
 @Entity('medical_records')
-export class MedicalRecord {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+export class MedicalRecord extends BaseEntity {
+  @ManyToOne(() => Person, { onDelete: 'CASCADE', nullable: true })
+  @JoinColumn({ name: 'person_id' })
+  person?: Person;
 
   /** UUID of the patient this record belongs to. */
   @Column({ type: 'uuid' })
@@ -51,15 +53,25 @@ export class MedicalRecord {
   encryptedAesKey: string;
 
   /** Original file name as provided by the uploader. */
-  @Column({ type: 'text', nullable: true })
+  @Column({ name: 'original_file_name', type: 'text', nullable: true })
   originalFileName: string;
 
   /** MIME type of the uploaded file (e.g. `application/pdf`). */
-  @Column({ type: 'varchar', length: 100, nullable: true })
+  @Column({ name: 'mime_type', type: 'varchar', length: 100, nullable: true })
   mimeType: string;
 
+  /** Compatibility fields for dev branch */
+  @Column({ name: 'file_name', type: 'varchar', nullable: true })
+  fileName?: string;
+
+  @Column({ name: 'file_url', type: 'varchar', nullable: true })
+  fileUrl?: string;
+
+  @Column({ name: 'file_type', type: 'varchar', nullable: true })
+  fileType?: string;
+
   /** File size in bytes. */
-  @Column({ type: 'bigint', nullable: true })
+  @Column({ name: 'file_size', type: 'bigint', nullable: true })
   fileSize: number;
 
   @Column({
@@ -85,10 +97,4 @@ export class MedicalRecord {
 
   @Column({ name: 'record_date', type: 'date', nullable: true })
   recordDate: Date | null;
-
-  @CreateDateColumn({ type: 'timestamp' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ type: 'timestamp' })
-  updatedAt: Date;
 }

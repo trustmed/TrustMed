@@ -145,13 +145,13 @@ export default function ProfilePage() {
             addressLine2: data.addressLine2,
             city: data.city,
             zipCode: data.zipCode,
+            gender: data.biologicalSex,
+            dob: data.dob ? format(data.dob, "yyyy-MM-dd") : undefined,
         });
         await ProfileApi.updateMedicalProfile(personId, {
-            biologicalSex: data.biologicalSex,
             bloodType: data.bloodType,
             heightCm: data.heightCm,
             weightKg: data.weightKg,
-            dob: data.dob ? format(data.dob, "yyyy-MM-dd") : undefined,
         });
         setSectionsDone((prev) => ({ ...prev, identity: true }));
     };
@@ -284,19 +284,19 @@ export default function ProfilePage() {
                 {/* Right Column: Active Form */}
                 <div className="lg:col-span-8">
                     <Card className="min-h-[500px]">
-                        <CardHeader className="flex flex-row items-start justify-between gap-4">
-                            <div>
+                        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                            <div className="flex-1">
                                 <CardTitle>{SECTIONS.find(s => s.id === activeSection)?.label}</CardTitle>
                                 <CardDescription>
                                     {SECTIONS.find(s => s.id === activeSection)?.description}
                                 </CardDescription>
                             </div>
-                            <div className="flex items-center gap-2 shrink-0">
+                            <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto mt-2 sm:mt-0">
                                 {savedMsg && (
                                     <span className="text-sm text-green-600 dark:text-green-400 font-medium">{savedMsg}</span>
                                 )}
                                 {hasChanges && (
-                                    <Button onClick={triggerSave} disabled={saving}>
+                                    <Button onClick={triggerSave} disabled={saving} className="w-full sm:w-auto">
                                         {saving ? (
                                             <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</>
                                         ) : (
