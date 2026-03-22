@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { CATEGORY_LABELS, RecordCategory } from "@/types/medical-records";
 
 const PAGE_SIZE = 10;
 
@@ -279,6 +280,26 @@ export default function MedicalHistoryPage() {
   );
 }
 
+/** Demo values aligned with appointments table + AppointmentFormDialog fields. */
+const DEMO_APPOINTMENT = {
+  appointmentNo: "D014",
+  appointmentType: "General",
+  doctor: "Dr. Malik Perera",
+  hospitalLocation: "City General Hospital",
+  address: "42 Flower Road, Colombo 07",
+  phone: "+94 77 123 4567",
+  email: "patient@example.com",
+};
+
+/** Demo values aligned with UploadRecordModal / MedicalRecord fields. */
+const DEMO_RECORD = {
+  categoryLabel: CATEGORY_LABELS[RecordCategory.LAB_REPORT],
+  doctorName: "Dr. Malik Perera",
+  hospitalName: "City General Hospital",
+  notes: "Fasting glucose and lipid panel — routine follow-up.",
+  fileName: "lab-summary-2025-03-19.pdf",
+};
+
 function DetailsCard({ selectedItem }: { selectedItem?: MedicalHistoryRow }) {
   const isReport = selectedItem?.kind === "report";
 
@@ -292,26 +313,24 @@ function DetailsCard({ selectedItem }: { selectedItem?: MedicalHistoryRow }) {
 
       <div className="px-6 py-5 text-sm text-neutral-900 dark:text-neutral-100">
         {isReport ? (
-          <div className="grid grid-cols-[160px_1fr] gap-y-3">
-            <LabelValue label="Report type" value="Laboratory summary" />
-            <LabelValue label="Facility" value="City General Hospital" />
-            <LabelValue label="Received on" value={selectedItem?.date ?? "—"} />
-            <LabelValue label="Summary" value="Results within reference ranges; no critical flags." />
-            <LabelValue label="Attachments" value="PDF report, raw data export" />
+          <div className="grid grid-cols-[minmax(140px,180px)_1fr] gap-y-3 sm:grid-cols-[180px_1fr]">
+            <LabelValue label="Category" value={DEMO_RECORD.categoryLabel} />
+            <LabelValue label="Date of Record" value={selectedItem?.date ?? "—"} />
+            <LabelValue label="Doctor Name" value={DEMO_RECORD.doctorName} />
+            <LabelValue label="Hospital Name" value={DEMO_RECORD.hospitalName} />
+            <LabelValue label="Notes" value={DEMO_RECORD.notes} />
+            <LabelValue label="File name" value={DEMO_RECORD.fileName} />
           </div>
         ) : (
-          <div className="grid grid-cols-[160px_1fr] gap-y-3">
-            <LabelValue label="Hospital Name" value="City General Hospital" />
-            <LabelValue label="Doctor Name" value="Dr. Malik Perera" />
-            <LabelValue label="Visit Type" value="In-person Consultation" />
-            <LabelValue label="Reason for Visit" value="Routine health check and discussion." />
-            <LabelValue
-              label="Description"
-              value="Routine consultation to review overall symptoms, and determine if further diagnostic testing is required."
-            />
-            <LabelValue label="Outcome" value="No immediate concerns; doctor recommended monitoring for 2 weeks." />
-            <LabelValue label="Next Steps" value="Book follow-up appointment and complete lab tests before next visit." />
-            <LabelValue label="Attachments" value="Doctor’s notes (PDF), Lab test order" />
+          <div className="grid grid-cols-[minmax(140px,180px)_1fr] gap-y-3 sm:grid-cols-[180px_1fr]">
+            <LabelValue label="Appointment no" value={DEMO_APPOINTMENT.appointmentNo} />
+            <LabelValue label="Date" value={selectedItem?.date ?? "—"} />
+            <LabelValue label="Hospital location" value={DEMO_APPOINTMENT.hospitalLocation} />
+            <LabelValue label="Address" value={DEMO_APPOINTMENT.address} />
+            <LabelValue label="Phone number" value={DEMO_APPOINTMENT.phone} />
+            <LabelValue label="Email" value={DEMO_APPOINTMENT.email} />
+            <LabelValue label="Doctor" value={DEMO_APPOINTMENT.doctor} />
+            <LabelValue label="Appointment type" value={DEMO_APPOINTMENT.appointmentType} />
           </div>
         )}
       </div>
