@@ -12,6 +12,7 @@ import {
   FileImage,
   Activity,
   SlidersHorizontal,
+  Download,
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -98,10 +99,10 @@ function EventRow({ event }: { event: HistoryEvent }) {
   return (
     <div
       className={cn(
-        "border border-neutral-200 dark:border-neutral-800 rounded-xl bg-white dark:bg-neutral-900 overflow-hidden transition-all duration-200",
+        "border rounded-xl bg-white dark:bg-neutral-900 overflow-hidden transition-all duration-200",
         open
-          ? "ring-2 ring-indigo-500/20 border-indigo-200 dark:border-indigo-800"
-          : "hover:border-neutral-300 dark:hover:border-neutral-700 hover:shadow-sm"
+          ? "border-blue-200 dark:border-blue-900 shadow-[0_0_0_3px_rgba(219,234,254,0.5)] dark:shadow-[0_0_0_3px_rgba(30,58,138,0.2)]"
+          : "border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 hover:shadow-sm"
       )}
     >
       {/* Clickable Header Row */}
@@ -139,10 +140,10 @@ function EventRow({ event }: { event: HistoryEvent }) {
           </p>
         </div>
 
-        {/* Category Badge */}
+        {/* Category Badge — enterprise style: 6px radius */}
         <span
           className={cn(
-            "hidden sm:inline-flex shrink-0 items-center rounded-md px-2.5 py-0.5 text-[11px] font-semibold",
+            "hidden sm:inline-flex shrink-0 items-center rounded-[6px] px-2.5 py-0.5 text-[11px] font-semibold",
             isReport
               ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
               : "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
@@ -161,66 +162,68 @@ function EventRow({ event }: { event: HistoryEvent }) {
           </span>
         </div>
 
-        {/* Chevron */}
+        {/* Chevron — bolder, tinted on hover */}
         <ChevronDown
           className={cn(
-            "h-4 w-4 text-neutral-400 shrink-0 ml-1 transition-transform duration-200",
-            open && "rotate-180"
+            "h-[18px] w-[18px] shrink-0 ml-2 transition-all duration-200",
+            open
+              ? "rotate-180 text-indigo-500"
+              : "text-neutral-300 group-hover:text-neutral-500"
           )}
         />
       </button>
 
       {/* Expandable Detail Panel */}
       {open && (
-        <div className="px-4 sm:px-5 pb-5 border-t border-neutral-100 dark:border-neutral-800">
-          <div className="pt-4 flex flex-col gap-4">
+        <div className="px-4 sm:px-5 pb-6 border-t border-neutral-100 dark:border-neutral-800">
+          <div className="pt-4 flex flex-col gap-5">
 
-            {/* Info Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              <div className="flex flex-col gap-1">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Doctor</p>
-                <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200">{event.doctorName}</p>
-              </div>
-              <div className="flex flex-col gap-1">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Hospital</p>
-                <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200">{event.hospitalName}</p>
-              </div>
-              <div className="flex flex-col gap-1">
+            {/* Info Grid — Date only (Doctor+Hospital already visible in header) */}
+            <div className="flex items-center gap-6">
+              <div className="flex flex-col gap-0.5">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Date</p>
-                <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                <p className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">
                   {format(new Date(event.date), "MMMM d, yyyy")}
                 </p>
               </div>
+              {event.categoryLabel && (
+                <div className="flex flex-col gap-0.5">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Type</p>
+                  <p className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">{event.categoryLabel}</p>
+                </div>
+              )}
             </div>
 
-            {/* File Attachment */}
+            {/* Compact File Card */}
             {event.fileName && (
-              <div className="flex items-center gap-3 p-3 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/50 w-fit cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors group/file">
-                <div className="h-9 w-9 flex shrink-0 items-center justify-center rounded-md bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 group-hover/file:border-indigo-300 transition-colors">
+              <div className="inline-flex items-center gap-3 px-3 py-2 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50 cursor-pointer hover:border-neutral-300 dark:hover:border-neutral-600 hover:bg-white dark:hover:bg-neutral-800 transition-all w-fit group/file">
+                <div className="h-8 w-8 shrink-0 flex items-center justify-center rounded-md bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700">
                   {event.fileName.endsWith(".pdf") ? (
                     <FileText className="h-4 w-4 text-red-500" />
                   ) : (
                     <FileImage className="h-4 w-4 text-indigo-500" />
                   )}
                 </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200 truncate max-w-[200px]">
-                    {event.fileName}
-                  </p>
-                  <p className="text-xs text-neutral-400">PDF · 2.4 MB</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200 truncate max-w-[180px]">{event.fileName}</p>
+                  <p className="text-[11px] text-neutral-400">PDF · 2.4 MB</p>
                 </div>
+                <Download className="h-3.5 w-3.5 text-neutral-400 group-hover/file:text-neutral-700 dark:group-hover/file:text-neutral-300 transition-colors ml-1 shrink-0" />
               </div>
             )}
 
-            {/* Notes */}
+            {/* Doctor's Notes — thin accent bar, pale bg, spacious line-height */}
             {event.notes && (
-              <div className="bg-indigo-50/60 dark:bg-indigo-900/10 rounded-xl p-4 border-l-[3px] border-indigo-400 dark:border-indigo-600">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-400 dark:text-indigo-500 mb-2">
-                  Doctor&apos;s Notes
-                </p>
-                <p className="text-sm italic text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                  &quot;{event.notes}&quot;
-                </p>
+              <div className="flex gap-3">
+                <div className="w-[2px] shrink-0 bg-indigo-300 dark:bg-indigo-700 rounded-full" />
+                <div className="flex flex-col gap-1.5 py-0.5">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+                    Doctor&apos;s Notes
+                  </p>
+                  <p className="text-sm italic text-neutral-600 dark:text-neutral-400 leading-[1.75]">
+                    &quot;{event.notes}&quot;
+                  </p>
+                </div>
               </div>
             )}
           </div>
