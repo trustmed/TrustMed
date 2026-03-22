@@ -38,7 +38,7 @@ export const MedicalRecordsApi = {
   },
 
   updateRecord: async (
-    personId: string,
+    authuserId: string,
     recordId: string,
     updates: {
       category?: RecordCategory;
@@ -49,8 +49,8 @@ export const MedicalRecordsApi = {
     },
   ): Promise<MedicalRecord> => {
     const response = await axios.put(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/medical-records/${recordId}`,
-      { personId, ...updates },
+      `${process.env.NEXT_PUBLIC_API_URL}/api/medical-records/${authuserId}/${recordId}`,
+      updates,
       { withCredentials: true }
     );
     return response.data as MedicalRecord;

@@ -8,6 +8,7 @@ import {
   Param,
   Delete,
   NotFoundException,
+  Put,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Express } from 'express';
@@ -18,6 +19,7 @@ import { CreateMedicalRecordRequestDto } from './dto/create-medical-record-reque
 import { CreateMedicalRecordResponseDto } from './dto/create-medical-record-response.dto';
 import { MedicalRecordListResponseDto } from './dto/medical-record-item-response.dto';
 import { MedicalRecordItemResponseDto } from './dto/medical-record-item-response.dto';
+import { UpdateMedicalRecordRequestDto } from './dto/update-medical-record-request.dto';
 import { DeleteMedicalRecordResponseDto } from './dto/delete-medical-record-response.dto';
 import { MedicalRecord } from '../entities/medical-record.entity';
 
@@ -25,6 +27,36 @@ import { MedicalRecord } from '../entities/medical-record.entity';
 @Controller('medical-records')
 export class MedicalRecordController {
   constructor(private readonly service: MedicalRecordService) {}
+
+  @ApiResponse({ status: 200, type: MedicalRecordItemResponseDto })
+  @ApiBody({ type: UpdateMedicalRecordRequestDto })
+  @Put(':authuserId/:recordId')
+  async update(
+    @Param('authuserId') authuserId: string,
+    @Param('recordId') recordId: string,
+    @Body() body: UpdateMedicalRecordRequestDto,
+  ): Promise<MedicalRecordItemResponseDto> {
+    const updated = await this.service.updateByIdForAuthUser(
+      authuserId,
+      recordId,
+      body,
+    );
+    return {
+      id: updated.id,
+      personId: updated.person?.id,
+      fileName: updated.fileName,
+      fileUrl: updated.fileUrl,
+      fileType: updated.fileType,
+      fileSize: updated.fileSize,
+      category: updated.category,
+      notes: updated.notes,
+      doctorName: updated.doctorName,
+      hospitalName: updated.hospitalName,
+      recordDate: updated.recordDate,
+      createdAt: updated.createdAt,
+      updatedAt: updated.updatedAt,
+    };
+  }
 
   @Post()
   @UseInterceptors(FileInterceptor('file'))
