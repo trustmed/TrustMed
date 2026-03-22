@@ -43,3 +43,15 @@ export class HealthResponseDto {
   })
   database?: DatabaseHealth;
 }
+
+export class BlockchainHealthResponseDto {
+  @ApiProperty({
+    enum: ['up', 'down'],
+    example: 'up',
+  })
+  @ApiProperty({
+    example: 'Blockchain Gateway is running',
+    description: 'Message indicating the status of the blockchain gateway',
+  })
+  message: string;
+}

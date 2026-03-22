@@ -72,30 +72,30 @@ export class BlockchainService implements OnModuleDestroy {
     return { mspId: FABRIC.mspId, credentials };
   }
 
-private async newSigner(): Promise<Signer> {
-  try {
-    // Check if the directory exists first
-    const files = await fs.readdir(FABRIC.keyDirPath);
-    
-    // Filter for the key file
-    const keyFile = files.find((f) => f.endsWith("_sk") || f === "priv_sk");
+  private async newSigner(): Promise<Signer> {
+    try {
+      // Check if the directory exists first
+      const files = await fs.readdir(FABRIC.keyDirPath);
 
-    if (!keyFile) {
-      throw new Error(
-        `No private key file found in ${FABRIC.keyDirPath}. Files present: ${files.length > 0 ? files.join(", ") : "None"}`
-      );
+      // Filter for the key file
+      const keyFile = files.find((f) => f.endsWith("_sk") || f === "priv_sk");
+
+      if (!keyFile) {
+        throw new Error(
+          `No private key file found in ${FABRIC.keyDirPath}. Files present: ${files.length > 0 ? files.join(", ") : "None"}`,
+        );
+      }
+
+      const keyPath = path.join(FABRIC.keyDirPath, keyFile);
+      const privateKeyPem = await fs.readFile(keyPath);
+      const privateKey: KeyObject = createPrivateKey(privateKeyPem);
+
+      return signers.newPrivateKeySigner(privateKey);
+    } catch (error) {
+      console.error(`[Fabric Service] newSigner error: ${error.message}`);
+      throw error;
     }
-
-    const keyPath = path.join(FABRIC.keyDirPath, keyFile);
-    const privateKeyPem = await fs.readFile(keyPath);
-    const privateKey: KeyObject = createPrivateKey(privateKeyPem);
-
-    return signers.newPrivateKeySigner(privateKey);
-  } catch (error) {
-    console.error(`[Fabric Service] newSigner error: ${error.message}`);
-    throw error;
   }
-}
 
   private async getContract(): Promise<Contract> {
     if (this.contract) return this.contract;
@@ -180,6 +180,18 @@ private async newSigner(): Promise<Signer> {
     } catch (error) {
       console.error("Fabric readAccessRequest failed:", error);
       throw error;
+    }
+  }
+
+  async checkHealth(): Promise<{ status: string; details?: any }> {
+    try {
+      const contract = await this.getContract();
+      return { status: "OK", details: contract };
+    } catch (error) {
+      return {
+        status: "ERROR",
+        details: error.message,
+      };
     }
   }
 }
