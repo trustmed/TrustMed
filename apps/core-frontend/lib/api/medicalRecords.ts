@@ -1,15 +1,14 @@
 import { MedicalRecord, RecordCategory } from '@/types/medical-records';
 import axios from 'axios';
 
-
-
 export const MedicalRecordsApi = {
-  getRecords: async (): Promise<MedicalRecord[]> => {
+  getRecords: async (authuserId: string): Promise<MedicalRecord[]> => {
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/medical-records`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/medical-records/${authuserId}`,
       { withCredentials: true }
     );
-    return response.data as MedicalRecord[];
+    // The backend returns { records: MedicalRecord[] }
+    return response.data.records as MedicalRecord[];
   },
 
   uploadRecord: async (
@@ -39,7 +38,7 @@ export const MedicalRecordsApi = {
   },
 
   updateRecord: async (
-    personId: string,
+    authuserId: string,
     recordId: string,
     updates: {
       category?: RecordCategory;
@@ -50,20 +49,17 @@ export const MedicalRecordsApi = {
     },
   ): Promise<MedicalRecord> => {
     const response = await axios.put(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/medical-records/${recordId}`,
-      { personId, ...updates },
+      `${process.env.NEXT_PUBLIC_API_URL}/api/medical-records/${authuserId}/${recordId}`,
+      updates,
       { withCredentials: true }
     );
     return response.data as MedicalRecord;
   },
 
-  deleteRecord: async (personId: string, recordId: string): Promise<void> => {
+  deleteRecord: async (authuserId: string, recordId: string): Promise<void> => {
     await axios.delete(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/medical-records/${recordId}`,
-      {
-        params: { personId },
-        withCredentials: true,
-      }
+      `${process.env.NEXT_PUBLIC_API_URL}/api/medical-records/${authuserId}/${recordId}`,
+      { withCredentials: true }
     );
   },
 

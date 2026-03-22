@@ -1,4 +1,4 @@
-import { CalendarClock, LayoutDashboard, UserCog, Settings, FolderHeart, TestTube, FileClock } from "lucide-react";
+import { CalendarClock, LayoutDashboard, UserCog, Settings, FolderHeart, TestTube, FileClock, FileText } from "lucide-react";
 import Image from "next/image";
 
 export const PORTAL_LINKS = [
@@ -24,7 +24,7 @@ export const PORTAL_LINKS = [
         ),
     },
     {
-        label: "Medical Records",
+        label: "Medical Records (Portal)",
         href: "/portal/medical-records",
         icon: (
             <FolderHeart className="text-neutral-700 dark:text-neutral-200 h-5 w-5 shrink-0" />
@@ -42,6 +42,13 @@ export const PORTAL_LINKS = [
         href: "/portal/settings",
         icon: (
             <Settings className="text-neutral-700 dark:text-neutral-200 h-5 w-5 shrink-0" />
+        ),
+    },
+    {
+        label: "Medical Records",
+        href: "/medical-records",
+        icon: (
+            <FileText className="text-neutral-700 dark:text-neutral-200 h-5 w-5 shrink-0" />
         ),
     },
     {
