@@ -54,6 +54,7 @@ export class ConsentRequestsController {
     @CurrentUser() user: JwtPayload,
   ) {
     const requesterId = await this.resolveAuthUserId(user.sub);
+    await this.consentService.requestAccess(requesterId, recordId);
     const request = await this.consentService.getRequestByRecordAndRequester(
       requesterId,
       recordId,
@@ -68,8 +69,6 @@ export class ConsentRequestsController {
       expiresAt: request.expiresAt,
       downloadUrl: undefined as string | undefined,
     };
-
-    await this.consentService.requestAccess(requesterId, recordId);
     return result;
   }
 
