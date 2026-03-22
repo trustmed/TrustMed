@@ -46,16 +46,12 @@ export function DeleteRecordModal({ record, open, onClose, onDelete }: Props) {
 
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
           Are you sure you want to delete{' '}
-          <span className="font-medium text-neutral-800 dark:text-neutral-200">
-            {record?.fileName}
-          </span>?
+          <span className="font-medium text-neutral-800 dark:text-neutral-200">{record?.fileName}</span>?
           This action cannot be undone.
         </p>
 
         {error && (
-          <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg p-3">
-            {error}
-          </p>
+          <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg p-3">{error}</p>
         )}
 
         <DialogFooter className="gap-2">

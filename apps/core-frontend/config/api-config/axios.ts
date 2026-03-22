@@ -18,33 +18,20 @@ const axiosInstance = axios.create({
 // Interceptors
 axiosInstance.interceptors.request.use((config) => {
   console.log('📡 API Request:', config.method?.toUpperCase(), config.url);
-  // Cookies are sent automatically because withCredentials: true is set above
+
   return config;
 });
 
 axiosInstance.interceptors.response.use(
   (res) => res,
   (err) => {
-    const requestUrl = String(err?.config?.url ?? '');
-    const isAuthRequest =
-      requestUrl.includes('/api/auth/login') ||
-      requestUrl.includes('/api/auth/register') ||
-      requestUrl.includes('/api/auth/logout');
-
-    if (
-      err.response?.status === 401 &&
-      typeof window !== 'undefined' &&
-      !isAuthRequest
-    ) {
-      console.warn("🔐 Session expired. Redirecting to sign-in...");
-      window.location.href = "/signin";
-    }
+    // if (err.response?.status === 401) {
+    //   console.warn("🔐 Session expired. Redirecting...");
+    //   window.location.href = "/sign-in";
+    // }
     return Promise.reject(err);
   }
 );
-
-// Named export so auth utilities can share the same configured instance
-export { axiosInstance };
 
 export default async function orvalMutator<TData = unknown, TVariables = unknown>({
   url,
