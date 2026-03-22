@@ -5,6 +5,11 @@ import { BlockchainService } from "./blockchain.service";
 export class BlockchainController {
   constructor(private readonly service: BlockchainService) {}
 
+  @Get("health")
+  async getHealth() {
+    return await this.service.checkHealth();
+  }
+
   @Post()
   create(@Body() body: any) {
     return this.service.createAccessRequest(body);
@@ -23,10 +28,5 @@ export class BlockchainController {
   @Get(":id/check")
   check(@Param("id") id: string) {
     return this.service.checkAccess(id);
-  }
-
-  @Get("health")
-  async getHealth() {
-    return await this.service.checkHealth();
   }
 }
