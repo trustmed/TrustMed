@@ -2,12 +2,12 @@
 
 import * as React from "react";
 import { format } from "date-fns";
-import { CalendarIcon, FileText, Loader2, Stethoscope, Syringe, UserPlus } from "lucide-react";
+import { FileText, History, Stethoscope, Syringe, UserPlus } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 type MedicalHistoryItem = {
   id: string;
@@ -44,24 +44,9 @@ const TIMELINE_ITEMS: MedicalHistoryItem[] = [
 ];
 
 export default function MedicalHistoryPage() {
+  const dateFieldId = React.useId();
   const [selectedId, setSelectedId] = React.useState<string>(TIMELINE_ITEMS[0]?.id ?? "");
-  const [date, setDate] = React.useState<Date>(() => new Date());
-  const [calendarMonth, setCalendarMonth] = React.useState<Date>(() => new Date());
-  const [isDateLoading, setIsDateLoading] = React.useState(false);
-
-  const handleDateSelect = React.useCallback((newDate: Date | undefined) => {
-    if (newDate == null) return;
-    setIsDateLoading(true);
-    setDate(newDate);
-    setCalendarMonth(newDate);
-    setTimeout(() => setIsDateLoading(false), 800);
-  }, []);
-
-  React.useEffect(() => {
-    setCalendarMonth(date);
-  }, [date]);
-
-  const selectedDateKey = React.useMemo(() => format(date, "yyyy-MM-dd"), [date]);
+  const [selectedDateKey, setSelectedDateKey] = React.useState(() => format(new Date(), "yyyy-MM-dd"));
 
   const filteredItems = React.useMemo(
     () => TIMELINE_ITEMS.filter((x) => x.date === selectedDateKey),
@@ -86,89 +71,50 @@ export default function MedicalHistoryPage() {
   const hasHistoryForSelectedDate = filteredItems.length > 0;
 
   return (
-    <div className="relative w-full">
-      {isDateLoading && (
-        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-3 bg-background/90 backdrop-blur-sm">
-          <Loader2 className="h-10 w-10 animate-spin text-primary" />
-          <p className="text-sm font-medium text-muted-foreground">Loading...</p>
-        </div>
-      )}
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <h1 className="text-base font-semibold text-foreground">Medical History</h1>
-        </div>
-
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              type="button"
-              className="h-10 min-w-[180px] justify-between gap-3 rounded-xl bg-secondary px-4 text-secondary-foreground shadow-sm hover:bg-secondary/90"
-            >
-              <span className={cn("truncate text-sm font-medium", !date && "opacity-90")}>
-                {date ? format(date, "PPP") : "Select date"}
-              </span>
-              <CalendarIcon className="h-4 w-4 opacity-90" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent
-            align="end"
-            className="w-auto rounded-2xl border border-border bg-secondary p-0 text-secondary-foreground shadow-xl"
-          >
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={handleDateSelect}
-              month={calendarMonth}
-              onMonthChange={setCalendarMonth}
-              captionLayout="dropdown"
-              fromYear={1990}
-              toYear={new Date().getFullYear() + 1}
-              initialFocus
-              className="rounded-2xl"
-              classNames={{
-                caption_label: "hidden",
-                nav: "hidden",
-                // Weekday header (react-day-picker v9)
-                weekdays: "grid grid-cols-7",
-                weekday:
-                  "flex h-9 w-9 items-center justify-center text-secondary-foreground/70 rounded-md font-normal text-[0.8rem]",
-                // Weekday header (back-compat with older mappings)
-                head_row: "flex",
-                head_cell:
-                  "flex h-9 w-9 items-center justify-center text-secondary-foreground/70 rounded-md font-normal text-[0.8rem]",
-                cell:
-                  "h-9 w-9 p-0 text-center text-sm relative focus-within:relative focus-within:z-20",
-                day_selected:
-                  "rounded-full bg-accent text-accent-foreground shadow-sm hover:bg-accent/90 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-                day_today: "rounded-full bg-white/10 text-secondary-foreground",
-                day_outside:
-                  "day-outside text-secondary-foreground/50 opacity-60 aria-selected:bg-white/10 aria-selected:text-secondary-foreground/70 aria-selected:opacity-60",
-                nav_button:
-                  "h-7 w-7 bg-transparent p-0 text-secondary-foreground/80 hover:text-secondary-foreground hover:bg-white/10 rounded-md",
-                dropdown:
-                  "rounded-md border border-white/15 bg-secondary px-2 py-1 text-sm text-secondary-foreground shadow-sm outline-none focus:ring-2 focus:ring-ring/40",
-                dropdown_month: "m-0",
-                dropdown_year: "m-0",
-                caption_dropdowns: "flex items-center gap-2",
-                caption: "flex justify-center pt-1 items-center",
-              }}
-            />
-          </PopoverContent>
-        </Popover>
-      </div>
-
-      {hasHistoryForSelectedDate ? (
-        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[340px_1fr]">
-          <Timeline items={filteredItems} selectedId={selectedId} onSelect={setSelectedId} />
-          <DetailsCard selectedItem={selectedItem} />
-        </div>
-      ) : (
-        <div className="flex min-h-[60vh] items-center justify-center px-6">
-          <p className="text-center text-sm font-medium text-muted-foreground">
-            No medical history has been recorded or is available.
+    <div className="relative container mx-auto max-w-6xl w-full py-6 md:py-8 flex flex-col gap-6">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Medical History</h1>
+          <p className="text-muted-foreground mt-2 text-sm md:text-base">
+            Browse your health timeline and event details by date.
           </p>
         </div>
-      )}
+
+        <div className="w-full space-y-2 sm:w-auto sm:min-w-[200px]">
+          <Label htmlFor={dateFieldId}>Date</Label>
+          <Input
+            id={dateFieldId}
+            type="date"
+            value={selectedDateKey}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v) setSelectedDateKey(v);
+            }}
+            className="h-10"
+          />
+        </div>
+      </div>
+
+      <Card className="border-border/80 shadow-sm">
+        <CardContent className="p-4 md:p-6 flex flex-col gap-6">
+          {hasHistoryForSelectedDate ? (
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[340px_1fr]">
+              <Timeline items={filteredItems} selectedId={selectedId} onSelect={setSelectedId} />
+              <DetailsCard selectedItem={selectedItem} />
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-16 md:py-20 text-center">
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-muted">
+                <History className="h-7 w-7 text-muted-foreground" aria-hidden />
+              </div>
+              <h3 className="text-sm font-medium text-foreground">No history for this date</h3>
+              <p className="mt-1 max-w-md text-sm text-muted-foreground">
+                No medical history has been recorded or is available.
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -197,7 +143,7 @@ function Timeline({
                 onClick={() => onSelect(item.id)}
                 className={cn(
                   "group relative flex w-full items-start gap-3 text-left",
-                  "rounded-xl px-2 py-1 transition-colors hover:bg-muted/60"
+                  "rounded-md px-2 py-1.5 transition-colors hover:bg-muted/60"
                 )}
               >
                 <span
@@ -205,17 +151,24 @@ function Timeline({
                     "absolute -left-7 top-1.5 flex h-7 w-7 items-center justify-center rounded-full border",
                     isActive
                       ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-background text-foreground/70 group-hover:bg-muted"
+                      : "border-neutral-200 bg-background text-neutral-500 group-hover:bg-muted dark:border-neutral-700"
                   )}
                 >
                   {item.icon}
                 </span>
 
                 <div className="min-w-0">
-                  <div className={cn("text-sm font-medium", isActive ? "text-foreground" : "text-foreground/80")}>
+                  <div
+                    className={cn(
+                      "text-sm font-medium",
+                      isActive
+                        ? "text-neutral-900 dark:text-neutral-100"
+                        : "text-neutral-700 dark:text-neutral-300"
+                    )}
+                  >
                     {item.title}
                   </div>
-                  <div className="mt-1 text-xs text-muted-foreground">{item.date}</div>
+                  <div className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{item.date}</div>
                 </div>
               </button>
             );
@@ -228,14 +181,14 @@ function Timeline({
 
 function DetailsCard({ selectedItem }: { selectedItem?: MedicalHistoryItem }) {
   return (
-    <div className="rounded-2xl border border-border bg-background shadow-sm">
-      <div className="border-b border-border px-6 py-4">
-        <div className="text-sm font-semibold text-foreground">
+    <div className="rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
+      <div className="border-b border-neutral-200 px-6 py-4 dark:border-neutral-700">
+        <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
           {selectedItem?.title ?? "—"} — {selectedItem?.date ?? "—"}
         </div>
       </div>
 
-      <div className="px-6 py-5 text-sm text-foreground">
+      <div className="px-6 py-5 text-sm text-neutral-900 dark:text-neutral-100">
         <div className="grid grid-cols-[160px_1fr] gap-y-3">
           <LabelValue label="Hospital Name" value="City General Hospital" />
           <LabelValue label="Doctor Name" value="Dr. Malik Perera" />
@@ -257,9 +210,9 @@ function DetailsCard({ selectedItem }: { selectedItem?: MedicalHistoryItem }) {
 function LabelValue({ label, value }: { label: string; value: string }) {
   return (
     <>
-      <div className="text-foreground/80">{label}</div>
-      <div className="text-foreground">
-        <span className="mr-2 text-foreground/60">:</span>
+      <div className="text-neutral-600 dark:text-neutral-400">{label}</div>
+      <div>
+        <span className="mr-2 text-neutral-400 dark:text-neutral-500">:</span>
         {value}
       </div>
     </>
