@@ -98,4 +98,36 @@ export class MedicalRecordService {
   }
 
   // Removed duplicate methods and misplaced code. Only one set of methods is kept above. Class ends here.
+  async updateByIdForAuthUser(
+    authuserId: string,
+    recordId: string,
+    dto: {
+      category?: string;
+      notes?: string;
+      doctorName?: string;
+      hospitalName?: string;
+      recordDate?: string;
+    },
+  ): Promise<MedicalRecord> {
+    const person = await this.personRepo.findOne({
+      where: { authUserId: authuserId },
+    });
+    if (!person) {
+      throw new NotFoundException('Medical record not found or not authorized');
+    }
+    const record = await this.recordRepo.findOne({
+      where: { id: recordId, person: { id: person.id } },
+    });
+    if (!record) {
+      throw new NotFoundException('Medical record not found or not authorized');
+    }
+    // Update fields
+    record.category = dto.category ?? record.category;
+    record.notes = dto.notes ?? record.notes;
+    record.doctorName = dto.doctorName ?? record.doctorName;
+    record.hospitalName = dto.hospitalName ?? record.hospitalName;
+    record.recordDate = dto.recordDate ?? record.recordDate;
+    const saved = await this.recordRepo.save(record);
+    return saved;
+  }
 }
