@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Upload, Search, FolderOpen, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,7 +20,7 @@ type Toast = { id: number; message: string; type: 'success' | 'error' };
 
 export default function MedicalRecordsPage() {
   const authUser = getAuthUser();
-  const PERSON_ID = authUser?.sub || '';
+  const AUTHUSER_ID = authUser?.sub || '';
 
   const [records, setRecords] = useState<MedicalRecord[]>([]);
 
@@ -44,13 +44,21 @@ export default function MedicalRecordsPage() {
     return matchSearch && matchCategory;
   });
 
+  // Fetch records on mount
+  useEffect(() => {
+    if (!AUTHUSER_ID) return;
+    MedicalRecordsApi.getRecords(AUTHUSER_ID)
+      .then(setRecords)
+      .catch(() => showToast('Failed to fetch records', 'error'));
+  }, [AUTHUSER_ID, showToast]);
+
   const handleUpload = useCallback(async (
     file: File, category: RecordCategory, notes: string,
     doctorName: string, hospitalName: string, recordDate: string,
   ) => {
     try {
       const newRecord = await MedicalRecordsApi.uploadRecord(
-        PERSON_ID, file, category, notes, doctorName, hospitalName, recordDate,
+        AUTHUSER_ID, file, category, notes, doctorName, hospitalName, recordDate,
       );
       setRecords((prev) => [newRecord, ...prev]);
       showToast('Record added successfully', 'success');
@@ -60,31 +68,31 @@ export default function MedicalRecordsPage() {
         'error'
       );
     }
-  }, [showToast]);
+  }, [showToast, AUTHUSER_ID]);
 
   const handleEdit = useCallback(async (
     id: string,
     updates: { category: RecordCategory; notes: string; doctorName: string; hospitalName: string; recordDate: string },
   ) => {
-    const updated = await MedicalRecordsApi.updateRecord(PERSON_ID, id, updates);
+    const updated = await MedicalRecordsApi.updateRecord(AUTHUSER_ID, id, updates);
     setRecords((prev) => prev.map((r) => (r.id === id ? updated : r)));
     showToast('Record updated successfully', 'success');
-  }, [showToast]);
+  }, [showToast, AUTHUSER_ID]);
 
   const handleDelete = useCallback(async (id: string) => {
-    await MedicalRecordsApi.deleteRecord(PERSON_ID, id);
+    await MedicalRecordsApi.deleteRecord(AUTHUSER_ID, id);
     setRecords((prev) => prev.filter((r) => r.id !== id));
     showToast('Record deleted successfully', 'success');
-  }, [showToast]);
+  }, [showToast, AUTHUSER_ID]);
 
   const handleDownload = useCallback(async (record: MedicalRecord) => {
     try {
-      const url = await MedicalRecordsApi.getDownloadUrl(PERSON_ID, record.id);
+      const url = await MedicalRecordsApi.getDownloadUrl(AUTHUSER_ID, record.id);
       window.open(url, '_blank');
     } catch {
       showToast('Failed to get download URL', 'error');
     }
-  }, [showToast]);
+  }, [showToast, AUTHUSER_ID]);
 
   return (
     <div className="flex flex-col gap-6 w-full">
