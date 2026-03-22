@@ -25,7 +25,8 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  AuthMessageResponse,
+  AuthMessageDto,
+  ErrorResponseDto,
   LoginDto,
   RegisterDto,
   User
@@ -48,7 +49,7 @@ export const authControllerLogin = (
 ) => {
       
       
-      return authControllerLoginMutator<AuthMessageResponse>(
+      return authControllerLoginMutator<AuthMessageDto>(
       {url: `/api/auth/login`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: loginDto, signal
@@ -58,7 +59,7 @@ export const authControllerLogin = (
   
 
 
-export const getAuthControllerLoginMutationOptions = <TError = void,
+export const getAuthControllerLoginMutationOptions = <TError = ErrorResponseDto,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerLogin>>, TError,{data: LoginDto}, TContext>, }
 ): UseMutationOptions<Awaited<ReturnType<typeof authControllerLogin>>, TError,{data: LoginDto}, TContext> => {
 
@@ -87,12 +88,12 @@ const {mutation: mutationOptions} = options ?
 
     export type AuthControllerLoginMutationResult = NonNullable<Awaited<ReturnType<typeof authControllerLogin>>>
     export type AuthControllerLoginMutationBody = LoginDto
-    export type AuthControllerLoginMutationError = void
+    export type AuthControllerLoginMutationError = ErrorResponseDto
 
     /**
  * @summary Login with email and password
  */
-export const useAuthControllerLogin = <TError = void,
+export const useAuthControllerLogin = <TError = ErrorResponseDto,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerLogin>>, TError,{data: LoginDto}, TContext>, }
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof authControllerLogin>>,
@@ -111,7 +112,7 @@ export const authControllerRegister = (
 ) => {
       
       
-      return authControllerRegisterMutator<AuthMessageResponse>(
+      return authControllerRegisterMutator<AuthMessageDto>(
       {url: `/api/auth/register`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: registerDto, signal
@@ -174,7 +175,7 @@ export const authControllerLogout = (
 ) => {
       
       
-      return authControllerLogoutMutator<AuthMessageResponse>(
+      return authControllerLogoutMutator<AuthMessageDto>(
       {url: `/api/auth/logout`, method: 'POST', signal
     },
       );

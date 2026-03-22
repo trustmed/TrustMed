@@ -9,7 +9,6 @@ import { AuthModule } from './auth/auth.module';
 import { JwtCookieGuard } from './auth/jwt-cookie.guard';
 import { AuditModule } from './audit/audit.module';
 import { MedicalRecordsModule } from './medical-records/medical-records.module';
-import { AccessModule } from './access/access.module';
 
 @Module({
   imports: [
@@ -23,7 +22,6 @@ import { AccessModule } from './access/access.module';
     ProfileModule,
     AuditModule,
     MedicalRecordsModule,
-    AccessModule,
   ],
   controllers: [],
   providers: [

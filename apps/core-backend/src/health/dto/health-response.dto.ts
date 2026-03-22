@@ -43,3 +43,36 @@ export class HealthResponseDto {
   })
   database?: DatabaseHealth;
 }
+
+class SubStatusDto {
+  @ApiProperty({ enum: ['UP', 'DOWN', 'DEGRADED'], example: 'UP' })
+  status: string;
+
+  @ApiProperty({ example: 'Org1MSP', required: false })
+  mspId?: string;
+
+  @ApiProperty({ example: '2026-03-22T05:30:41.076Z', required: false })
+  timestamp?: string;
+
+  @ApiProperty({ example: 'PEER_UNREACHABLE', required: false })
+  details?: string;
+}
+
+class NetworkStatusDto extends SubStatusDto {
+  @ApiProperty({ example: 'mychannel' })
+  channel: string;
+
+  @ApiProperty({ example: 'trustmed' })
+  chaincode: string;
+}
+
+export class BlockchainHealthResponseDto {
+  @ApiProperty({ enum: ['OK', 'ERROR', 'DEGRADED'], example: 'OK' })
+  status: string;
+
+  @ApiProperty({ type: SubStatusDto })
+  gateway: SubStatusDto;
+
+  @ApiProperty({ type: NetworkStatusDto })
+  network: NetworkStatusDto;
+}

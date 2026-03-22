@@ -8,6 +8,7 @@ import {
   Network,
   Signer,
   signers,
+  GatewayError,
 } from "@hyperledger/fabric-gateway";
 import { promises as fs } from "node:fs";
 import * as path from "node:path";
@@ -72,30 +73,30 @@ export class BlockchainService implements OnModuleDestroy {
     return { mspId: FABRIC.mspId, credentials };
   }
 
-private async newSigner(): Promise<Signer> {
-  try {
-    // Check if the directory exists first
-    const files = await fs.readdir(FABRIC.keyDirPath);
-    
-    // Filter for the key file
-    const keyFile = files.find((f) => f.endsWith("_sk") || f === "priv_sk");
+  private async newSigner(): Promise<Signer> {
+    try {
+      // Check if the directory exists first
+      const files = await fs.readdir(FABRIC.keyDirPath);
 
-    if (!keyFile) {
-      throw new Error(
-        `No private key file found in ${FABRIC.keyDirPath}. Files present: ${files.length > 0 ? files.join(", ") : "None"}`
-      );
+      // Filter for the key file
+      const keyFile = files.find((f) => f.endsWith("_sk") || f === "priv_sk");
+
+      if (!keyFile) {
+        throw new Error(
+          `No private key file found in ${FABRIC.keyDirPath}. Files present: ${files.length > 0 ? files.join(", ") : "None"}`,
+        );
+      }
+
+      const keyPath = path.join(FABRIC.keyDirPath, keyFile);
+      const privateKeyPem = await fs.readFile(keyPath);
+      const privateKey: KeyObject = createPrivateKey(privateKeyPem);
+
+      return signers.newPrivateKeySigner(privateKey);
+    } catch (error) {
+      console.error(`[Fabric Service] newSigner error: ${error.message}`);
+      throw error;
     }
-
-    const keyPath = path.join(FABRIC.keyDirPath, keyFile);
-    const privateKeyPem = await fs.readFile(keyPath);
-    const privateKey: KeyObject = createPrivateKey(privateKeyPem);
-
-    return signers.newPrivateKeySigner(privateKey);
-  } catch (error) {
-    console.error(`[Fabric Service] newSigner error: ${error.message}`);
-    throw error;
   }
-}
 
   private async getContract(): Promise<Contract> {
     if (this.contract) return this.contract;
@@ -181,5 +182,65 @@ private async newSigner(): Promise<Signer> {
       console.error("Fabric readAccessRequest failed:", error);
       throw error;
     }
+  }
+
+  async checkHealth(): Promise<{ status: string; gateway: any; network: any }> {
+    // Initial state: We assume the Gateway code is running
+    const health = {
+      status: "OK",
+      gateway: {
+        status: "UP",
+        mspId: FABRIC.mspId,
+        timestamp: new Date().toISOString(),
+      },
+      network: {
+        status: "DOWN",
+        channel: FABRIC.channelName,
+        chaincode: FABRIC.chaincodeName,
+      },
+    };
+
+    try {
+      // handshake with the peer
+      const contract = await this.getContract();
+
+      // ping to verify the gRPC pipe and Chaincode availability
+      await contract.evaluateTransaction("AssetExists", "health-check-ping");
+
+      // if we reached here, network is UP
+      health.network.status = "UP";
+
+    } catch (error: any) {
+
+      const isNetworkIssue =
+        error.code === grpc.status.UNAVAILABLE ||
+        error.code === grpc.status.DEADLINE_EXCEEDED;
+
+      const isConfigIssue = error.code === "ENOENT" || error.code === "EACCES";
+      const isFabricLogicIssue = error instanceof GatewayError;
+
+      if (isConfigIssue) {
+        health.status = "ERROR";
+        health.gateway.status = "DOWN";
+        health.gateway["details"] =
+          `FILESYSTEM_FAILURE: ${error.path || "Check paths"}`;
+      } else if (isNetworkIssue) {
+        health.status = "DEGRADED";
+        health.network.status = "DOWN";
+        health.network["details"] =
+          "PEER_UNREACHABLE (Check Cloud Provider VCN/Security Lists)";
+      } else if (isFabricLogicIssue) {
+        health.status = "DEGRADED";
+        health.network.status = "DOWN";
+        health.network["details"] =
+          `FABRIC_REJECTED: ${error.details[0]?.message || error.message}`;
+      } else {
+        health.status = "ERROR";
+        health.gateway.status = "DOWN";
+        health.gateway["details"] = `INTERNAL_CRASH: ${error.message}`;
+      }
+    }
+
+    return health;
   }
 }
