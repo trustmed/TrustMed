@@ -6,60 +6,91 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ConfigService } from '@nestjs/config';
 import {
-  S3Client,
-  GetObjectCommand,
-  DeleteObjectCommand,
-} from '@aws-sdk/client-s3';
-import * as crypto from 'crypto';
-import { MedicalRecord } from '../entities/medical-record.entity';
-import { CryptoService } from '../s3-vault/crypto.service';
+  MedicalRecord,
+  RecordCategory,
+} from '../entities/medical-record.entity';
 import { ConsentService } from './consent.service';
 import { AuditService, AuditEventType } from '../audit/audit.service';
 import { RecordListItemDto } from './dto/record-list-item.dto';
+import { VaultClientService } from '../vault-client/vault-client.service';
 
 @Injectable()
 export class MedicalRecordsService {
   private readonly logger = new Logger(MedicalRecordsService.name);
-  private readonly s3Client: S3Client;
-  private readonly bucketName: string;
 
   constructor(
     @InjectRepository(MedicalRecord)
     private readonly medicalRecordRepo: Repository<MedicalRecord>,
-    private readonly cryptoService: CryptoService,
+    private readonly vaultClient: VaultClientService,
     private readonly consentService: ConsentService,
     private readonly auditService: AuditService,
-    private readonly configService: ConfigService,
-  ) {
-    const endpoint = this.configService.get<string>('S3_ENDPOINT');
-    const region = this.configService.get<string>('S3_REGION', 'us-east-1');
-    const accessKeyId = this.configService.get<string>('S3_ACCESS_KEY_ID', '');
-    const secretAccessKey = this.configService.get<string>(
-      'S3_SECRET_ACCESS_KEY',
-      '',
-    );
-    const forcePathStyle =
-      this.configService.get<string>('S3_FORCE_PATH_STYLE', 'true') === 'true';
+  ) {}
 
-    this.bucketName = this.configService.get<string>(
-      'S3_BUCKET_NAME',
-      'trustmed-vault',
+  async uploadRecord(
+    patientId: string,
+    uploaderId: string,
+    fileBuffer: Buffer,
+    fileName: string,
+    mimeType: string,
+    metadata: {
+      category?: RecordCategory;
+      notes?: string;
+      doctorName?: string;
+      hospitalName?: string;
+      recordDate?: Date;
+    },
+    ipAddress?: string,
+  ): Promise<{ savedRecord: MedicalRecord; medicalRecordId: string }> {
+    const vaultResult = await this.vaultClient.uploadFile(
+      fileBuffer,
+      fileName,
+      mimeType,
+      patientId,
+      uploaderId,
     );
 
-    this.s3Client = new S3Client({
-      endpoint,
-      region,
-      credentials: { accessKeyId, secretAccessKey },
-      forcePathStyle,
+    const record = this.medicalRecordRepo.create({
+      patientId,
+      uploaderId,
+      s3Uri: vaultResult.s3_uri,
+      documentHash: vaultResult.document_hash,
+      encryptedAesKey: vaultResult.encrypted_aes_key,
+      originalFileName: fileName,
+      mimeType,
+      fileSize: fileBuffer.length,
+      category: metadata.category ?? RecordCategory.OTHER,
+      notes: metadata.notes ?? null,
+      doctorName: metadata.doctorName ?? null,
+      hospitalName: metadata.hospitalName ?? null,
+      recordDate: metadata.recordDate ?? null,
     });
+
+    const savedRecord = await this.medicalRecordRepo.save(record);
+
+    this.logger.log(
+      `MedicalRecord saved via Vault — id: ${savedRecord.id}, hash: ${vaultResult.document_hash}`,
+    );
+
+    void this.auditService.log({
+      eventType: AuditEventType.RECORD_UPLOADED,
+      actorId: uploaderId,
+      targetResource: savedRecord.id,
+      ipAddress,
+      additionalData: {
+        patientId,
+        originalFileName: fileName,
+        mimeType,
+        fileSize: fileBuffer.length,
+      },
+    });
+
+    return {
+      savedRecord,
+      medicalRecordId: savedRecord.id,
+    };
   }
 
-  /**
-   * Returns all records where the user is the patient or the uploader.
-   * Keys and S3 URIs are **never** exposed.
-   */
   async listMyRecords(
     authUserId: string,
     ipAddress?: string,
@@ -105,13 +136,6 @@ export class MedicalRecordsService {
     return mappedRecords;
   }
 
-  /**
-   * Verifies consent, downloads the encrypted file from S3,
-   * decrypts it in memory, and returns the decrypted buffer + metadata.
-   *
-   * The AES key is unsealed (envelope decryption) only for the duration
-   * of the decryption and is never persisted or returned to the caller.
-   */
   async downloadRecord(
     recordId: string,
     requesterId: string,
@@ -121,7 +145,6 @@ export class MedicalRecordsService {
     originalFileName: string;
     mimeType: string;
   }> {
-    // 1. Load record
     const record = await this.medicalRecordRepo.findOne({
       where: { id: recordId },
     });
@@ -130,7 +153,6 @@ export class MedicalRecordsService {
       throw new NotFoundException('Medical record not found');
     }
 
-    // 2. Consent check
     const hasAccess = await this.consentService.verifyAccess(
       requesterId,
       record,
@@ -148,37 +170,13 @@ export class MedicalRecordsService {
       );
     }
 
-    // 3. Download encrypted blob from S3
-    const objectKey = record.s3Uri.replace(`s3://${this.bucketName}/`, '');
+    const objectKey = record.s3Uri.split('/').slice(3).join('/');
 
-    const s3Response = await this.s3Client.send(
-      new GetObjectCommand({
-        Bucket: this.bucketName,
-        Key: objectKey,
-      }),
+    const decryptedBuffer = await this.vaultClient.downloadFile(
+      objectKey,
+      record.encryptedAesKey,
     );
 
-    const encryptedPayload = Buffer.from(
-      await s3Response.Body!.transformToByteArray(),
-    );
-
-    // 4. Unseal the envelope-encrypted AES key
-    const aesKey = this.cryptoService.unseal(record.encryptedAesKey);
-
-    // 5. Decrypt: payload layout is iv(12) + authTag(16) + ciphertext
-    const iv = encryptedPayload.subarray(0, 12);
-    const authTag = encryptedPayload.subarray(12, 28);
-    const ciphertext = encryptedPayload.subarray(28);
-
-    const decipher = crypto.createDecipheriv('aes-256-gcm', aesKey, iv);
-    decipher.setAuthTag(authTag);
-
-    const decrypted = Buffer.concat([
-      decipher.update(ciphertext),
-      decipher.final(),
-    ]);
-
-    // 6. Audit the download
     void this.auditService.log({
       eventType: AuditEventType.RECORD_DOWNLOADED,
       actorId: requesterId,
@@ -191,19 +189,16 @@ export class MedicalRecordsService {
     });
 
     this.logger.log(
-      `Record ${recordId} decrypted and streamed to ${requesterId}`,
+      `Record ${recordId} decrypted via Vault and streamed to ${requesterId}`,
     );
 
     return {
-      buffer: decrypted,
+      buffer: decryptedBuffer,
       originalFileName: record.originalFileName,
       mimeType: record.mimeType,
     };
   }
 
-  /**
-   * Update record metadata.
-   */
   async updateRecord(
     recordId: string,
     authUserId: string,
@@ -228,7 +223,7 @@ export class MedicalRecordsService {
     const saved = await this.medicalRecordRepo.save(record);
 
     void this.auditService.log({
-      eventType: AuditEventType.RECORD_UPLOADED, // Reusing for now or add RECORD_UPDATED
+      eventType: AuditEventType.RECORD_UPLOADED,
       actorId: authUserId,
       targetResource: recordId,
       ipAddress,
@@ -246,9 +241,6 @@ export class MedicalRecordsService {
     };
   }
 
-  /**
-   * Delete a record.
-   */
   async deleteRecord(
     recordId: string,
     authUserId: string,
@@ -267,26 +259,21 @@ export class MedicalRecordsService {
       throw new ForbiddenException('Not authorized to delete this record');
     }
 
-    // 3. Delete from S3
     try {
-      const objectKey = record.s3Uri.replace(`s3://${this.bucketName}/`, '');
-      await this.s3Client.send(
-        new DeleteObjectCommand({
-          Bucket: this.bucketName,
-          Key: objectKey,
-        }),
-      );
-      this.logger.log(`Deleted S3 object: ${objectKey}`);
+      const objectKey = record.s3Uri.split('/').slice(3).join('/');
+      await this.vaultClient.deleteFile(objectKey);
+      this.logger.log(`Deleted file from vault: ${objectKey}`);
     } catch (err) {
-      // Log but don't fail the whole deletion if S3 fails (the object might be gone already)
-      this.logger.error(`Failed to delete S3 object: ${record.s3Uri}`, err);
+      this.logger.error(
+        `Failed to delete file from vault: ${record.s3Uri}`,
+        err,
+      );
     }
 
-    // 4. Remove from DB
     await this.medicalRecordRepo.remove(record);
 
     void this.auditService.log({
-      eventType: AuditEventType.RECORD_ACCESS_DENIED, // Reusing for now or add RECORD_DELETED
+      eventType: AuditEventType.RECORD_ACCESS_DENIED,
       actorId: authUserId,
       targetResource: recordId,
       ipAddress,

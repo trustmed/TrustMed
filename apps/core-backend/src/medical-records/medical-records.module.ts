@@ -5,10 +5,13 @@ import { AuthUser } from '../entities/auth-user.entity';
 import { MedicalRecordsController } from './medical-records.controller';
 import { MedicalRecordsService } from './medical-records.service';
 import { ConsentService } from './consent.service';
-import { S3VaultModule } from '../s3-vault/s3-vault.module';
+import { VaultClientModule } from '../vault-client/vault-client.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([MedicalRecord, AuthUser]), S3VaultModule],
+  imports: [
+    TypeOrmModule.forFeature([MedicalRecord, AuthUser]),
+    VaultClientModule,
+  ],
   controllers: [MedicalRecordsController],
   providers: [MedicalRecordsService, ConsentService],
   exports: [MedicalRecordsService],

@@ -8,6 +8,7 @@ import {
 import { Person } from '../entities/person.entity';
 import { CreateMedicalRecordRequestDto } from './dto/create-medical-record-request.dto';
 import { CreateMedicalRecordResponseDto } from './dto/create-medical-record-response.dto';
+import { VaultClientService } from '../vault-client/vault-client.service';
 
 @Injectable()
 export class MedicalRecordService {
@@ -16,42 +17,52 @@ export class MedicalRecordService {
     private readonly recordRepo: Repository<MedicalRecord>,
     @InjectRepository(Person)
     private readonly personRepo: Repository<Person>,
+    private readonly vaultClient: VaultClientService,
   ) {}
 
   async create(
     dto: CreateMedicalRecordRequestDto,
   ): Promise<CreateMedicalRecordResponseDto> {
     console.log('Creating medical record with DTO:', dto);
-    if (dto.file) {
-      console.log('Received file:', {
-        originalname: dto.file.originalname,
-        mimetype: dto.file.mimetype,
-        size: dto.file.size,
-      });
-    } else {
-      console.log('No file received in DTO.');
+
+    if (!dto.file) {
+      throw new Error('No file received in DTO.');
     }
+
     const person = await this.personRepo.findOneByOrFail({
       authUserId: dto.personId,
     });
-    // Map file properties to entity fields
-    const file = dto.file;
+
+    const vaultResult = await this.vaultClient.uploadFile(
+      dto.file.buffer,
+      dto.file.originalname,
+      dto.file.mimetype,
+      person.id,
+      person.authUserId,
+    );
+
     const record = this.recordRepo.create({
       person,
       patientId: person.id,
       uploaderId: person.authUserId,
-      fileName: file?.originalname,
-      fileType: file?.mimetype,
-      fileSize: file?.size ? Number(file.size) : 0,
-      // fileUrl should be set to the storage location; for now, set to empty or a placeholder
-      fileUrl: '',
+      fileName: dto.file.originalname,
+      fileType: dto.file.mimetype,
+      fileSize: dto.file.size ? Number(dto.file.size) : 0,
+
+      s3Uri: vaultResult.s3_uri,
+      documentHash: vaultResult.document_hash,
+      encryptedAesKey: vaultResult.encrypted_aes_key,
+      fileUrl: vaultResult.s3_uri, // Compatibility field
+
       category: dto.category as RecordCategory,
       notes: dto.notes,
       doctorName: dto.doctorName,
       hospitalName: dto.hospitalName,
       recordDate: dto.recordDate ? new Date(dto.recordDate) : undefined,
     });
+
     const saved = await this.recordRepo.save(record);
+
     return {
       id: saved.id,
       personId: saved.person?.id || person.id,

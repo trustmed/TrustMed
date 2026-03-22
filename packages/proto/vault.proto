@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package vault;
+
+service VaultService {
+  rpc UploadFile(UploadFileRequest) returns (UploadFileResponse);
+  rpc DownloadFile(DownloadFileRequest) returns (DownloadFileResponse);
+  rpc DeleteFile(DeleteFileRequest) returns (DeleteFileResponse);
+}
+
+message UploadFileRequest {
+  bytes content = 1;
+  string file_name = 2;
+  string mime_type = 3;
+  string patient_id = 4;
+  string uploader_id = 5;
+  UploadMetadata metadata = 6;
+}
+
+message UploadMetadata {
+  string category = 1;
+  string notes = 2;
+  string doctor_name = 3;
+  string hospital_name = 4;
+  string record_date = 5;
+}
+
+message UploadFileResponse {
+  string object_key = 1;
+  string s3_uri = 2;
+  string document_hash = 3;
+  string encrypted_aes_key = 4;
+}
+
+message DownloadFileRequest {
+  string object_key = 1;
+  string encrypted_aes_key = 2;
+}
+
+message DownloadFileResponse {
+  bytes content = 1;
+  string mime_type = 2;
+  string file_name = 3;
+}
+
+message DeleteFileRequest {
+  string object_key = 1;
+}
+
+message DeleteFileResponse {
+  bool success = 1;
+}

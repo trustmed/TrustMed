@@ -46,7 +46,7 @@ export const dataSourceOptions: DataSourceOptions = {
     InitialOracle1773847768524,
     CreateMedicalRecordTable1774144345789,
   ],
-  synchronize: false,
+  synchronize: process.env.NODE_ENV === 'development',
   logging: process.env.NODE_ENV === 'development',
 };
 
