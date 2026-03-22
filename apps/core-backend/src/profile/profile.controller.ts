@@ -21,7 +21,7 @@ import { Person } from '../entities/person.entity';
 @ApiCookieAuth()
 @Controller('profile')
 export class ProfileController {
-  constructor(private readonly profileService: ProfileService) { }
+  constructor(private readonly profileService: ProfileService) {}
 
   /**
    * GET /profile/me — returns the profile of the currently logged-in user.

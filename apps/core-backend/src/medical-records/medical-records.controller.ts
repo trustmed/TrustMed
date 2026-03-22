@@ -47,7 +47,7 @@ export class MedicalRecordsController {
     private readonly vaultClient: VaultClientService,
     @InjectRepository(AuthUser)
     private readonly authUserRepo: Repository<AuthUser>,
-  ) { }
+  ) {}
 
   /**
    * Resolves the Clerk user ID from the JWT payload to the internal
