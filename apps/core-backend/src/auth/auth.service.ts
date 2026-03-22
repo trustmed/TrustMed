@@ -80,15 +80,14 @@ export class AuthService {
       throw new InternalServerErrorException('Authentication failed');
     }
 
-    // 3. Issue backend JWT
-    const primaryEmail = user.emailAddresses.find(
-      (e) => e.id === user.primaryEmailAddressId,
-    );
+    // 3. Issue backend JWT with AuthUser details
     return this.signJwt({
-      sub: user.id,
-      email: primaryEmail?.emailAddress ?? email,
-      firstName: user.firstName,
-      lastName: user.lastName,
+      sub: registeredUser.id,
+      email: registeredUser.email,
+      firstName: registeredUser.firstName,
+      lastName: registeredUser.lastName,
+      isDemoDisabled: registeredUser.isDemoDisabled,
+      active: registeredUser.active,
     });
   }
 
@@ -132,12 +131,14 @@ export class AuthService {
         }),
       );
 
-      // 4. Issue backend JWT
+      // 4. Issue backend JWT with AuthUser details
       return this.signJwt({
-        sub: user.id,
-        email,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        sub: savedAuthUser.id,
+        email: savedAuthUser.email,
+        firstName: savedAuthUser.firstName,
+        lastName: savedAuthUser.lastName,
+        isDemoDisabled: savedAuthUser.isDemoDisabled,
+        active: savedAuthUser.active,
       });
     } catch (err: unknown) {
       const isClerkError =

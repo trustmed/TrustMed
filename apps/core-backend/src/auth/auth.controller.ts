@@ -38,7 +38,7 @@ const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN;
 const isDev = process.env.NODE_ENV === 'development';
 
 const COOKIE_OPTIONS: CookieOptions = {
-  httpOnly: true,
+  httpOnly: false,
   sameSite: isDev ? 'lax' : 'none',
   secure: !isDev,
   path: '/',
