@@ -8,6 +8,9 @@ import { ProfileModule } from './profile/profile.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtCookieGuard } from './auth/jwt-cookie.guard';
 import { MedicalRecordModule } from './medical-record/medical-record.module';
+import { AuditModule } from './audit/audit.module';
+import { S3VaultModule } from './s3-vault/s3-vault.module';
+import { AppointmentsModule } from './appointments/appointments.module';
 
 @Module({
   imports: [
@@ -20,6 +23,9 @@ import { MedicalRecordModule } from './medical-record/medical-record.module';
     HealthModule,
     ProfileModule,
     MedicalRecordModule,
+    AuditModule,
+    S3VaultModule,
+    AppointmentsModule,
   ],
   controllers: [],
   providers: [
@@ -29,4 +35,4 @@ import { MedicalRecordModule } from './medical-record/medical-record.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }

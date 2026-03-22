@@ -9,7 +9,11 @@ import {
   Delete,
   NotFoundException,
   Put,
+  Res,
+  ParseUUIDPipe,
+  Logger,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Express } from 'express';
 // import type { Multer } from 'multer';
@@ -22,11 +26,53 @@ import { MedicalRecordItemResponseDto } from './dto/medical-record-item-response
 import { UpdateMedicalRecordRequestDto } from './dto/update-medical-record-request.dto';
 import { DeleteMedicalRecordResponseDto } from './dto/delete-medical-record-response.dto';
 import { MedicalRecord } from '../entities/medical-record.entity';
+import { CurrentUser } from '../auth/current-user.decorator';
+import type { JwtPayload } from '../auth/jwt-payload.interface';
+import { ApiOperation, ApiParam } from '@nestjs/swagger';
 
 @ApiTags('medical-records')
 @Controller('medical-records')
 export class MedicalRecordController {
-  constructor(private readonly service: MedicalRecordService) {}
+  private readonly logger = new Logger(MedicalRecordController.name);
+
+  constructor(private readonly service: MedicalRecordService) { }
+
+  @Get(':recordId/download')
+  @ApiOperation({
+    summary: 'Download a decrypted medical record',
+  })
+  @ApiParam({
+    name: 'recordId',
+    description: 'UUID of the medical record',
+  })
+  async download(
+    @Param('recordId', new ParseUUIDPipe({ version: '4' })) recordId: string,
+    @CurrentUser() user: JwtPayload,
+    @Res() res: Response,
+  ): Promise<void> {
+    try {
+      const { buffer, originalFileName, mimeType } =
+        await this.service.downloadRecord(recordId, user.sub);
+
+      const sanitizedFileName = originalFileName.replace(/["\\]/g, '_');
+
+      res.attachment(sanitizedFileName);
+      res.setHeader('Content-Type', mimeType || 'application/octet-stream');
+      res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
+
+      res.send(buffer);
+    } catch (err: unknown) {
+      const error = err as { message?: string; status?: number };
+      this.logger.error(
+        `Download failed for record ${recordId}: ${error.message ?? 'Unknown error'}`,
+      );
+      const statusCode = error.status ?? 500;
+      res.status(statusCode).json({
+        statusCode: statusCode,
+        message: error.message ?? 'Internal server error during download',
+      });
+    }
+  }
 
   @ApiResponse({ status: 200, type: MedicalRecordItemResponseDto })
   @ApiBody({ type: UpdateMedicalRecordRequestDto })
@@ -43,16 +89,17 @@ export class MedicalRecordController {
     );
     return {
       id: updated.id,
-      personId: updated.person?.id,
-      fileName: updated.fileName,
-      fileUrl: updated.fileUrl,
-      fileType: updated.fileType,
-      fileSize: updated.fileSize,
-      category: updated.category,
-      notes: updated.notes,
-      doctorName: updated.doctorName,
-      hospitalName: updated.hospitalName,
-      recordDate: updated.recordDate,
+      personId: updated.person?.id || '',
+      fileName: updated.originalFileName || updated.fileName || '',
+      fileUrl: `/api/medical-records/${updated.id}/download`,
+      downloadUrl: `/api/medical-records/${updated.id}/download`,
+      fileType: updated.fileType || '',
+      fileSize: Number(updated.fileSize) || 0,
+      category: updated.category as string,
+      notes: updated.notes || undefined,
+      doctorName: updated.doctorName || undefined,
+      hospitalName: updated.hospitalName || undefined,
+      recordDate: updated.recordDate ? new Date(updated.recordDate).toISOString() : undefined,
       createdAt: updated.createdAt,
       updatedAt: updated.updatedAt,
     };
@@ -89,16 +136,17 @@ export class MedicalRecordController {
     return {
       records: records.map((rec: MedicalRecord) => ({
         id: rec.id,
-        personId: rec.person?.id,
-        fileName: rec.fileName,
-        fileUrl: rec.fileUrl,
-        fileType: rec.fileType,
-        fileSize: rec.fileSize,
-        category: rec.category,
-        notes: rec.notes,
-        doctorName: rec.doctorName,
-        hospitalName: rec.hospitalName,
-        recordDate: rec.recordDate,
+        personId: rec.person?.id || '',
+        fileName: rec.originalFileName || rec.fileName || '',
+        fileUrl: `/api/medical-records/${rec.id}/download`,
+        downloadUrl: `/api/medical-records/${rec.id}/download`,
+        fileType: rec.fileType || '',
+        fileSize: Number(rec.fileSize) || 0,
+        category: rec.category as string,
+        notes: rec.notes || undefined,
+        doctorName: rec.doctorName || undefined,
+        hospitalName: rec.hospitalName || undefined,
+        recordDate: rec.recordDate ? new Date(rec.recordDate).toISOString() : undefined,
         createdAt: rec.createdAt,
         updatedAt: rec.updatedAt,
       })),
@@ -118,16 +166,17 @@ export class MedicalRecordController {
     if (!rec) throw new NotFoundException('Medical record not found');
     return {
       id: rec.id,
-      personId: rec.person?.id,
-      fileName: rec.fileName,
-      fileUrl: rec.fileUrl,
-      fileType: rec.fileType,
-      fileSize: rec.fileSize,
-      category: rec.category,
-      notes: rec.notes,
-      doctorName: rec.doctorName,
-      hospitalName: rec.hospitalName,
-      recordDate: rec.recordDate,
+      personId: rec.person?.id || '',
+      fileName: rec.originalFileName || rec.fileName || '',
+      fileUrl: `/api/medical-records/${rec.id}/download`,
+      downloadUrl: `/api/medical-records/${rec.id}/download`,
+      fileType: rec.fileType || '',
+      fileSize: Number(rec.fileSize) || 0,
+      category: rec.category as string,
+      notes: rec.notes || undefined,
+      doctorName: rec.doctorName || undefined,
+      hospitalName: rec.hospitalName || undefined,
+      recordDate: rec.recordDate ? new Date(rec.recordDate).toISOString() : undefined,
       createdAt: rec.createdAt,
       updatedAt: rec.updatedAt,
     };
