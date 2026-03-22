@@ -2,28 +2,18 @@ import {
   Controller,
   Post,
   Body,
-  Get,
   Res,
   HttpCode,
   HttpStatus,
-  UnauthorizedException,
 } from '@nestjs/common';
 import type { Response, CookieOptions } from 'express';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiBody,
-  ApiResponse,
-  ApiCookieAuth,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { Public } from './public.decorator';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { AuthMessageDto } from './dto/auth-message.dto';
 import { ErrorResponseDto } from './dto/error-response.dto';
-import { CurrentUser } from './current-user.decorator';
-import type { JwtPayload } from './jwt-payload.interface';
 
 /** Parse JWT_EXPIRES_IN (e.g. "7d", "24h", "60m") into milliseconds. */
 function parseExpiry(value: string | undefined): number {
@@ -45,7 +35,7 @@ function parseExpiry(value: string | undefined): number {
 const COOKIE_NAME = 'access_token';
 const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN;
 
-const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
+const isDev = process.env.NODE_ENV === 'development';
 
 const COOKIE_OPTIONS: CookieOptions = {
   httpOnly: false,
@@ -124,19 +114,5 @@ export class AuthController {
   logout(@Res({ passthrough: true }) res: Response): AuthMessageDto {
     res.clearCookie(COOKIE_NAME, COOKIE_OPTIONS);
     return { message: 'Logout successful' };
-  }
-
-  @Get('me')
-  @ApiCookieAuth()
-  @ApiOperation({ summary: 'Get current authenticated user profile' })
-  @ApiResponse({
-    status: 200,
-    description: 'User profile retrieved',
-  })
-  async getMe(@CurrentUser() user: JwtPayload) {
-    if (!user) {
-      throw new UnauthorizedException('Unauthorized');
-    }
-    return this.authService.getMe(user);
   }
 }
