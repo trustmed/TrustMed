@@ -4,6 +4,7 @@ import { Sidebar, SidebarBody, SidebarLink, useSidebar } from "@/components/ui/s
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { ThemeToggle } from "@/components/portal/theme-toggle";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -46,13 +47,14 @@ export function SidebarNav({ children, links, userProfile }: Readonly<SidebarNav
   const handleLogout = () => logout();
 
   return (
-    <div className="fixed inset-0 flex flex-col md:flex-row bg-slate-50 dark:bg-neutral-900 w-full overflow-hidden">
+    <div className="fixed inset-0 flex flex-col md:flex-row bg-[#F8FAFC] dark:bg-neutral-900 w-full overflow-hidden">
       <Sidebar open={open} setOpen={setOpen}>
-        <SidebarBody className="justify-between gap-10">
+        <SidebarBody className="flex flex-col gap-0 pb-6">
+          {/* ── TOP: scrollable nav area ── */}
           <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-            {/* Header row: logo (when open) + always-visible toggle button */}
+            {/* Header row: more top breathing room */}
             <div className={cn(
-              "flex items-center",
+              "flex items-center pt-2",
               open ? "justify-between" : "justify-center"
             )}>
               {open && <Logo />}
@@ -72,15 +74,21 @@ export function SidebarNav({ children, links, userProfile }: Readonly<SidebarNav
             </div>
 
             {/* Nav links */}
-            <div className="mt-8 flex flex-col gap-2">
+            <div className="mt-8 flex flex-col gap-1.5">
               {links.map((link) => (
                 <SidebarLink key={link.href} link={link} />
               ))}
             </div>
           </div>
 
-          {/* User profile at bottom */}
-          <div>
+          {/* ── BOTTOM: anchored utilities ── */}
+          <div className="flex flex-col gap-0">
+            {/* Theme switcher — sits above the profile with 24px gap below */}
+            <div className="mb-6">
+              <ThemeToggle />
+            </div>
+
+            {/* User profile — no divider, whitespace creates separation */}
             <Popover>
               <PopoverTrigger asChild>
                 <div className="w-full cursor-pointer">
@@ -115,17 +123,25 @@ export function SidebarNav({ children, links, userProfile }: Readonly<SidebarNav
 const UserProfileTrigger = ({ link }: { link: UserProfile }) => {
   const { open, animate } = useSidebar();
   return (
-    <div className="flex items-center justify-start gap-2 group/sidebar py-2">
-      {link.icon}
-      <motion.span
+    <div className="flex items-center justify-start gap-3 group/sidebar py-2 px-1 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer">
+      {/* Avatar — ring-slate-100 gives a seated, floated look */}
+      <div className="shrink-0 ring-2 ring-slate-100 dark:ring-neutral-800 rounded-full">
+        {link.icon}
+      </div>
+      <motion.div
         animate={{
-          display: animate ? (open ? "inline-block" : "none") : "inline-block",
+          display: animate ? (open ? "flex" : "none") : "flex",
           opacity: animate ? (open ? 1 : 0) : 1,
         }}
-        className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block p-0! m-0!"
+        className="flex flex-col min-w-0"
       >
-        {link.label}
-      </motion.span>
+        <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 truncate">
+          {link.label}
+        </span>
+        <span className="text-[10px] text-neutral-400 tracking-wide">
+          Patient
+        </span>
+      </motion.div>
     </div>
   );
 };
