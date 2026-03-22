@@ -53,7 +53,4 @@ pids
 *.pid.lock
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
-
-# Public uploads
-/public/uploads
-
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
