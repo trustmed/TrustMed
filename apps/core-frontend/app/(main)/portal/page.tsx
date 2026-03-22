@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { CalendarClock, FolderHeart, FileText, UserCog, Loader2, Lightbulb } from "lucide-react";
-import { useAuthControllerGetMe } from "@/services/api/auth/auth";
-import { ProfileApi } from "@/lib/api/profile";
-import { MedicalRecordsApi } from "@/lib/api/medical-records";
+import { useState } from "react";
+import { CalendarClock, FolderHeart, FileText, UserCog, Lightbulb } from "lucide-react";
 import { SEED_APPOINTMENTS } from "@/lib/appointments/seed-data";
 import type { MedicalRecord } from "@/types/medical-records";
+import { useMedicalRecordControllerGetAllByAuthUserId } from "@/services/api/medical-records/medical-records";
+import { getAuthUser } from "@/utils/auth";
 
 import { StatCard } from "@/components/dashboard/stat-card";
 import { UpcomingAppointments } from "@/components/dashboard/upcoming-appointments";
@@ -30,41 +29,33 @@ function getGreeting(): string {
 }
 
 export default function DashboardPage() {
-  const { data: user, isLoading: userLoading } = useAuthControllerGetMe();
-  const [records, setRecords] = useState<MedicalRecord[]>([]);
-  const [recordsLoading, setRecordsLoading] = useState(true);
+
+  // const { data: user, isLoading: userLoading } = useAuthControllerGetMe();
   const [tipIndex] = useState(() => Math.floor(Math.random() * HEALTH_TIPS.length));
+
+  const authUser = getAuthUser();
+  const AUTHUSER_ID = authUser?.sub || '';
+
+  const { data: recordsData, isLoading: recordsLoading } = useMedicalRecordControllerGetAllByAuthUserId(AUTHUSER_ID, {
+    query: {
+      enabled: !!AUTHUSER_ID,
+    }
+  });
+  const records = (recordsData?.records as MedicalRecord[]) || [];
 
   const appointments = SEED_APPOINTMENTS;
   const upcomingCount = appointments.filter((a) => a.status !== "cancelled").length;
   const pendingCount = appointments.filter((a) => a.status === "pending").length;
 
-  const loadRecords = useCallback(async () => {
-    if (!user?.email) return;
-    try {
-      const profile = await ProfileApi.getProfileByEmail(user.email);
-      const data = await MedicalRecordsApi.getRecords(profile.id);
-      setRecords(data);
-    } catch {
-      // Records may not load if profile doesn't exist yet
-    } finally {
-      setRecordsLoading(false);
-    }
-  }, [user?.email]);
+  const firstName = authUser?.firstName ?? authUser?.email?.split("@")[0];
 
-  useEffect(() => {
-    loadRecords();
-  }, [loadRecords]);
-
-  const firstName = user?.firstName ?? user?.email?.split("@")[0];
-
-  if (userLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-6 w-6 animate-spin text-neutral-400" />
-      </div>
-    );
-  }
+  // if (userLoading) {
+  //   return (
+  //     <div className="flex items-center justify-center h-64">
+  //       <Loader2 className="h-6 w-6 animate-spin text-neutral-400" />
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-6xl mx-auto pb-8">
@@ -107,7 +98,7 @@ export default function DashboardPage() {
         <StatCard
           icon={<UserCog className="h-5 w-5" />}
           label="Profile"
-          value={user?.firstName && user?.lastName ? "100%" : "60%"}
+          value={authUser?.firstName && authUser?.lastName ? "100%" : "60%"}
           description="Profile completion"
           accent="rose"
         />
