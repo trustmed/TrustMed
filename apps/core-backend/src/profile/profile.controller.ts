@@ -9,7 +9,7 @@ import {
   Req,
 } from '@nestjs/common';
 import type { Request } from 'express';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiCookieAuth } from '@nestjs/swagger';
 import { ProfileService } from './profile.service';
 import { MedicalProfile } from '../entities/medical-profile.entity';
 import { Allergy } from '../entities/allergy.entity';
@@ -18,9 +18,10 @@ import { EmergencyContact } from '../entities/emergency-contact.entity';
 import { Person } from '../entities/person.entity';
 
 @ApiTags('profile')
+@ApiCookieAuth()
 @Controller('profile')
 export class ProfileController {
-  constructor(private readonly profileService: ProfileService) {}
+  constructor(private readonly profileService: ProfileService) { }
 
   /**
    * GET /profile/me — returns the profile of the currently logged-in user.

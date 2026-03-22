@@ -90,12 +90,13 @@ export class AuthService {
 
     // 3. Issue backend JWT with AuthUser details
     return this.signJwt({
-      sub: registeredUser.id,
+      sub: registeredUser.clerkUserId,
       email: registeredUser.email,
       firstName: registeredUser.firstName,
       lastName: registeredUser.lastName,
       isDemoDisabled: registeredUser.isDemoDisabled,
       active: registeredUser.active,
+      id: registeredUser.id,
     });
   }
 
@@ -145,12 +146,13 @@ export class AuthService {
 
       // 4. Issue backend JWT with AuthUser details
       return this.signJwt({
-        sub: savedAuthUser.id,
+        sub: savedAuthUser.clerkUserId,
         email: savedAuthUser.email,
         firstName: savedAuthUser.firstName,
         lastName: savedAuthUser.lastName,
         isDemoDisabled: savedAuthUser.isDemoDisabled,
         active: savedAuthUser.active,
+        id: savedAuthUser.id,
       });
     } catch (err: unknown) {
       // Cleanup Clerk if DB persistence failed

@@ -21,6 +21,7 @@ import {
   ApiParam,
   ApiConsumes,
   ApiBody,
+  ApiCookieAuth,
 } from '@nestjs/swagger';
 import { memoryStorage } from 'multer';
 import type { Request, Response } from 'express';
@@ -31,22 +32,22 @@ import { RecordListItemDto } from './dto/record-list-item.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuthUser } from '../entities/auth-user.entity';
-import { S3VaultService } from '../s3-vault/s3-vault.service';
-import { FileValidationPipe } from '../s3-vault/file-validation.pipe';
+import { VaultClientService } from '../vault-client/vault-client.service';
 import {
   RecordCategory,
   MedicalRecord,
 } from '../entities/medical-record.entity';
 
 @ApiTags('medical-records')
+@ApiCookieAuth()
 @Controller('medical-records')
 export class MedicalRecordsController {
   constructor(
     private readonly medicalRecordsService: MedicalRecordsService,
-    private readonly s3VaultService: S3VaultService,
+    private readonly vaultClient: VaultClientService,
     @InjectRepository(AuthUser)
     private readonly authUserRepo: Repository<AuthUser>,
-  ) {}
+  ) { }
 
   /**
    * Resolves the Clerk user ID from the JWT payload to the internal
@@ -64,7 +65,6 @@ export class MedicalRecordsController {
 
   /**
    * List all medical records belonging to the authenticated user.
-   * Returns metadata only — keys and S3 URIs are never exposed.
    */
   @Get('me')
   @ApiOperation({ summary: 'List my medical records (metadata only)' })
@@ -85,7 +85,6 @@ export class MedicalRecordsController {
 
   /**
    * List all medical records for a specific person ID.
-   * Path param `id` is the personId.
    */
   @Get(':id')
   @ApiOperation({ summary: 'List medical records for a person' })
@@ -93,7 +92,6 @@ export class MedicalRecordsController {
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Req() req: Request,
   ): Promise<RecordListItemDto[]> {
-    // Note: In a real system, we'd check if the CurrentUser has permission to view this person's records.
     const protocol = req.protocol;
     const host = req.get('host');
     const baseUrl = `${protocol}://${host}`;
@@ -102,7 +100,6 @@ export class MedicalRecordsController {
 
   /**
    * Decrypt and download a medical record.
-   * Verifies consent (owner / authorized party) before streaming.
    */
   @Get(':id/download')
   @ApiOperation({
@@ -134,7 +131,6 @@ export class MedicalRecordsController {
 
   /**
    * Accepts a multipart/form-data upload for a specific patient.
-   * Path param `id` is the patientId.
    */
   @Post(':id/upload')
   @UseInterceptors(
@@ -154,37 +150,19 @@ export class MedicalRecordsController {
         file: {
           type: 'string',
           format: 'binary',
-          description: 'Medical record file (e.g. PDF, JPG)',
         },
-        category: {
-          type: 'string',
-          enum: Object.values(RecordCategory),
-          description: 'Category of the medical record',
-        },
-        notes: {
-          type: 'string',
-          description: 'Optional notes',
-        },
-        doctorName: {
-          type: 'string',
-          description: 'Issuing doctor',
-        },
-        hospitalName: {
-          type: 'string',
-          description: 'Issuing hospital',
-        },
-        recordDate: {
-          type: 'string',
-          format: 'date',
-          description: 'Date of the record',
-        },
+        category: { type: 'string', enum: Object.values(RecordCategory) },
+        notes: { type: 'string' },
+        doctorName: { type: 'string' },
+        hospitalName: { type: 'string' },
+        recordDate: { type: 'string', format: 'date' },
       },
       required: ['file'],
     },
   })
   async uploadFile(
     @Param('id', new ParseUUIDPipe({ version: '4' })) patientId: string,
-    @UploadedFile(new FileValidationPipe()) file: Express.Multer.File,
+    @UploadedFile() file: Express.Multer.File,
     @CurrentUser() user: JwtPayload,
     @Req() req: Request,
     @Body('category') category?: RecordCategory,
@@ -196,12 +174,12 @@ export class MedicalRecordsController {
     const uploaderId = await this.resolveAuthUserId(user.sub);
     const recordDate = recordDateStr ? new Date(recordDateStr) : undefined;
 
-    const result = await this.s3VaultService.uploadEncryptedFile(
+    const result = await this.medicalRecordsService.uploadRecord(
+      patientId,
+      uploaderId,
       file.buffer,
       file.originalname,
       file.mimetype,
-      patientId,
-      uploaderId,
       {
         category,
         notes,
@@ -220,7 +198,7 @@ export class MedicalRecordsController {
       fileUrl: `${req.protocol}://${req.get(
         'host',
       )}/api/medical-records/${result.medicalRecordId}/download`,
-      message: 'Medical record uploaded and encrypted successfully',
+      message: 'Medical record uploaded and encrypted successfully via Vault',
     } as unknown as RecordListItemDto & { message: string };
   }
 
