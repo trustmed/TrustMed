@@ -25,26 +25,26 @@ export class MedicalRecord extends BaseEntity {
   person?: Person;
 
   /** UUID of the patient this record belongs to. */
-  @Column({ type: 'uuid' })
+  @Column({ name: 'patientId', type: 'uuid' })
   patientId: string;
 
   /** UUID of the user (AuthUser.id) who uploaded the record. */
-  @Column({ type: 'uuid' })
+  @Column({ name: 'uploaderId', type: 'uuid' })
   uploaderId: string;
 
   /** Full S3 URI (e.g. `s3://bucket/encrypted/uuid-filename.pdf`). */
-  @Column({ type: 'text', nullable: true })
+  @Column({ name: 's3Uri', type: 'text', nullable: true })
   s3Uri: string;
 
   /** SHA-256 hex digest of the **raw** (unencrypted) file. */
-  @Column({ type: 'text', nullable: true })
+  @Column({ name: 'documentHash', type: 'text', nullable: true })
   documentHash: string;
 
   /**
    * Envelope-encrypted AES-256-GCM key.
    * Format: `iv_hex:authTag_hex:ciphertext_hex` (sealed by CryptoService).
    */
-  @Column({ type: 'text', nullable: true })
+  @Column({ name: 'encryptedAesKey', type: 'text', nullable: true })
   encryptedAesKey: string;
 
   /** Original file name as provided by the uploader. */

@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class VaultImplementation1774160567479 implements MigrationInterface {
-    name = 'VaultImplementation1774160567479'
+export class VaultImplementation1774164147408 implements MigrationInterface {
+    name = 'VaultImplementation1774164147408'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`ALTER TABLE "medical_records" ADD "patientId" uuid NOT NULL`);

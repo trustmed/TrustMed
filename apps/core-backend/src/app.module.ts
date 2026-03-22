@@ -10,7 +10,6 @@ import { JwtCookieGuard } from './auth/jwt-cookie.guard';
 import { AuditModule } from './audit/audit.module';
 import { MedicalRecordsModule } from './medical-records/medical-records.module';
 import { AccessModule } from './access/access.module';
-import { MedicalRecordModule } from './medical-record/medical-record.module';
 
 @Module({
   imports: [
@@ -25,7 +24,6 @@ import { MedicalRecordModule } from './medical-record/medical-record.module';
     AuditModule,
     MedicalRecordsModule,
     AccessModule,
-    MedicalRecordModule,
   ],
   controllers: [],
   providers: [
@@ -35,4 +33,4 @@ import { MedicalRecordModule } from './medical-record/medical-record.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }
