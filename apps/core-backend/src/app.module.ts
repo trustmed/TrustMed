@@ -9,6 +9,8 @@ import { AuthModule } from './auth/auth.module';
 import { JwtCookieGuard } from './auth/jwt-cookie.guard';
 import { AccessModule } from './access/access.module';
 import { MedicalRecordModule } from './medical-record/medical-record.module';
+import { AuditModule } from './audit/audit.module';
+import { S3VaultModule } from './s3-vault/s3-vault.module';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { MedicalRecordModule } from './medical-record/medical-record.module';
     ProfileModule,
     AccessModule,
     MedicalRecordModule,
+    AuditModule,
+    S3VaultModule,
   ],
   controllers: [],
   providers: [
@@ -31,4 +35,4 @@ import { MedicalRecordModule } from './medical-record/medical-record.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }

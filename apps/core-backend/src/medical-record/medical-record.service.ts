@@ -1,64 +1,89 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MedicalRecord } from '../entities/medical-record.entity';
 import { Person } from '../entities/person.entity';
 import { CreateMedicalRecordRequestDto } from './dto/create-medical-record-request.dto';
 import { CreateMedicalRecordResponseDto } from './dto/create-medical-record-response.dto';
+import { S3VaultService } from '../s3-vault/s3-vault.service';
 
 @Injectable()
 export class MedicalRecordService {
+  private readonly logger = new Logger(MedicalRecordService.name);
+
   constructor(
     @InjectRepository(MedicalRecord)
     private readonly recordRepo: Repository<MedicalRecord>,
     @InjectRepository(Person)
     private readonly personRepo: Repository<Person>,
-  ) {}
+    private readonly s3VaultService: S3VaultService,
+  ) { }
 
   async create(
     dto: CreateMedicalRecordRequestDto,
   ): Promise<CreateMedicalRecordResponseDto> {
-    console.log('Creating medical record with DTO:', dto);
-    if (dto.file) {
-      console.log('Received file:', {
-        originalname: dto.file.originalname,
-        mimetype: dto.file.mimetype,
-        size: dto.file.size,
-      });
-    } else {
-      console.log('No file received in DTO.');
-    }
     const person = await this.personRepo.findOneByOrFail({
       authUserId: dto.personId,
     });
-    // Map file properties to entity fields
-    const file = dto.file;
+
+    if (dto.file) {
+      const result = await this.s3VaultService.uploadEncryptedFile(
+        dto.file.buffer,
+        dto.file.originalname,
+        dto.file.mimetype,
+        person.id, // patientId as UUID
+        person.id, // uploaderId as UUID (assuming self-upload for now)
+        {
+          category: dto.category as any,
+          notes: dto.notes,
+          doctorName: dto.doctorName,
+          hospitalName: dto.hospitalName,
+          recordDate: dto.recordDate ? new Date(dto.recordDate) : undefined,
+        },
+      );
+
+      const saved = result.savedRecord;
+      return {
+        id: saved.id,
+        personId: saved.person?.id || person.id,
+        fileName: saved.originalFileName || saved.fileName || '',
+        fileUrl: saved.s3Uri || '',
+        fileType: saved.mimeType || saved.fileType || '',
+        fileSize: Number(saved.fileSize) || 0,
+        category: saved.category as string,
+        notes: saved.notes || undefined,
+        doctorName: saved.doctorName || undefined,
+        hospitalName: saved.hospitalName || undefined,
+        recordDate: saved.recordDate ? new Date(saved.recordDate).toISOString() : undefined,
+        createdAt: saved.createdAt,
+        updatedAt: saved.updatedAt,
+      };
+    }
+
+    // Fallback for metadata-only records if ever supported
     const record = this.recordRepo.create({
       person,
-      fileName: file?.originalname,
-      fileType: file?.mimetype,
-      fileSize: file?.size,
-      // fileUrl should be set to the storage location; for now, set to empty or a placeholder
-      fileUrl: '',
-      category: dto.category,
+      patientId: person.id,
+      uploaderId: person.id,
+      category: dto.category as any,
       notes: dto.notes,
       doctorName: dto.doctorName,
       hospitalName: dto.hospitalName,
-      recordDate: dto.recordDate,
+      recordDate: dto.recordDate ? new Date(dto.recordDate) : null,
     });
-    const saved = await this.recordRepo.save(record);
+    const saved = (await this.recordRepo.save(record)) as unknown as MedicalRecord;
     return {
       id: saved.id,
-      personId: saved.person.id,
-      fileName: saved.fileName,
-      fileUrl: saved.fileUrl,
-      fileType: saved.fileType,
-      fileSize: saved.fileSize,
-      category: saved.category,
-      notes: saved.notes,
-      doctorName: saved.doctorName,
-      hospitalName: saved.hospitalName,
-      recordDate: saved.recordDate,
+      personId: saved.person?.id || person.id,
+      fileName: '',
+      fileUrl: '',
+      fileType: '',
+      fileSize: 0,
+      category: saved.category as string,
+      notes: saved.notes || undefined,
+      doctorName: saved.doctorName || undefined,
+      hospitalName: saved.hospitalName || undefined,
+      recordDate: saved.recordDate ? new Date(saved.recordDate).toISOString() : undefined,
       createdAt: saved.createdAt,
       updatedAt: saved.updatedAt,
     };
@@ -122,12 +147,42 @@ export class MedicalRecordService {
       throw new NotFoundException('Medical record not found or not authorized');
     }
     // Update fields
-    record.category = dto.category ?? record.category;
+    if (dto.category) {
+      record.category = dto.category as any;
+    }
     record.notes = dto.notes ?? record.notes;
     record.doctorName = dto.doctorName ?? record.doctorName;
     record.hospitalName = dto.hospitalName ?? record.hospitalName;
-    record.recordDate = dto.recordDate ?? record.recordDate;
+    if (dto.recordDate) {
+      record.recordDate = new Date(dto.recordDate);
+    }
     const saved = await this.recordRepo.save(record);
     return saved;
+  }
+
+  /**
+   * Fetches the record, verifies authorization, and returns the decrypted buffer.
+   */
+  async downloadRecord(
+    recordId: string,
+    authUserId: string,
+  ): Promise<{ buffer: Buffer; originalFileName: string; mimeType: string }> {
+    const person = await this.personRepo.findOne({
+      where: { authUserId: authUserId },
+    });
+    if (!person) {
+      throw new NotFoundException('User profile not found');
+    }
+
+    const record = await this.recordRepo.findOne({
+      where: { id: recordId, person: { id: person.id } },
+    });
+
+    if (!record) {
+      throw new NotFoundException('Medical record not found or not authorized');
+    }
+
+    const { buffer, fileName, mimeType } = await this.s3VaultService.getDecryptedBuffer(recordId);
+    return { buffer, originalFileName: fileName, mimeType };
   }
 }
