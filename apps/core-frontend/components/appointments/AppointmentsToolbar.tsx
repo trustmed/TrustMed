@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import type { AppointmentStatus } from "@/lib/appointments/types";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -13,7 +12,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Filter, Plus, Search } from "lucide-react";
+import { Plus, Search, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type AppointmentStatusFilter = AppointmentStatus | "all";
@@ -34,37 +33,56 @@ export function AppointmentsToolbar({
     statusFilter,
     onStatusFilterChange,
     className,
-}: AppointmentsToolbarProps) {
+}: Readonly<AppointmentsToolbarProps>) {
     const [filterOpen, setFilterOpen] = useState(false);
     const filterActive = statusFilter !== "all";
 
     return (
         <div
             className={cn(
-                "flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4",
+                "flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between",
                 className
             )}
         >
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:flex-1 sm:min-w-0 sm:gap-3">
+            {/* Search + Filter group */}
+            <div className="flex flex-1 items-center gap-2 sm:max-w-md">
+                <div className="relative flex-1">
+                    <Search
+                        className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-neutral-400"
+                        aria-hidden
+                    />
+                    <Input
+                        type="search"
+                        value={searchQuery}
+                        onChange={(e) => onSearchChange(e.target.value)}
+                        placeholder="Search appointments..."
+                        className="h-9 rounded-lg border-neutral-200 bg-neutral-50 pl-8 text-sm shadow-none placeholder:text-neutral-400 focus-visible:border-neutral-400 focus-visible:bg-white dark:border-neutral-700 dark:bg-neutral-800/50"
+                        aria-label="Search appointments"
+                    />
+                </div>
+
                 <Popover open={filterOpen} onOpenChange={setFilterOpen}>
                     <PopoverTrigger asChild>
-                        <Button
+                        <button
                             type="button"
-                            variant="outline"
                             className={cn(
-                                "h-10 shrink-0 justify-center gap-2 rounded-md border-border bg-background px-4 font-medium text-foreground shadow-none hover:bg-muted/60",
-                                filterActive && "border-primary ring-1 ring-primary/30"
+                                "flex h-9 items-center gap-1.5 rounded-lg border border-neutral-200 bg-neutral-50 px-3 text-sm font-medium text-neutral-600 transition-colors hover:bg-white dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-neutral-300",
+                                filterActive && "border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-400"
                             )}
                             aria-expanded={filterOpen}
-                            aria-haspopup="dialog"
                         >
-                            <Filter className="h-4 w-4" aria-hidden />
+                            <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden />
                             Filter
-                        </Button>
+                            {filterActive && (
+                                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-indigo-600 text-[9px] font-bold text-white">
+                                    1
+                                </span>
+                            )}
+                        </button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-72" align="start">
+                    <PopoverContent className="w-56 p-3" align="start" sideOffset={6}>
                         <div className="space-y-2">
-                            <Label htmlFor="appointments-status-filter">Status</Label>
+                            <Label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Status</Label>
                             <Select
                                 value={statusFilter}
                                 onValueChange={(v) => {
@@ -72,10 +90,7 @@ export function AppointmentsToolbar({
                                     setFilterOpen(false);
                                 }}
                             >
-                                <SelectTrigger
-                                    id="appointments-status-filter"
-                                    className="h-10 w-full shadow-none"
-                                >
+                                <SelectTrigger className="h-9 w-full text-sm shadow-none">
                                     <SelectValue placeholder="All statuses" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -85,34 +100,29 @@ export function AppointmentsToolbar({
                                     <SelectItem value="cancelled">Cancelled</SelectItem>
                                 </SelectContent>
                             </Select>
+                            {filterActive && (
+                                <button
+                                    type="button"
+                                    className="w-full rounded-md py-1 text-xs text-neutral-500 hover:text-neutral-700 transition-colors"
+                                    onClick={() => { onStatusFilterChange("all"); setFilterOpen(false); }}
+                                >
+                                    Clear filter
+                                </button>
+                            )}
                         </div>
                     </PopoverContent>
                 </Popover>
-
-                <div className="relative w-full sm:max-w-xl sm:flex-1">
-                    <Search
-                        className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-                        aria-hidden
-                    />
-                    <Input
-                        type="search"
-                        value={searchQuery}
-                        onChange={(e) => onSearchChange(e.target.value)}
-                        placeholder="Search by number, doctor, type, location, date..."
-                        className="h-10 w-full rounded-md border-border pl-9 shadow-none"
-                        aria-label="Search appointments"
-                    />
-                </div>
             </div>
 
-            <Button
+            {/* Add appointment CTA */}
+            <button
                 type="button"
                 onClick={onAddClick}
-                className="h-10 shrink-0 gap-2 rounded-md px-4 font-semibold"
+                className="inline-flex h-9 shrink-0 items-center gap-2 rounded-lg bg-linear-to-b from-indigo-500 to-indigo-600 px-4 text-sm font-semibold text-white shadow-sm transition-all hover:from-indigo-400 hover:to-indigo-500 hover:shadow-md active:scale-[0.98]"
             >
                 <Plus className="h-4 w-4" aria-hidden />
                 Add appointment
-            </Button>
+            </button>
         </div>
     );
 }
