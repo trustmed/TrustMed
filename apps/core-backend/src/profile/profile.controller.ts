@@ -33,11 +33,11 @@ export class ProfileController {
     summary: 'Get profile for the logged-in user (via JWT cookie)',
   })
   async getMyProfile(@Req() req: Request & { user?: { sub?: string } }) {
-    const clerkUserId = req.user?.sub;
-    if (!clerkUserId) {
+    const authUserId = req.user?.sub;
+    if (!authUserId) {
       throw new Error('User not authenticated');
     }
-    return this.profileService.getProfileByAuthUserId(clerkUserId);
+    return this.profileService.getProfileByInternalAuthId(authUserId);
   }
 
   @Get(':personId')
