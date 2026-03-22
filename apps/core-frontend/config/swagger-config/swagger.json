@@ -573,21 +573,97 @@
           "message"
         ]
       },
-      "BlockchainHealthResponseDto": {
+      "SubStatusDto": {
         "type": "object",
         "properties": {
-          "message": {
+          "status": {
             "type": "string",
-            "example": "up",
-            "description": "Message indicating the status of the blockchain gateway",
             "enum": [
-              "up",
-              "down"
-            ]
+              "UP",
+              "DOWN",
+              "DEGRADED"
+            ],
+            "example": "UP"
+          },
+          "mspId": {
+            "type": "string",
+            "example": "Org1MSP"
+          },
+          "timestamp": {
+            "type": "string",
+            "example": "2026-03-22T05:30:41.076Z"
+          },
+          "details": {
+            "type": "string",
+            "example": "PEER_UNREACHABLE"
           }
         },
         "required": [
-          "message"
+          "status"
+        ]
+      },
+      "NetworkStatusDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "UP",
+              "DOWN",
+              "DEGRADED"
+            ],
+            "example": "UP"
+          },
+          "mspId": {
+            "type": "string",
+            "example": "Org1MSP"
+          },
+          "timestamp": {
+            "type": "string",
+            "example": "2026-03-22T05:30:41.076Z"
+          },
+          "details": {
+            "type": "string",
+            "example": "PEER_UNREACHABLE"
+          },
+          "channel": {
+            "type": "string",
+            "example": "mychannel"
+          },
+          "chaincode": {
+            "type": "string",
+            "example": "trustmed"
+          }
+        },
+        "required": [
+          "status",
+          "channel",
+          "chaincode"
+        ]
+      },
+      "BlockchainHealthResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "OK",
+              "ERROR",
+              "DEGRADED"
+            ],
+            "example": "OK"
+          },
+          "gateway": {
+            "$ref": "#/components/schemas/SubStatusDto"
+          },
+          "network": {
+            "$ref": "#/components/schemas/NetworkStatusDto"
+          }
+        },
+        "required": [
+          "status",
+          "gateway",
+          "network"
         ]
       }
     }

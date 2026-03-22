@@ -5,9 +5,12 @@
  * API documentation for the TrustMed Core backend
  * OpenAPI spec version: 1.0.0
  */
-import type { BlockchainHealthResponseDtoMessage } from './blockchainHealthResponseDtoMessage';
+import type { BlockchainHealthResponseDtoStatus } from './blockchainHealthResponseDtoStatus';
+import type { NetworkStatusDto } from './networkStatusDto';
+import type { SubStatusDto } from './subStatusDto';
 
 export interface BlockchainHealthResponseDto {
-  /** Message indicating the status of the blockchain gateway */
-  message: BlockchainHealthResponseDtoMessage;
+  status: BlockchainHealthResponseDtoStatus;
+  gateway: SubStatusDto;
+  network: NetworkStatusDto;
 }

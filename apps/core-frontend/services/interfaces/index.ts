@@ -8,11 +8,15 @@
 
 export * from './authMessageDto';
 export * from './blockchainHealthResponseDto';
-export * from './blockchainHealthResponseDtoMessage';
+export * from './blockchainHealthResponseDtoStatus';
 export * from './databaseHealth';
 export * from './databaseHealthStatus';
 export * from './errorResponseDto';
 export * from './healthResponseDto';
 export * from './healthResponseDtoStatus';
 export * from './loginDto';
+export * from './networkStatusDto';
+export * from './networkStatusDtoStatus';
 export * from './registerDto';
+export * from './subStatusDto';
+export * from './subStatusDtoStatus';

@@ -41,7 +41,7 @@ export class HealthController {
     description: 'Blockchain network health status',
     type: BlockchainHealthResponseDto,
   })
-  async getBlockchainHealth() {
+  async getBlockchainHealth(): Promise<BlockchainHealthResponseDto> {
     return this.blockchainConnectorService.checkGatewayHealth();
   }
 }
