@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MedicalRecord } from '../entities/medical-record.entity';
@@ -63,4 +63,39 @@ export class MedicalRecordService {
       updatedAt: saved.updatedAt,
     };
   }
+
+  async getAllByAuthUserId(authuserId: string) {
+    const person = await this.personRepo.findOne({
+      where: { authUserId: authuserId },
+    });
+    if (!person) return [];
+    return this.recordRepo.find({ where: { person: { id: person.id } } });
+  }
+
+  async getByIdForAuthUser(authuserId: string, recordId: string) {
+    const person = await this.personRepo.findOne({
+      where: { authUserId: authuserId },
+    });
+    if (!person) return null;
+    return this.recordRepo.findOne({
+      where: { id: recordId, person: { id: person.id } },
+    });
+  }
+
+  async deleteByIdForAuthUser(authuserId: string, recordId: string) {
+    const person = await this.personRepo.findOne({
+      where: { authUserId: authuserId },
+    });
+    if (!person)
+      throw new NotFoundException('Medical record not found or not authorized');
+    const record = await this.recordRepo.findOne({
+      where: { id: recordId, person: { id: person.id } },
+    });
+    if (!record)
+      throw new NotFoundException('Medical record not found or not authorized');
+    await this.recordRepo.remove(record);
+    return true;
+  }
+
+  // Removed duplicate methods and misplaced code. Only one set of methods is kept above. Class ends here.
 }
