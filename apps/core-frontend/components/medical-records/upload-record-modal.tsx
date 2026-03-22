@@ -21,7 +21,7 @@ interface Props {
   onUpload: (file: File, category: RecordCategory, notes: string, doctorName: string, hospitalName: string, recordDate: string) => Promise<void>;
 }
 
-const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
+const MAX_SIZE = 5 * 1024 * 1024;
 const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
 
 function formatBytes(b: number) {
@@ -47,30 +47,23 @@ export function UploadRecordModal({ open, onClose, onUpload }: Props) {
   const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleFile = useCallback(
-    (f: File) => {
-      const err = !ALLOWED_TYPES.includes(f.type)
-        ? 'Invalid file type. Only PDF, JPG, and PNG are allowed.'
-        : f.size > MAX_SIZE
-          ? 'File too large. Maximum size is 5 MB.'
-          : '';
+  const handleFile = useCallback((f: File) => {
+    const err = !ALLOWED_TYPES.includes(f.type)
+      ? 'Invalid file type. Only PDF, JPG, and PNG are allowed.'
+      : f.size > MAX_SIZE
+        ? 'File too large. Maximum size is 5 MB.'
+        : '';
+    if (err) { setError(err); return; }
+    setError('');
+    setFile(f);
+  }, []);
 
-      if (err) { setError(err); return; }
-      setError('');
-      setFile(f);
-    },
-    [],
-  );
-
-  const onDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      setDragging(false);
-      const f = e.dataTransfer.files[0];
-      if (f) handleFile(f);
-    },
-    [handleFile],
-  );
+  const onDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setDragging(false);
+    const f = e.dataTransfer.files[0];
+    if (f) handleFile(f);
+  }, [handleFile]);
 
   const handleSubmit = async () => {
     if (!file || !category || !recordDate) {
@@ -105,7 +98,6 @@ export function UploadRecordModal({ open, onClose, onUpload }: Props) {
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Drop zone */}
           <div
             onClick={() => inputRef.current?.click()}
             onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
@@ -113,9 +105,7 @@ export function UploadRecordModal({ open, onClose, onUpload }: Props) {
             onDrop={onDrop}
             className={cn(
               'relative border-2 border-dashed rounded-xl p-6 cursor-pointer transition-all duration-200 text-center',
-              dragging
-                ? 'border-primary bg-primary/5 scale-[1.01]'
-                : 'border-neutral-200 dark:border-neutral-700 hover:border-primary/50 hover:bg-neutral-50 dark:hover:bg-neutral-800/50',
+              dragging ? 'border-primary bg-primary/5 scale-[1.01]' : 'border-neutral-200 dark:border-neutral-700 hover:border-primary/50 hover:bg-neutral-50 dark:hover:bg-neutral-800/50',
               file && 'border-green-400 dark:border-green-600 bg-green-50/50 dark:bg-green-900/10',
             )}
           >
@@ -155,7 +145,6 @@ export function UploadRecordModal({ open, onClose, onUpload }: Props) {
             )}
           </div>
 
-          {/* Category */}
           <div className="space-y-1.5">
             <Label>Category <span className="text-red-500">*</span></Label>
             <Select value={category} onValueChange={(v) => setCategory(v as RecordCategory)}>
@@ -168,45 +157,24 @@ export function UploadRecordModal({ open, onClose, onUpload }: Props) {
             </Select>
           </div>
 
-          {/* Date */}
           <div className="space-y-1.5">
             <Label>Date of Record <span className="text-red-500">*</span></Label>
-            <Input
-              type="date"
-              value={recordDate}
-              onChange={(e) => setRecordDate(e.target.value)}
-            />
+            <Input type="date" value={recordDate} onChange={(e) => setRecordDate(e.target.value)} />
           </div>
 
-          {/* Doctor Name */}
           <div className="space-y-1.5">
             <Label>Doctor Name <span className="text-neutral-400 font-normal">(optional)</span></Label>
-            <Input
-              placeholder="e.g. Dr. Malik Perera"
-              value={doctorName}
-              onChange={(e) => setDoctorName(e.target.value)}
-            />
+            <Input placeholder="e.g. Dr. Malik Perera" value={doctorName} onChange={(e) => setDoctorName(e.target.value)} />
           </div>
 
-          {/* Hospital Name */}
           <div className="space-y-1.5">
             <Label>Hospital Name <span className="text-neutral-400 font-normal">(optional)</span></Label>
-            <Input
-              placeholder="e.g. City General Hospital"
-              value={hospitalName}
-              onChange={(e) => setHospitalName(e.target.value)}
-            />
+            <Input placeholder="e.g. City General Hospital" value={hospitalName} onChange={(e) => setHospitalName(e.target.value)} />
           </div>
 
-          {/* Notes */}
           <div className="space-y-1.5">
             <Label>Notes <span className="text-neutral-400 font-normal">(optional)</span></Label>
-            <Textarea
-              placeholder="Add any relevant notes..."
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="resize-none h-20"
-            />
+            <Textarea placeholder="Add any relevant notes..." value={notes} onChange={(e) => setNotes(e.target.value)} className="resize-none h-20" />
           </div>
 
           {error && (

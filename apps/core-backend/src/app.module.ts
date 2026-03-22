@@ -7,8 +7,7 @@ import { dataSourceOptions } from './config/database.config';
 import { ProfileModule } from './profile/profile.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtCookieGuard } from './auth/jwt-cookie.guard';
-import { AuditModule } from './audit/audit.module';
-import { MedicalRecordsModule } from './medical-records/medical-records.module';
+import { MedicalRecordModule } from './medical-record/medical-record.module';
 
 @Module({
   imports: [
@@ -20,8 +19,7 @@ import { MedicalRecordsModule } from './medical-records/medical-records.module';
     AuthModule,
     HealthModule,
     ProfileModule,
-    AuditModule,
-    MedicalRecordsModule,
+    MedicalRecordModule,
   ],
   controllers: [],
   providers: [
@@ -31,4 +29,4 @@ import { MedicalRecordsModule } from './medical-records/medical-records.module';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}
