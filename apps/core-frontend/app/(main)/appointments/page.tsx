@@ -4,7 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { SEED_APPOINTMENTS } from "@/lib/appointments/seed-data";
+import { createAppointment } from "@/lib/api/appointments";
+import { fetchAppointmentsByAuthUserId } from "@/lib/api/appointments";
+import { getAuthUser } from "@/utils/auth";
 import type { Appointment } from "@/lib/appointments/types";
 import { AppointmentDeleteDialog } from "@/components/appointments/AppointmentDeleteDialog";
 import {
@@ -18,13 +20,13 @@ import {
   type AppointmentStatusFilter,
 } from "@/components/appointments/AppointmentsToolbar";
 
-const PATIENT_ID = "0054";
-const PATIENT_NAME = "Kate Wanigaratne";
+const authUser = typeof window !== "undefined" ? getAuthUser() : null;
+const PATIENT_ID = authUser?.sub || "";
+const PATIENT_NAME = authUser ? `${authUser.firstName || ""} ${authUser.lastName || ""}`.trim() : "";
 
 const FORM_SUBMIT_DELAY_MS = 600;
 const DELETE_DELAY_MS = 600;
 const PAGE_SIZE = 10;
-const INITIAL_TABLE_LOAD_MS = 320;
 
 function appointmentSearchBlob(a: Appointment): string {
   let displayDate = a.date;
@@ -55,37 +57,32 @@ function matchesAppointmentSearch(a: Appointment, query: string): boolean {
   return appointmentSearchBlob(a).includes(t);
 }
 
-function nextAppointmentKeys(appointments: Appointment[]): {
-  id: string;
-  appointmentNo: string;
-} {
-  let maxId = 0;
-  let maxNo = 0;
-  for (const a of appointments) {
-    const idNum = Number.parseInt(a.id, 10);
-    if (!Number.isNaN(idNum) && idNum > maxId) maxId = idNum;
-    const match = /^D(\d+)$/i.exec(a.appointmentNo.trim());
-    if (match) {
-      const n = Number.parseInt(match[1], 10);
-      if (!Number.isNaN(n) && n > maxNo) maxNo = n;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function nextAppointmentKeys(appointments: Appointment[]): { id: string; appointmentNo: string } {
+    let maxId = 0;
+    let maxNo = 0;
+    for (const a of appointments) {
+        const idNum = Number.parseInt(a.id, 10);
+        if (!Number.isNaN(idNum) && idNum > maxId) maxId = idNum;
+        const match = /^D(\d+)$/i.exec(a.appointmentNo.trim());
+        if (match) {
+            const n = Number.parseInt(match[1], 10);
+            if (!Number.isNaN(n) && n > maxNo) maxNo = n;
+        }
     }
-  }
-  const next = Math.max(maxId, maxNo) + 1;
-  return {
-    id: String(next),
-    appointmentNo: `D${String(next).padStart(3, "0")}`,
-  };
+    const next = Math.max(maxId, maxNo) + 1;
+    return {
+        id: String(next),
+        appointmentNo: `D${String(next).padStart(3, "0")}`,
+    };
 }
 
 export default function AppointmentsPage() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] =
-    useState<AppointmentStatusFilter>("all");
-  const [page, setPage] = useState(1);
-  const [tableReady, setTableReady] = useState(false);
-  const [appointments, setAppointments] = useState(() => [
-    ...SEED_APPOINTMENTS,
-  ]);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [statusFilter, setStatusFilter] = useState<AppointmentStatusFilter>("all");
+    const [page, setPage] = useState(1);
+    const [tableReady, setTableReady] = useState(false);
+    const [appointments, setAppointments] = useState<Appointment[]>([]);
 
   const [formDialogOpen, setFormDialogOpen] = useState(false);
   const [formMode, setFormMode] = useState<AppointmentFormMode>("add");
@@ -95,13 +92,17 @@ export default function AppointmentsPage() {
   const [activeAppointment, setActiveAppointment] =
     useState<Appointment | null>(null);
 
-  useEffect(() => {
-    const id = window.setTimeout(
-      () => setTableReady(true),
-      INITIAL_TABLE_LOAD_MS,
-    );
-    return () => window.clearTimeout(id);
-  }, []);
+    useEffect(() => {
+        if (!PATIENT_ID) return;
+        setTableReady(false);
+        fetchAppointmentsByAuthUserId(PATIENT_ID)
+            .then((data) => setAppointments(Array.isArray(data.records) ? data.records : []))
+            .catch(() => toast.error("Failed to load appointments"))
+            .finally(() => setTableReady(true));
+    }, [PATIENT_ID]);
+
+    useEffect(() => {
+    }, [appointments]);
 
   const filteredAppointments = useMemo(
     () =>
@@ -156,33 +157,46 @@ export default function AppointmentsPage() {
     setDeleteDialogOpen(true);
   };
 
-  const handleFormSubmit = async (values: AppointmentFormValues) => {
-    if (formMode === "add") {
-      setFormSubmitLoading(true);
-      try {
-        await new Promise((r) => setTimeout(r, FORM_SUBMIT_DELAY_MS));
-        setAppointments((prev) => {
-          const keys = nextAppointmentKeys(prev);
-          const row: Appointment = {
-            ...keys,
-            appointmentType: values.appointmentType,
-            doctorName: values.doctor.trim(),
-            date: values.date,
-            hospitalLocation: values.hospitalLocation.trim(),
-            status: "pending",
-            address: values.address.trim(),
-            phone: values.phone.trim(),
-            email: values.email.trim(),
-          };
-          return [...prev, row];
-        });
-        toast.success("Appointment added");
-        setFormDialogOpen(false);
-      } finally {
-        setFormSubmitLoading(false);
-      }
-      return;
-    }
+    const handleFormSubmit = async (values: AppointmentFormValues) => {
+        if (formMode === "add") {
+            setFormSubmitLoading(true);
+            try {
+                // Call backend API
+                const payload = {
+                    date: values.date,
+                    doctor: values.doctor.trim(),
+                    type: values.appointmentType,
+                    location: values.hospitalLocation.trim(),
+                    status: "pending" as const,
+                    patientId: PATIENT_ID,
+                };
+  
+                const created = await createAppointment(payload);
+                setAppointments((prev) => [
+                    ...prev,
+                    {
+                        id: created.id || String(Date.now()),
+                        appointmentNo: created.appointmentNo || `D${String(prev.length + 1).padStart(3, "0")}`,
+                        appointmentType: created.type || values.appointmentType,
+                        doctorName: created.doctor || values.doctor.trim(),
+                        date: created.date || values.date,
+                        hospitalLocation: created.location || values.hospitalLocation.trim(),
+                        status: created.status || "pending",
+                        address: values.address.trim(),
+                        phone: values.phone.trim(),
+                        email: values.email.trim(),
+                    },
+                ]);
+                toast.success("Appointment added");
+                setFormDialogOpen(false);
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            } catch (e) {
+                toast.error("Failed to add appointment");
+            } finally {
+                setFormSubmitLoading(false);
+            }
+            return;
+        }
 
     if (formMode === "edit") {
       if (!activeAppointment) {
