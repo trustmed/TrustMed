@@ -8,9 +8,9 @@ import { CryptoService } from './crypto.service';
 import { Person } from '../entities/person.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([MedicalRecord, AuthUser, Person])],
-    controllers: [S3VaultController],
-    providers: [S3VaultService, CryptoService],
-    exports: [S3VaultService, CryptoService],
+  imports: [TypeOrmModule.forFeature([MedicalRecord, AuthUser, Person])],
+  controllers: [S3VaultController],
+  providers: [S3VaultService, CryptoService],
+  exports: [S3VaultService, CryptoService],
 })
-export class S3VaultModule { }
+export class S3VaultModule {}
