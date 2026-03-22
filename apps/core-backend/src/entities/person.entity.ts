@@ -8,7 +8,18 @@ import { EmergencyContact } from './emergency-contact.entity';
 
 @Entity('persons')
 export class Person extends BaseEntity {
-  @Column({ unique: true })
+  // Foreign key column to auth_users
+  @Column({ type: 'uuid', nullable: true, unique: true })
+  authUserId: string;
+
+  @OneToOne(() => AuthUser, (authUser) => authUser.person, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'authUserId' })
+  authUser: AuthUser;
+
+  @Column({ unique: true, nullable: true })
   email: string;
 
   @Column({ length: 100, nullable: true })
@@ -31,17 +42,6 @@ export class Person extends BaseEntity {
 
   @Column({ length: 100, nullable: true })
   dob: string;
-
-  // Foreign key column to auth_users
-  @Column({ type: 'uuid', nullable: true, unique: true })
-  authUserId: string;
-
-  @OneToOne(() => AuthUser, (authUser) => authUser.person, {
-    nullable: true,
-    onDelete: 'SET NULL',
-  })
-  @JoinColumn({ name: 'authUserId' })
-  authUser: AuthUser;
 
   @OneToOne(() => MedicalProfile, (profile) => profile.person)
   medicalProfile: MedicalProfile;

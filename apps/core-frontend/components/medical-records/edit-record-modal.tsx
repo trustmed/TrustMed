@@ -84,22 +84,39 @@ export function EditRecordModal({ record, open, onClose, onSave }: Props) {
 
             <div className="space-y-1.5">
               <Label>Date of Record</Label>
-              <Input type="date" value={recordDate} onChange={(e) => setRecordDate(e.target.value)} />
+              <Input
+                type="date"
+                value={recordDate}
+                onChange={(e) => setRecordDate(e.target.value)}
+              />
             </div>
 
             <div className="space-y-1.5">
               <Label>Doctor Name <span className="text-neutral-400 font-normal">(optional)</span></Label>
-              <Input placeholder="e.g. Dr. Malik Perera" value={doctorName} onChange={(e) => setDoctorName(e.target.value)} />
+              <Input
+                placeholder="e.g. Dr. Malik Perera"
+                value={doctorName}
+                onChange={(e) => setDoctorName(e.target.value)}
+              />
             </div>
 
             <div className="space-y-1.5">
               <Label>Hospital Name <span className="text-neutral-400 font-normal">(optional)</span></Label>
-              <Input placeholder="e.g. City General Hospital" value={hospitalName} onChange={(e) => setHospitalName(e.target.value)} />
+              <Input
+                placeholder="e.g. City General Hospital"
+                value={hospitalName}
+                onChange={(e) => setHospitalName(e.target.value)}
+              />
             </div>
 
             <div className="space-y-1.5">
               <Label>Notes</Label>
-              <Textarea placeholder="Add notes about this record..." value={notes} onChange={(e) => setNotes(e.target.value)} className="resize-none h-24" />
+              <Textarea
+                placeholder="Add notes about this record..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="resize-none h-24"
+              />
             </div>
 
             {error && (
