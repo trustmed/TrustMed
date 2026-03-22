@@ -6,6 +6,7 @@ import { Person } from '../entities/person.entity';
 import { CreateMedicalRecordRequestDto } from './dto/create-medical-record-request.dto';
 import { CreateMedicalRecordResponseDto } from './dto/create-medical-record-response.dto';
 import { S3VaultService } from '../s3-vault/s3-vault.service';
+import { ConsentService } from './consent.service';
 
 @Injectable()
 export class MedicalRecordService {
@@ -17,7 +18,8 @@ export class MedicalRecordService {
     @InjectRepository(Person)
     private readonly personRepo: Repository<Person>,
     private readonly s3VaultService: S3VaultService,
-  ) { }
+    private readonly consentService: ConsentService,
+  ) {}
 
   async create(
     dto: CreateMedicalRecordRequestDto,
@@ -54,7 +56,9 @@ export class MedicalRecordService {
         notes: saved.notes || undefined,
         doctorName: saved.doctorName || undefined,
         hospitalName: saved.hospitalName || undefined,
-        recordDate: saved.recordDate ? new Date(saved.recordDate).toISOString() : undefined,
+        recordDate: saved.recordDate
+          ? new Date(saved.recordDate).toISOString()
+          : undefined,
         createdAt: saved.createdAt,
         updatedAt: saved.updatedAt,
       };
@@ -71,7 +75,9 @@ export class MedicalRecordService {
       hospitalName: dto.hospitalName,
       recordDate: dto.recordDate ? new Date(dto.recordDate) : null,
     });
-    const saved = (await this.recordRepo.save(record)) as unknown as MedicalRecord;
+    const saved = (await this.recordRepo.save(
+      record,
+    )) as unknown as MedicalRecord;
     return {
       id: saved.id,
       personId: saved.person?.id || person.id,
@@ -83,7 +89,9 @@ export class MedicalRecordService {
       notes: saved.notes || undefined,
       doctorName: saved.doctorName || undefined,
       hospitalName: saved.hospitalName || undefined,
-      recordDate: saved.recordDate ? new Date(saved.recordDate).toISOString() : undefined,
+      recordDate: saved.recordDate
+        ? new Date(saved.recordDate).toISOString()
+        : undefined,
       createdAt: saved.createdAt,
       updatedAt: saved.updatedAt,
     };
@@ -94,7 +102,10 @@ export class MedicalRecordService {
       where: { authUserId: authuserId },
     });
     if (!person) return [];
-    return this.recordRepo.find({ where: { person: { id: person.id } } });
+    return this.recordRepo.find({
+      where: { person: { id: person.id } },
+      relations: ['consentRequests', 'consentRequests.requester'],
+    });
   }
 
   async getByIdForAuthUser(authuserId: string, recordId: string) {
@@ -104,6 +115,7 @@ export class MedicalRecordService {
     if (!person) return null;
     return this.recordRepo.findOne({
       where: { id: recordId, person: { id: person.id } },
+      relations: ['consentRequests', 'consentRequests.requester'],
     });
   }
 
@@ -182,7 +194,8 @@ export class MedicalRecordService {
       throw new NotFoundException('Medical record not found or not authorized');
     }
 
-    const { buffer, fileName, mimeType } = await this.s3VaultService.getDecryptedBuffer(recordId);
+    const { buffer, fileName, mimeType } =
+      await this.s3VaultService.getDecryptedBuffer(recordId);
     return { buffer, originalFileName: fileName, mimeType };
   }
 }

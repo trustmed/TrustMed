@@ -29,13 +29,17 @@ import { MedicalRecord } from '../entities/medical-record.entity';
 import { CurrentUser } from '../auth/current-user.decorator';
 import type { JwtPayload } from '../auth/jwt-payload.interface';
 import { ApiOperation, ApiParam } from '@nestjs/swagger';
+import {
+  ConsentRequest,
+  ConsentRequestStatus,
+} from '../entities/consent-request.entity';
 
 @ApiTags('medical-records')
 @Controller('medical-records')
 export class MedicalRecordController {
   private readonly logger = new Logger(MedicalRecordController.name);
 
-  constructor(private readonly service: MedicalRecordService) { }
+  constructor(private readonly service: MedicalRecordService) {}
 
   @Get(':recordId/download')
   @ApiOperation({
@@ -99,7 +103,9 @@ export class MedicalRecordController {
       notes: updated.notes || undefined,
       doctorName: updated.doctorName || undefined,
       hospitalName: updated.hospitalName || undefined,
-      recordDate: updated.recordDate ? new Date(updated.recordDate).toISOString() : undefined,
+      recordDate: updated.recordDate
+        ? new Date(updated.recordDate).toISOString()
+        : undefined,
       createdAt: updated.createdAt,
       updatedAt: updated.updatedAt,
     };
@@ -146,9 +152,32 @@ export class MedicalRecordController {
         notes: rec.notes || undefined,
         doctorName: rec.doctorName || undefined,
         hospitalName: rec.hospitalName || undefined,
-        recordDate: rec.recordDate ? new Date(rec.recordDate).toISOString() : undefined,
+        recordDate: rec.recordDate
+          ? new Date(rec.recordDate).toISOString()
+          : undefined,
         createdAt: rec.createdAt,
         updatedAt: rec.updatedAt,
+        requestStatus: (() => {
+          const r: ConsentRequest | undefined =
+            rec.consentRequests?.find(
+              (req: ConsentRequest) =>
+                req.status === ConsentRequestStatus.PENDING,
+            ) || rec.consentRequests?.[rec.consentRequests.length - 1];
+          return r
+            ? {
+                status: r.status as string,
+                createdBy: r.requester
+                  ? `${r.requester.firstName} ${r.requester.lastName}`
+                  : r.requesterId,
+                createdAt: r.createdAt.toISOString(),
+                id: r.id,
+              }
+            : {
+                status: false,
+                createdBy: '',
+                createdAt: '',
+              };
+        })(),
       })),
     };
   }
@@ -176,9 +205,32 @@ export class MedicalRecordController {
       notes: rec.notes || undefined,
       doctorName: rec.doctorName || undefined,
       hospitalName: rec.hospitalName || undefined,
-      recordDate: rec.recordDate ? new Date(rec.recordDate).toISOString() : undefined,
+      recordDate: rec.recordDate
+        ? new Date(rec.recordDate).toISOString()
+        : undefined,
       createdAt: rec.createdAt,
       updatedAt: rec.updatedAt,
+      requestStatus: (() => {
+        const r: ConsentRequest | undefined =
+          rec.consentRequests?.find(
+            (req: ConsentRequest) =>
+              req.status === ConsentRequestStatus.PENDING,
+          ) || rec.consentRequests?.[rec.consentRequests.length - 1];
+        return r
+          ? {
+              status: r.status as string,
+              createdBy: r.requester
+                ? `${r.requester.firstName} ${r.requester.lastName}`
+                : r.requesterId,
+              createdAt: r.createdAt.toISOString(),
+              id: r.id,
+            }
+          : {
+              status: false,
+              createdBy: '',
+              createdAt: '',
+            };
+      })(),
     };
   }
 

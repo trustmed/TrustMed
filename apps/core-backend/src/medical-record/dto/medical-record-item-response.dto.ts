@@ -42,6 +42,14 @@ export class MedicalRecordItemResponseDto {
 
   @ApiProperty()
   updatedAt: Date;
+
+  @ApiProperty({ required: false })
+  requestStatus?: {
+    status: string | boolean;
+    createdBy: string;
+    createdAt: string;
+    id?: string;
+  };
 }
 
 export class MedicalRecordListResponseDto {
