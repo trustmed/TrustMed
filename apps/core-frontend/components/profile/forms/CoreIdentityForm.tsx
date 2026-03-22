@@ -320,7 +320,7 @@ export function CoreIdentityForm({
                 />
 
                 {/* Hidden submit — triggered by the global Save Changes button in the page */}
-                <button type="submit" id="profile-form-submit" className="hidden" aria-hidden />
+                <button type="submit" id="profile-form-submit" className="hidden" aria-hidden="true" tabIndex={-1} />
             </form>
         </Form>
     );

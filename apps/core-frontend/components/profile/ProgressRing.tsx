@@ -9,7 +9,7 @@ interface ProgressRingProps {
     strokeWidth?: number;
 }
 
-export function ProgressRing({ progress, size = 120, strokeWidth = 8 }: ProgressRingProps) {
+export function ProgressRing({ progress, size = 120, strokeWidth = 12 }: ProgressRingProps) {
     const radius = (size - strokeWidth) / 2;
     const circumference = radius * 2 * Math.PI;
     const offset = circumference - (progress / 100) * circumference;
@@ -31,7 +31,7 @@ export function ProgressRing({ progress, size = 120, strokeWidth = 8 }: Progress
                     fill="transparent"
                     stroke="currentColor"
                     strokeWidth={strokeWidth}
-                    className="text-muted-foreground/20"
+                    className="text-neutral-200 dark:text-neutral-800"
                 />
                 {/* Progress Ring */}
                 <motion.circle
@@ -43,7 +43,7 @@ export function ProgressRing({ progress, size = 120, strokeWidth = 8 }: Progress
                     strokeWidth={strokeWidth}
                     strokeDasharray={circumference}
                     strokeLinecap="round"
-                    className="text-primary"
+                    className="text-indigo-600 dark:text-indigo-500"
                     initial={{ strokeDashoffset: circumference }}
                     animate={{ strokeDashoffset: offset }}
                     transition={{ duration: 1, ease: "easeOut" }}

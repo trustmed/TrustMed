@@ -1,98 +1,40 @@
-'use client';
+"use client";
 
-import { useState, useCallback, useEffect } from 'react';
-import { Upload, Search, FolderOpen, Filter } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Upload, Search, FolderOpen, Filter } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from '@/components/ui/select';
-import { UploadRecordModal } from '@/components/medical-records/upload-record-modal';
-import { EditRecordModal } from '@/components/medical-records/edit-record-modal';
-import { DeleteRecordModal } from '@/components/medical-records/delete-record-modal';
-import { RecordCard } from '@/components/medical-records/record-card';
-import { MedicalRecord, RecordCategory, CATEGORY_LABELS } from '@/types/medical-records';
-import { MedicalRecordsApi } from '@/lib/api/medicalRecords';
-import { getAuthUser } from '@/utils/auth';
-
-type ModalState = 'upload' | 'edit' | 'delete' | null;
-type Toast = { id: number; message: string; type: 'success' | 'error' };
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { UploadRecordModal } from "@/components/medical-records/upload-record-modal";
+import { EditRecordModal } from "@/components/medical-records/edit-record-modal";
+import { DeleteRecordModal } from "@/components/medical-records/delete-record-modal";
+import { RecordCard } from "@/components/medical-records/record-card";
+import { RecordCategory, CATEGORY_LABELS } from "@/types/medical-records";
+import useMedicalRecords from "./hooks/useMedicalRecords";
 
 export default function MedicalRecordsPage() {
-  const authUser = getAuthUser();
-  const AUTHUSER_ID = authUser?.sub || '';
-
-  const [records, setRecords] = useState<MedicalRecord[]>([]);
-
-  const [search, setSearch] = useState('');
-  const [filterCategory, setFilterCategory] = useState<RecordCategory | 'all'>('all');
-  const [modal, setModal] = useState<ModalState>(null);
-  const [selectedRecord, setSelectedRecord] = useState<MedicalRecord | null>(null);
-  const [toasts, setToasts] = useState<Toast[]>([]);
-
-  const showToast = useCallback((message: string, type: 'success' | 'error') => {
-    const id = Date.now();
-    setToasts((prev) => [...prev, { id, message, type }]);
-    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 3000);
-  }, []);
-
-  const filtered = records.filter((r) => {
-    const matchSearch =
-      r.fileName.toLowerCase().includes(search.toLowerCase()) ||
-      r.notes?.toLowerCase().includes(search.toLowerCase());
-    const matchCategory = filterCategory === 'all' || r.category === filterCategory;
-    return matchSearch && matchCategory;
-  });
-
-  // Fetch records on mount
-  useEffect(() => {
-    if (!AUTHUSER_ID) return;
-    MedicalRecordsApi.getRecords(AUTHUSER_ID)
-      .then(setRecords)
-      .catch(() => showToast('Failed to fetch records', 'error'));
-  }, [AUTHUSER_ID, showToast]);
-
-  const handleUpload = useCallback(async (
-    file: File, category: RecordCategory, notes: string,
-    doctorName: string, hospitalName: string, recordDate: string,
-  ) => {
-    try {
-      const newRecord = await MedicalRecordsApi.uploadRecord(
-        AUTHUSER_ID, file, category, notes, doctorName, hospitalName, recordDate,
-      );
-      setRecords((prev) => [newRecord, ...prev]);
-      showToast('Record added successfully', 'success');
-    } catch (err) {
-      showToast(
-        'Failed to upload record: ' + (err instanceof Error ? err.message : String(err)),
-        'error'
-      );
-    }
-  }, [showToast, AUTHUSER_ID]);
-
-  const handleEdit = useCallback(async (
-    id: string,
-    updates: { category: RecordCategory; notes: string; doctorName: string; hospitalName: string; recordDate: string },
-  ) => {
-    const updated = await MedicalRecordsApi.updateRecord(AUTHUSER_ID, id, updates);
-    setRecords((prev) => prev.map((r) => (r.id === id ? updated : r)));
-    showToast('Record updated successfully', 'success');
-  }, [showToast, AUTHUSER_ID]);
-
-  const handleDelete = useCallback(async (id: string) => {
-    await MedicalRecordsApi.deleteRecord(AUTHUSER_ID, id);
-    setRecords((prev) => prev.filter((r) => r.id !== id));
-    showToast('Record deleted successfully', 'success');
-  }, [showToast, AUTHUSER_ID]);
-
-  const handleDownload = useCallback(async (record: MedicalRecord) => {
-    try {
-      const url = await MedicalRecordsApi.getDownloadUrl(AUTHUSER_ID, record.id);
-      window.open(url, '_blank');
-    } catch {
-      showToast('Failed to get download URL', 'error');
-    }
-  }, [showToast, AUTHUSER_ID]);
+  const {
+    handleUpload,
+    handleEdit,
+    handleDelete,
+    handleDownload,
+    search,
+    setSearch,
+    filterCategory,
+    setFilterCategory,
+    modal,
+    setModal,
+    selectedRecord,
+    setSelectedRecord,
+    toasts,
+    records,
+    filtered,
+  } = useMedicalRecords();
 
   return (
     <div className="flex flex-col gap-6 w-full">
@@ -102,7 +44,7 @@ export default function MedicalRecordsPage() {
           <div
             key={t.id}
             className={`px-4 py-3 rounded-lg shadow-lg text-sm text-white transition-all ${
-              t.type === 'success' ? 'bg-green-600' : 'bg-red-600'
+              t.type === "success" ? "bg-green-600" : "bg-red-600"
             }`}
           >
             {t.message}
@@ -117,10 +59,11 @@ export default function MedicalRecordsPage() {
             Medical Records
           </h1>
           <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
-            {records.length} record{records.length !== 1 ? 's' : ''} stored securely
+            {records.length} record{records.length !== 1 ? "s" : ""} stored
+            securely
           </p>
         </div>
-        <Button onClick={() => setModal('upload')} className="gap-2 shrink-0">
+        <Button onClick={() => setModal("upload")} className="gap-2 shrink-0">
           <Upload className="h-4 w-4" /> Upload Record
         </Button>
       </div>
@@ -136,15 +79,22 @@ export default function MedicalRecordsPage() {
             className="pl-9"
           />
         </div>
-        <Select value={filterCategory} onValueChange={(v) => setFilterCategory(v as RecordCategory | 'all')}>
+        <Select
+          value={filterCategory}
+          onValueChange={(v) => setFilterCategory(v as RecordCategory | "all")}
+        >
           <SelectTrigger className="w-full sm:w-48">
             <Filter className="h-4 w-4 mr-2 text-neutral-400" />
             <SelectValue placeholder="All categories" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All categories</SelectItem>
-            {(Object.entries(CATEGORY_LABELS) as [RecordCategory, string][]).map(([v, l]) => (
-              <SelectItem key={v} value={v}>{l}</SelectItem>
+            {(
+              Object.entries(CATEGORY_LABELS) as [RecordCategory, string][]
+            ).map(([v, l]) => (
+              <SelectItem key={v} value={v}>
+                {l}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -157,8 +107,14 @@ export default function MedicalRecordsPage() {
             <RecordCard
               key={record.id}
               record={record}
-              onEdit={(r) => { setSelectedRecord(r); setModal('edit'); }}
-              onDelete={(r) => { setSelectedRecord(r); setModal('delete'); }}
+              onEdit={(r) => {
+                setSelectedRecord(r);
+                setModal("edit");
+              }}
+              onDelete={(r) => {
+                setSelectedRecord(r);
+                setModal("delete");
+              }}
               onDownload={handleDownload}
             />
           ))}
@@ -169,15 +125,21 @@ export default function MedicalRecordsPage() {
             <FolderOpen className="h-7 w-7 text-neutral-400" />
           </div>
           <h3 className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-            {search || filterCategory !== 'all' ? 'No records match your search' : 'No records yet'}
+            {search || filterCategory !== "all"
+              ? "No records match your search"
+              : "No records yet"}
           </h3>
           <p className="text-sm text-neutral-400 mt-1">
-            {search || filterCategory !== 'all'
-              ? 'Try adjusting your filters'
-              : 'Upload your first medical record to get started'}
+            {search || filterCategory !== "all"
+              ? "Try adjusting your filters"
+              : "Upload your first medical record to get started"}
           </p>
-          {!search && filterCategory === 'all' && (
-            <Button variant="outline" className="mt-4 gap-2" onClick={() => setModal('upload')}>
+          {!search && filterCategory === "all" && (
+            <Button
+              variant="outline"
+              className="mt-4 gap-2"
+              onClick={() => setModal("upload")}
+            >
               <Upload className="h-4 w-4" /> Upload Record
             </Button>
           )}
@@ -186,20 +148,26 @@ export default function MedicalRecordsPage() {
 
       {/* Modals */}
       <UploadRecordModal
-        open={modal === 'upload'}
+        open={modal === "upload"}
         onClose={() => setModal(null)}
         onUpload={handleUpload}
       />
       <EditRecordModal
         record={selectedRecord}
-        open={modal === 'edit'}
-        onClose={() => { setModal(null); setSelectedRecord(null); }}
+        open={modal === "edit"}
+        onClose={() => {
+          setModal(null);
+          setSelectedRecord(null);
+        }}
         onSave={handleEdit}
       />
       <DeleteRecordModal
         record={selectedRecord}
-        open={modal === 'delete'}
-        onClose={() => { setModal(null); setSelectedRecord(null); }}
+        open={modal === "delete"}
+        onClose={() => {
+          setModal(null);
+          setSelectedRecord(null);
+        }}
         onDelete={handleDelete}
       />
     </div>

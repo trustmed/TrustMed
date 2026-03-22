@@ -24,7 +24,7 @@ function formatDate(iso: string) {
 }
 
 function FileTypeIcon({ type }: { type: string }) {
-  if (type.startsWith('image/')) return <FileImage className="h-5 w-5 text-purple-500" />;
+  if (type?.startsWith('image/')) return <FileImage className="h-5 w-5 text-purple-500" />;
   if (type === 'application/pdf') return <FileText className="h-5 w-5 text-red-500" />;
   return <File className="h-5 w-5 text-neutral-400" />;
 }
