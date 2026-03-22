@@ -26,7 +26,7 @@ import { MedicalRecord } from '../entities/medical-record.entity';
 @ApiTags('medical-records')
 @Controller('medical-records')
 export class MedicalRecordController {
-  constructor(private readonly service: MedicalRecordService) {}
+  constructor(private readonly service: MedicalRecordService) { }
 
   @ApiResponse({ status: 200, type: MedicalRecordItemResponseDto })
   @ApiBody({ type: UpdateMedicalRecordRequestDto })
@@ -41,21 +41,7 @@ export class MedicalRecordController {
       recordId,
       body,
     );
-    return {
-      id: updated.id,
-      personId: updated.person?.id,
-      fileName: updated.fileName,
-      fileUrl: updated.fileUrl,
-      fileType: updated.fileType,
-      fileSize: updated.fileSize,
-      category: updated.category,
-      notes: updated.notes,
-      doctorName: updated.doctorName,
-      hospitalName: updated.hospitalName,
-      recordDate: updated.recordDate,
-      createdAt: updated.createdAt,
-      updatedAt: updated.updatedAt,
-    };
+    return this.mapToItemResponseDto(updated);
   }
 
   @Post()
@@ -87,21 +73,9 @@ export class MedicalRecordController {
     const records: MedicalRecord[] =
       await this.service.getAllByAuthUserId(authuserId);
     return {
-      records: records.map((rec: MedicalRecord) => ({
-        id: rec.id,
-        personId: rec.person?.id,
-        fileName: rec.fileName,
-        fileUrl: rec.fileUrl,
-        fileType: rec.fileType,
-        fileSize: rec.fileSize,
-        category: rec.category,
-        notes: rec.notes,
-        doctorName: rec.doctorName,
-        hospitalName: rec.hospitalName,
-        recordDate: rec.recordDate,
-        createdAt: rec.createdAt,
-        updatedAt: rec.updatedAt,
-      })),
+      records: records.map((rec: MedicalRecord) =>
+        this.mapToItemResponseDto(rec),
+      ),
     };
   }
 
@@ -116,18 +90,24 @@ export class MedicalRecordController {
       recordId,
     );
     if (!rec) throw new NotFoundException('Medical record not found');
+    return this.mapToItemResponseDto(rec);
+  }
+
+  private mapToItemResponseDto(
+    rec: MedicalRecord,
+  ): MedicalRecordItemResponseDto {
     return {
       id: rec.id,
-      personId: rec.person?.id,
-      fileName: rec.fileName,
-      fileUrl: rec.fileUrl,
-      fileType: rec.fileType,
-      fileSize: rec.fileSize,
+      personId: rec.person?.id || '',
+      fileName: rec.fileName || '',
+      fileUrl: rec.fileUrl || '',
+      fileType: rec.fileType || '',
+      fileSize: Number(rec.fileSize),
       category: rec.category,
-      notes: rec.notes,
-      doctorName: rec.doctorName,
-      hospitalName: rec.hospitalName,
-      recordDate: rec.recordDate,
+      notes: rec.notes || undefined,
+      doctorName: rec.doctorName || undefined,
+      hospitalName: rec.hospitalName || undefined,
+      recordDate: rec.recordDate?.toISOString(),
       createdAt: rec.createdAt,
       updatedAt: rec.updatedAt,
     };

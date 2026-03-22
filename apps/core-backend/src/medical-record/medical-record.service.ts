@@ -8,6 +8,7 @@ import {
 import { Person } from '../entities/person.entity';
 import { CreateMedicalRecordRequestDto } from './dto/create-medical-record-request.dto';
 import { CreateMedicalRecordResponseDto } from './dto/create-medical-record-response.dto';
+import { UpdateMedicalRecordRequestDto } from './dto/update-medical-record-request.dto';
 import { VaultClientService } from '../vault-client/vault-client.service';
 
 @Injectable()
@@ -18,7 +19,7 @@ export class MedicalRecordService {
     @InjectRepository(Person)
     private readonly personRepo: Repository<Person>,
     private readonly vaultClient: VaultClientService,
-  ) {}
+  ) { }
 
   async create(
     dto: CreateMedicalRecordRequestDto,
@@ -117,13 +118,7 @@ export class MedicalRecordService {
   async updateByIdForAuthUser(
     authuserId: string,
     recordId: string,
-    dto: {
-      category?: string;
-      notes?: string;
-      doctorName?: string;
-      hospitalName?: string;
-      recordDate?: string;
-    },
+    dto: UpdateMedicalRecordRequestDto,
   ): Promise<MedicalRecord> {
     const person = await this.personRepo.findOne({
       where: { authUserId: authuserId },
@@ -142,7 +137,9 @@ export class MedicalRecordService {
     record.notes = dto.notes ?? record.notes;
     record.doctorName = dto.doctorName ?? record.doctorName;
     record.hospitalName = dto.hospitalName ?? record.hospitalName;
-    record.recordDate = dto.recordDate ?? record.recordDate;
+    record.recordDate = dto.recordDate
+      ? new Date(dto.recordDate)
+      : record.recordDate;
     const saved = await this.recordRepo.save(record);
     return saved;
   }
