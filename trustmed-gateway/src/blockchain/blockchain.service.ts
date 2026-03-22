@@ -185,56 +185,59 @@ export class BlockchainService implements OnModuleDestroy {
   }
 
   async checkHealth(): Promise<{ status: string; gateway: any; network: any }> {
+    // Initial state: We assume the Gateway code is running
     const health = {
       status: "OK",
       gateway: {
         status: "UP",
         mspId: FABRIC.mspId,
         timestamp: new Date().toISOString(),
-        details: "UNKNOWN",
       },
       network: {
-        status: "UNKNOWN",
+        status: "DOWN",
         channel: FABRIC.channelName,
         chaincode: FABRIC.chaincodeName,
-        details: "UNKNOWN",
       },
     };
 
     try {
+      // handshake with the peer
       const contract = await this.getContract();
 
-      // reach peer ledger logic
+      // ping to verify the gRPC pipe and Chaincode availability
       await contract.evaluateTransaction("AssetExists", "health-check-ping");
 
-      health.network.status = "CONNECTED";
+      // if we reached here, network is UP
+      health.network.status = "UP";
+
     } catch (error: any) {
+
       const isNetworkIssue =
         error.code === grpc.status.UNAVAILABLE ||
         error.code === grpc.status.DEADLINE_EXCEEDED;
 
       const isConfigIssue = error.code === "ENOENT" || error.code === "EACCES";
-
-      // fabric logic errors (chaincode response, endorsement failure)
       const isFabricLogicIssue = error instanceof GatewayError;
 
       if (isConfigIssue) {
         health.status = "ERROR";
-        health.gateway.status = "FILESYSTEM_FAILURE";
-        health.gateway.details = `Check path: ${error.path || "Unknown"}`;
+        health.gateway.status = "DOWN";
+        health.gateway["details"] =
+          `FILESYSTEM_FAILURE: ${error.path || "Check paths"}`;
       } else if (isNetworkIssue) {
         health.status = "DEGRADED";
-        health.network.status = "PEER_UNREACHABLE";
-        health.network.details =
-          "gRPC channel unavailable (Check Oracle VCN/Security Lists)";
+        health.network.status = "DOWN";
+        health.network["details"] =
+          "PEER_UNREACHABLE (Check Cloud Provider VCN/Security Lists)";
       } else if (isFabricLogicIssue) {
         health.status = "DEGRADED";
-        health.network.status = "FABRIC_REJECTED";
-        health.network.details = error.details[0]?.message || error.message;
+        health.network.status = "DOWN";
+        health.network["details"] =
+          `FABRIC_REJECTED: ${error.details[0]?.message || error.message}`;
       } else {
         health.status = "ERROR";
-        health.gateway.status = "INTERNAL_CRASH";
-        health.gateway.details = error.message;
+        health.gateway.status = "DOWN";
+        health.gateway["details"] = `INTERNAL_CRASH: ${error.message}`;
       }
     }
 
