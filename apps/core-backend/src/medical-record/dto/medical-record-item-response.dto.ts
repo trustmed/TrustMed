@@ -14,6 +14,9 @@ export class MedicalRecordItemResponseDto {
   fileUrl: string;
 
   @ApiProperty()
+  downloadUrl: string;
+
+  @ApiProperty()
   fileType: string;
 
   @ApiProperty()

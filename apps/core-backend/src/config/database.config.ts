@@ -17,6 +17,7 @@ import { AuthUser } from '../entities/auth-user.entity';
 import { InitialOracle1773847768524 } from '../entities/migrations/1773847768524-initial-oracle';
 import { MedicalRecord } from '../entities/medical-record.entity';
 import { CreateMedicalRecordTable1774144345789 } from '../entities/migrations/1774144345789-CreateMedicalRecordTable';
+import { UpdateMedicalRecordForS31774179118701 } from '../entities/migrations/1774179118701-UpdateMedicalRecordForS3';
 dotenv.config();
 
 export const dataSourceOptions: DataSourceOptions = {
@@ -45,6 +46,7 @@ export const dataSourceOptions: DataSourceOptions = {
   migrations: [
     InitialOracle1773847768524,
     CreateMedicalRecordTable1774144345789,
+    UpdateMedicalRecordForS31774179118701,
   ],
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
