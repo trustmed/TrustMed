@@ -15,9 +15,9 @@ import { ActivityChart } from "@/components/dashboard/activity-chart";
 
 const HEALTH_TIPS = [
   "Regular health check-ups can help detect potential health issues early.",
-  "Stay hydrated — aim for at least 8 glasses of water per day.",
+  "Stay hydrated - aim for at least 8 glasses of water per day.",
   "Keep your medical records organized for quick access during emergencies.",
-  "Don't skip scheduled appointments — consistency is key to good health.",
+  "Don't skip scheduled appointments - consistency is key to good health.",
   "Ensure your vaccinations are up to date for preventive care.",
 ];
 
