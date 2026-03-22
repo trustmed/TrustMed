@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Upload, CalendarClock, FileClock, Settings } from "lucide-react";
+import { Upload, CalendarClock, FileClock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface QuickAction {
@@ -29,13 +29,7 @@ const ACTIONS: QuickAction[] = [
     icon: <FileClock className="h-4 w-4" strokeWidth={2} />,
     href: "/medical-history",
     variant: "outline",
-  },
-  {
-    label: "Settings",
-    icon: <Settings className="h-4 w-4" strokeWidth={2} />,
-    href: "/portal/settings",
-    variant: "outline",
-  },
+  }
 ];
 
 export function QuickActions() {
