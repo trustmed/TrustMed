@@ -8,6 +8,7 @@ import {
   Network,
   Signer,
   signers,
+  GatewayError,
 } from "@hyperledger/fabric-gateway";
 import { promises as fs } from "node:fs";
 import * as path from "node:path";
@@ -183,15 +184,60 @@ export class BlockchainService implements OnModuleDestroy {
     }
   }
 
-  async checkHealth(): Promise<{ status: string; details?: any }> {
+  async checkHealth(): Promise<{ status: string; gateway: any; network: any }> {
+    const health = {
+      status: "OK",
+      gateway: {
+        status: "UP",
+        mspId: FABRIC.mspId,
+        timestamp: new Date().toISOString(),
+        details: "UNKNOWN",
+      },
+      network: {
+        status: "UNKNOWN",
+        channel: FABRIC.channelName,
+        chaincode: FABRIC.chaincodeName,
+        details: "UNKNOWN",
+      },
+    };
+
     try {
       const contract = await this.getContract();
-      return { status: "OK", details: contract };
-    } catch (error) {
-      return {
-        status: "ERROR",
-        details: error.message,
-      };
+
+      // reach peer ledger logic
+      await contract.evaluateTransaction("AssetExists", "health-check-ping");
+
+      health.network.status = "CONNECTED";
+    } catch (error: any) {
+      const isNetworkIssue =
+        error.code === grpc.status.UNAVAILABLE ||
+        error.code === grpc.status.DEADLINE_EXCEEDED;
+
+      const isConfigIssue = error.code === "ENOENT" || error.code === "EACCES";
+
+      // fabric logic errors (chaincode response, endorsement failure)
+      const isFabricLogicIssue = error instanceof GatewayError;
+
+      if (isConfigIssue) {
+        health.status = "ERROR";
+        health.gateway.status = "FILESYSTEM_FAILURE";
+        health.gateway.details = `Check path: ${error.path || "Unknown"}`;
+      } else if (isNetworkIssue) {
+        health.status = "DEGRADED";
+        health.network.status = "PEER_UNREACHABLE";
+        health.network.details =
+          "gRPC channel unavailable (Check Oracle VCN/Security Lists)";
+      } else if (isFabricLogicIssue) {
+        health.status = "DEGRADED";
+        health.network.status = "FABRIC_REJECTED";
+        health.network.details = error.details[0]?.message || error.message;
+      } else {
+        health.status = "ERROR";
+        health.gateway.status = "INTERNAL_CRASH";
+        health.gateway.details = error.message;
+      }
     }
+
+    return health;
   }
 }
