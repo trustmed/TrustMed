@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { createAppointment } from "@/lib/api/appointments";
+import { createAppointment, updateAppointment, deleteAppointment, fetchAppointmentById } from "@/lib/api/appointments";
 import { fetchAppointmentsByAuthUserId } from "@/lib/api/appointments";
 import { getAuthUser } from "@/utils/auth";
 import type { Appointment } from "@/lib/appointments/types";
@@ -24,8 +24,6 @@ const authUser = typeof window !== "undefined" ? getAuthUser() : null;
 const PATIENT_ID = authUser?.sub || "";
 const PATIENT_NAME = authUser ? `${authUser.firstName || ""} ${authUser.lastName || ""}`.trim() : "";
 
-const FORM_SUBMIT_DELAY_MS = 600;
-const DELETE_DELAY_MS = 600;
 const PAGE_SIZE = 10;
 
 function appointmentSearchBlob(a: Appointment): string {
@@ -140,9 +138,18 @@ export default function AppointmentsPage() {
     setFormDialogOpen(true);
   };
 
-  const openView = (a: Appointment) => {
+  const openView = async (a: Appointment) => {
     setFormMode("view");
-    setActiveAppointment(a);
+    try {
+      const fresh = await fetchAppointmentById(a.id);
+      setActiveAppointment({
+        ...a,
+        ...fresh,
+      });
+    } catch {
+      toast.error("Failed to fetch appointment details");
+      setActiveAppointment(a);
+    }
     setFormDialogOpen(true);
   };
 
@@ -205,26 +212,37 @@ export default function AppointmentsPage() {
       }
       setFormSubmitLoading(true);
       try {
-        await new Promise((r) => setTimeout(r, FORM_SUBMIT_DELAY_MS));
-        const targetId = activeAppointment.id;
+        const payload = {
+          id: activeAppointment.id,
+          type: values.appointmentType, // must be 'type' for DTO
+          doctor: values.doctor.trim(),
+          date: values.date,
+          location: values.hospitalLocation.trim(),
+          address: values.address.trim(),
+          phone: values.phone.trim(),
+          email: values.email.trim(),
+        };
+        const updated = await updateAppointment(payload);
         setAppointments((prev) =>
           prev.map((a) =>
-            a.id === targetId
+            a.id === updated.id
               ? {
                   ...a,
-                  appointmentType: values.appointmentType,
-                  doctorName: values.doctor.trim(),
-                  date: values.date,
-                  hospitalLocation: values.hospitalLocation.trim(),
-                  address: values.address.trim(),
-                  phone: values.phone.trim(),
-                  email: values.email.trim(),
+                  appointmentType: updated.appointmentType || payload.type,
+                  doctorName: updated.doctorName || payload.doctor,
+                  date: updated.date || payload.date,
+                  hospitalLocation: updated.hospitalLocation || payload.location,
+                  address: updated.address || payload.address,
+                  phone: updated.phone || payload.phone,
+                  email: updated.email || payload.email,
                 }
               : a,
           ),
         );
         toast.success("Appointment updated");
         setFormDialogOpen(false);
+      } catch {
+        toast.error("Failed to update appointment");
       } finally {
         setFormSubmitLoading(false);
       }
@@ -239,11 +257,13 @@ export default function AppointmentsPage() {
     const targetId = activeAppointment.id;
     setDeleteLoading(true);
     try {
-      await new Promise((r) => setTimeout(r, DELETE_DELAY_MS));
+      await deleteAppointment(targetId);
       setAppointments((prev) => prev.filter((a) => a.id !== targetId));
       toast.success("Appointment removed");
       setDeleteDialogOpen(false);
       setActiveAppointment(null);
+    } catch {
+      toast.error("Failed to delete appointment");
     } finally {
       setDeleteLoading(false);
     }
