@@ -11,6 +11,7 @@ import { MedicalRecordModule } from './medical-record/medical-record.module';
 import { AuditModule } from './audit/audit.module';
 import { S3VaultModule } from './s3-vault/s3-vault.module';
 import { AppointmentsModule } from './appointments/appointments.module';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { AppointmentsModule } from './appointments/appointments.module';
     AuditModule,
     S3VaultModule,
     AppointmentsModule,
+    AiModule,
   ],
   controllers: [],
   providers: [
@@ -35,4 +37,4 @@ import { AppointmentsModule } from './appointments/appointments.module';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

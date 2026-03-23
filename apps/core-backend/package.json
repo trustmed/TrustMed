@@ -44,6 +44,7 @@
     "@nestjs/terminus": "^11.0.0",
     "@nestjs/typeorm": "^11.0.0",
     "@trustmed/types": "workspace:*",
+    "ai": "^6.0.137",
     "axios": "^1.13.6",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.3",
