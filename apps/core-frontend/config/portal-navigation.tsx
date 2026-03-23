@@ -5,6 +5,7 @@ import {
   TestTube,
   FileText,
   FileClock,
+  Send,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -28,6 +29,13 @@ export const PORTAL_LINKS = [
     href: "/medical-records",
     icon: (
       <FileText className="text-neutral-700 dark:text-neutral-200 h-5 w-5 shrink-0" />
+    ),
+  },
+  {
+    label: "Share Record",
+    href: "/share-record",
+    icon: (
+      <Send className="text-neutral-700 dark:text-neutral-200 h-5 w-5 shrink-0" />
     ),
   },
   {
