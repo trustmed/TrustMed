@@ -98,6 +98,39 @@ export class ProfileService {
     return person;
   }
 
+  /**
+   * Load full profile using the internal AuthUser UUID.
+   */
+  async getProfileByInternalAuthId(authUserId: string) {
+    let person = await this.personRepository.findOne({
+      where: { authUserId },
+      relations: PROFILE_RELATIONS,
+    });
+
+    if (!person) {
+      const authUser = await this.authUserRepository.findOne({
+        where: { id: authUserId },
+      });
+
+      if (!authUser) {
+        throw new NotFoundException('Auth user not found');
+      }
+
+      const newPerson = this.personRepository.create({
+        authUserId: authUser.id,
+        email: authUser.email,
+      });
+      await this.personRepository.save(newPerson);
+
+      person = (await this.personRepository.findOne({
+        where: { id: newPerson.id },
+        relations: PROFILE_RELATIONS,
+      })) as Person;
+    }
+
+    return person;
+  }
+
   async updatePerson(personId: string, data: Partial<Person>) {
     await this.personRepository.update(personId, data);
     return this.getProfile(personId);

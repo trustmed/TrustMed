@@ -3,7 +3,8 @@ import { useState, useCallback } from "react";
 import { MedicalRecord, RecordCategory } from "@/types/medical-records";
 import { getAuthUser } from "@/utils/auth";
 import { MedicalRecordsApi } from "@/lib/api/medicalRecords";
-import { useQueryClient } from "@tanstack/react-query";
+import { ConsentRequestsApi } from "@/lib/api/consentRequests";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import {
   useMedicalRecordControllerGetAllByAuthUserId,
   useMedicalRecordControllerCreate,
@@ -16,7 +17,7 @@ import {
   UpdateMedicalRecordRequestDto,
 } from "@/services/interfaces";
 
-type ModalState = "upload" | "edit" | "delete" | null;
+type ModalState = "upload" | "edit" | "delete" | "accept_request" | null;
 type Toast = { id: number; message: string; type: "success" | "error" };
 
 export default function useMedicalRecords() {
@@ -39,7 +40,7 @@ export default function useMedicalRecords() {
   const queryClient = useQueryClient();
 
   // Queries and Mutations
-  const { data: recordsData } = useMedicalRecordControllerGetAllByAuthUserId(
+  const { data: recordsData, refetch: refetchRecords } = useMedicalRecordControllerGetAllByAuthUserId(
     AUTHUSER_ID,
     {
       query: {
@@ -48,6 +49,12 @@ export default function useMedicalRecords() {
     },
   );
   const records = (recordsData?.records as MedicalRecord[]) || [];
+
+  const { data: consentRequests = [], refetch: refetchConsentRequests } = useQuery({
+    queryKey: ['consentRequests', 'received'],
+    queryFn: () => ConsentRequestsApi.getReceivedRequests(),
+    enabled: !!AUTHUSER_ID,
+  });
 
   const showToast = useCallback(
     (message: string, type: "success" | "error") => {
@@ -195,5 +202,8 @@ export default function useMedicalRecords() {
     showToast,
     records,
     filtered,
+    consentRequests,
+    refetchConsentRequests,
+    refetchRecords,
   };
 }

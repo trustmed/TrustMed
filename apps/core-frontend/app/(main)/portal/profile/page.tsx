@@ -66,7 +66,7 @@ export default function ProfilePage() {
                 // Personal & physical
                 const mapped: Partial<CoreIdentityValues> = {
                     firstName,
-                    lastName: lastName ?? undefined,
+                    lastName,
                     email: data.email,
                     phone: data.phone ?? "",
                     addressLine1: data.addressLine1 ?? "",
@@ -84,16 +84,12 @@ export default function ProfilePage() {
                 }
                 setPersonalData(mapped);
 
-                // Emergency contacts
+                //... other sets
                 setEmergencyData(data.emergencyContacts ?? []);
-
-                // Allergies + medications
                 setMedicalData({
                     allergies: data.allergies ?? [],
                     medications: data.medications ?? [],
                 });
-
-                // Insurance (lives on medicalProfile)
                 if (data.medicalProfile) {
                     setInsuranceData({
                         provider: data.medicalProfile.insuranceProvider ?? "",
@@ -102,14 +98,10 @@ export default function ProfilePage() {
                     });
                 }
 
-                // Compute initial progress
                 setSectionsDone({
                     identity: !!(firstName && data.email),
                     emergency: (data.emergencyContacts ?? []).length > 0,
-                    medical:
-                        (data.allergies ?? []).length > 0 ||
-                        (data.medications ?? []).length > 0 ||
-                        !!data.medicalProfile?.bloodType,
+                    medical: (data.allergies ?? []).length > 0 || (data.medications ?? []).length > 0 || !!data.medicalProfile?.bloodType,
                     insurance: !!(data.medicalProfile?.insuranceProvider && data.medicalProfile?.insurancePolicyNo),
                 });
             } catch (error) {

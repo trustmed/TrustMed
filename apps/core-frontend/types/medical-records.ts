@@ -12,6 +12,12 @@ export interface MedicalRecord {
   personId: string;
   createdAt: string;
   updatedAt: string;
+  requestStatus?: {
+    status: string | boolean;
+    createdBy: string;
+    createdAt: string;
+    id?: string;
+  };
 }
 
 export enum RecordCategory {
