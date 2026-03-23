@@ -60,7 +60,6 @@ const SignIn = () => {
         heroImageSrc="/report.jpg"
         form={form}
         onSignIn={onSubmit}
-        onResetPassword={handleResetPassword}
         onBackHome={handleBackHome}
         isLoading={isLoading}
       />

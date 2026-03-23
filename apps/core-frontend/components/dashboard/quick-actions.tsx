@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Upload, CalendarClock, FileClock } from "lucide-react";
+import { Send, FileClock, FileText, CalendarClock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface QuickAction {
@@ -13,10 +13,22 @@ interface QuickAction {
 
 const ACTIONS: QuickAction[] = [
   {
-    label: "Upload Record",
-    icon: <Upload className="h-4 w-4" strokeWidth={2} />,
-    href: "/medical-records",
+    label: "Share Records",
+    icon: <Send className="h-4 w-4" strokeWidth={2} />,
+    href: "/share-record",
     variant: "primary",
+  },
+  {
+    label: "Medical History",
+    icon: <FileClock className="h-4 w-4" strokeWidth={2} />,
+    href: "/medical-history",
+    variant: "outline",
+  },
+  {
+    label: "Medical Records",
+    icon: <FileText className="h-4 w-4" strokeWidth={2} />,
+    href: "/medical-records",
+    variant: "outline",
   },
   {
     label: "Appointments",
@@ -24,12 +36,6 @@ const ACTIONS: QuickAction[] = [
     href: "/appointments",
     variant: "outline",
   },
-  {
-    label: "View History",
-    icon: <FileClock className="h-4 w-4" strokeWidth={2} />,
-    href: "/medical-history",
-    variant: "outline",
-  }
 ];
 
 export function QuickActions() {

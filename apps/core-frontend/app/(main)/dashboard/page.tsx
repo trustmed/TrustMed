@@ -29,33 +29,19 @@ function getGreeting(): string {
 }
 
 export default function DashboardPage() {
-
-  // const { data: user, isLoading: userLoading } = useAuthControllerGetMe();
   const [tipIndex] = useState(() => Math.floor(Math.random() * HEALTH_TIPS.length));
-
   const authUser = getAuthUser();
   const AUTHUSER_ID = authUser?.sub || '';
-
   const { data: recordsData, isLoading: recordsLoading } = useMedicalRecordControllerGetAllByAuthUserId(AUTHUSER_ID, {
     query: {
       enabled: !!AUTHUSER_ID,
     }
   });
   const records = (recordsData?.records as MedicalRecord[]) || [];
-
   const appointments = SEED_APPOINTMENTS;
   const upcomingCount = appointments.filter((a) => a.status !== "cancelled").length;
   const pendingCount = appointments.filter((a) => a.status === "pending").length;
-
   const firstName = authUser?.firstName ?? authUser?.email?.split("@")[0];
-
-  // if (userLoading) {
-  //   return (
-  //     <div className="flex items-center justify-center h-64">
-  //       <Loader2 className="h-6 w-6 animate-spin text-neutral-400" />
-  //     </div>
-  //   );
-  // }
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-6xl mx-auto pb-8">
@@ -68,10 +54,8 @@ export default function DashboardPage() {
           Here&apos;s your health summary at a glance.
         </p>
       </div>
-
       {/* Quick Actions */}
       <QuickActions />
-
       {/* Stat Cards */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard
@@ -103,16 +87,13 @@ export default function DashboardPage() {
           accent="rose"
         />
       </div>
-
       {/* Activity Chart */}
       <ActivityChart />
-
       {/* Two-Column Content */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <UpcomingAppointments appointments={appointments} />
         <RecentRecords records={records} />
       </div>
-
       {/* Health Tip */}
       <div className="flex items-start gap-3 rounded-2xl border border-neutral-200/80 bg-neutral-50/50 px-5 py-4 dark:border-neutral-800 dark:bg-neutral-800/20">
         <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-amber-50 dark:bg-amber-950/40">

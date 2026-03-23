@@ -22,7 +22,6 @@ const SECTIONS = [
     { id: "insurance", label: "Insurance", icon: FileText, description: "Provider and policy details." },
 ];
 
-// Track which sections have meaningful data for the progress ring
 function computeProgress(sections: Record<string, boolean>) {
     const filled = Object.values(sections).filter(Boolean).length;
     return Math.round((filled / Object.keys(sections).length) * 100);
