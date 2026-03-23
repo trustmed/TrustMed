@@ -97,10 +97,8 @@ export default function AppointmentsPage() {
             .then((data) => setAppointments(Array.isArray(data.records) ? data.records : []))
             .catch(() => toast.error("Failed to load appointments"))
             .finally(() => setTableReady(true));
-    }, [PATIENT_ID]);
+    }, []);
 
-    useEffect(() => {
-    }, [appointments]);
 
   const filteredAppointments = useMemo(
     () =>
