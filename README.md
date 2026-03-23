@@ -1,5 +1,3 @@
-[![core-frontend-auto-deploy](https://github.com/trustmed/TrustMed/actions/workflows/core-frontend-dev.yml/badge.svg)](https://github.com/trustmed/TrustMed/actions/workflows/core-frontend-dev.yml)
-[![core-backend-auto-deploy](https://github.com/trustmed/TrustMed/actions/workflows/core-backend-dev.yml/badge.svg)](https://github.com/trustmed/TrustMed/actions/workflows/core-backend-dev.yml)
 
 # TrustMed  
 
