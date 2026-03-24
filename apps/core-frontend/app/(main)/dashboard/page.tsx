@@ -11,6 +11,7 @@ import { StatCard } from "@/components/dashboard/stat-card";
 import { UpcomingAppointments } from "@/components/dashboard/upcoming-appointments";
 import { RecentRecords } from "@/components/dashboard/recent-records";
 import { QuickActions } from "@/components/dashboard/quick-actions";
+import { AiChat } from "@/components/dashboard/ai-chat";
 import { ActivityChart } from "@/components/dashboard/activity-chart";
 
 const HEALTH_TIPS = [
@@ -56,6 +57,8 @@ export default function DashboardPage() {
       </div>
       {/* Quick Actions */}
       <QuickActions />
+      {/* AI Chat */}
+      <AiChat />
       {/* Stat Cards */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard
