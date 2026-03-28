@@ -414,7 +414,7 @@ export default function MedicalHistoryPage() {
     { query: { refetchOnWindowFocus: false } }
   );
 
-  const events = data?.events ?? [];
+  const events = React.useMemo(() => data?.events ?? [], [data?.events]);
 
   const filtered = React.useMemo(() => {
     let items = events.filter((e: HistoryEventDto) => matchesFilter(e, activeFilter));

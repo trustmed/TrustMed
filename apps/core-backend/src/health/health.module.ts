@@ -9,4 +9,4 @@ import { BlockchainModule } from '../blockchain/blockchain.module';
   controllers: [HealthController],
   providers: [HealthService],
 })
-export class HealthModule { }
+export class HealthModule {}

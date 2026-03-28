@@ -5,13 +5,15 @@ import { MedicalRecord } from '../entities/medical-record.entity';
 import { BlockchainModule } from '../blockchain/blockchain.module';
 import { MedicalHistoryController } from './medical-history.controller';
 import { MedicalHistoryService } from './medical-history.service';
+import { ProfileModule } from '../profile/profile.module';
 
 @Module({
-    imports: [
-        TypeOrmModule.forFeature([AuditLog, MedicalRecord]),
-        BlockchainModule,
-    ],
-    controllers: [MedicalHistoryController],
-    providers: [MedicalHistoryService],
+  imports: [
+    TypeOrmModule.forFeature([AuditLog, MedicalRecord]),
+    BlockchainModule,
+    ProfileModule,
+  ],
+  controllers: [MedicalHistoryController],
+  providers: [MedicalHistoryService],
 })
-export class MedicalHistoryModule { }
+export class MedicalHistoryModule {}

@@ -41,7 +41,7 @@ export class BlockchainConnectorService {
         ),
       );
       return data;
-    } catch (error) {
+    } catch {
       this.logger.error(
         `Failed to fetch access requests for patient ${patientDid} from ${this.gatewayUrl}`,
       );
@@ -73,7 +73,7 @@ export class BlockchainConnectorService {
         this.httpService.get<unknown[]>(`${registryUrl}/patient/${patientDid}`),
       );
       return data;
-    } catch (error) {
+    } catch {
       this.logger.error(
         `Failed to fetch record registry for patient ${patientDid}`,
       );

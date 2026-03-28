@@ -33,7 +33,7 @@ export class ProfileService {
     @InjectRepository(EmergencyContact)
     private emergencyContactRepository: Repository<EmergencyContact>,
     private auditService: AuditService,
-  ) { }
+  ) {}
 
   async getProfile(personId: string) {
     const person = await this.personRepository.findOne({
@@ -138,6 +138,7 @@ export class ProfileService {
     await this.auditService.log({
       eventType: AuditEventType.PROFILE_UPDATED,
       actorId: personId,
+      patientId: personId,
       targetResource: personId,
       additionalData: { field: 'person' },
     });
@@ -172,6 +173,7 @@ export class ProfileService {
     await this.auditService.log({
       eventType: AuditEventType.PROFILE_UPDATED,
       actorId: personId,
+      patientId: personId,
       targetResource: personId,
       additionalData: { field: 'medical_profile' },
     });
@@ -187,6 +189,7 @@ export class ProfileService {
     await this.auditService.log({
       eventType: AuditEventType.PROFILE_UPDATED,
       actorId: personId,
+      patientId: personId,
       targetResource: personId,
       additionalData: { field: 'allergy', id: saved.id },
     });
@@ -202,6 +205,7 @@ export class ProfileService {
     await this.auditService.log({
       eventType: AuditEventType.PROFILE_UPDATED,
       actorId: personId,
+      patientId: personId,
       targetResource: personId,
       additionalData: { field: 'medication', id: saved.id },
     });
@@ -217,6 +221,7 @@ export class ProfileService {
     await this.auditService.log({
       eventType: AuditEventType.PROFILE_UPDATED,
       actorId: personId,
+      patientId: personId,
       targetResource: personId,
       additionalData: { field: 'emergency_contact', id: saved.id },
     });
@@ -233,5 +238,15 @@ export class ProfileService {
 
   async deleteEmergencyContact(id: string) {
     return this.emergencyContactRepository.delete(id);
+  }
+
+  async getPersonIdByAuthUserId(
+    authUserId: string,
+  ): Promise<string | undefined> {
+    const person = await this.personRepository.findOne({
+      where: { authUserId },
+      select: ['id'],
+    });
+    return person?.id;
   }
 }

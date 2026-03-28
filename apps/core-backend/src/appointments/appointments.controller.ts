@@ -13,12 +13,11 @@ import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { AppointmentResponseDto } from './dto/appointment-response.dto';
 import { EditAppointmentDto } from './dto/edit-appointment.dto';
 import { DeleteAppointmentDto } from './dto/delete-appointment.dto';
-import { FindAppointmentByIdDto } from './dto/find-appointment-by-id.dto';
 
 @ApiTags('appointments')
 @Controller('appointments')
 export class AppointmentsController {
-  constructor(private readonly appointmentsService: AppointmentsService) { }
+  constructor(private readonly appointmentsService: AppointmentsService) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new appointment' })
@@ -57,9 +56,7 @@ export class AppointmentsController {
   @Get('find')
   @ApiOperation({ summary: 'Find appointment by id' })
   @ApiResponse({ status: 200, type: AppointmentResponseDto })
-  async findOneById(
-    @Query('id') id: string,
-  ): Promise<AppointmentResponseDto> {
+  async findOneById(@Query('id') id: string): Promise<AppointmentResponseDto> {
     return await this.appointmentsService.findOneById(id);
   }
 

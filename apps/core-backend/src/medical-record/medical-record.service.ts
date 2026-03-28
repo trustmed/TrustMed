@@ -21,7 +21,7 @@ export class MedicalRecordService {
     private readonly s3VaultService: S3VaultService,
     private readonly consentService: ConsentService,
     private readonly auditService: AuditService,
-  ) { }
+  ) {}
 
   async create(
     dto: CreateMedicalRecordRequestDto,
@@ -50,6 +50,7 @@ export class MedicalRecordService {
       await this.auditService.log({
         eventType: AuditEventType.RECORD_UPLOADED,
         actorId: person.id,
+        patientId: person.id,
         targetResource: saved.id,
       });
       return {
@@ -88,6 +89,7 @@ export class MedicalRecordService {
     await this.auditService.log({
       eventType: AuditEventType.RECORD_UPLOADED,
       actorId: person.id,
+      patientId: person.id,
       targetResource: saved.id,
     });
     return {
@@ -142,7 +144,7 @@ export class MedicalRecordService {
     });
     if (!record)
       throw new NotFoundException('Medical record not found or not authorized');
-    
+
     // Physical file deletion (cleanup from local FS or S3)
     await this.s3VaultService.deleteFile(recordId);
 
@@ -150,6 +152,7 @@ export class MedicalRecordService {
     await this.auditService.log({
       eventType: AuditEventType.RECORD_DELETED,
       actorId: person.id,
+      patientId: record.patientId,
       targetResource: recordId,
     });
     return true;
@@ -193,6 +196,7 @@ export class MedicalRecordService {
     await this.auditService.log({
       eventType: AuditEventType.RECORD_UPDATED,
       actorId: person.id,
+      patientId: record.patientId,
       targetResource: recordId,
     });
     return saved;
@@ -225,6 +229,7 @@ export class MedicalRecordService {
     await this.auditService.log({
       eventType: AuditEventType.RECORD_DOWNLOADED,
       actorId: person.id,
+      patientId: record.patientId,
       targetResource: recordId,
     });
     return { buffer, originalFileName: fileName, mimeType };

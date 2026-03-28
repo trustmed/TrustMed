@@ -15,7 +15,7 @@ export class AppointmentsService {
     @InjectRepository(Person)
     private readonly personRepository: Repository<Person>,
     private readonly auditService: AuditService,
-  ) { }
+  ) {}
 
   private toResponseDto(a: Appointment): AppointmentResponseDto {
     return {
@@ -46,6 +46,7 @@ export class AppointmentsService {
     await this.auditService.log({
       eventType: AuditEventType.APPOINTMENT_CREATED,
       actorId: patient.id,
+      patientId: patient.id,
       targetResource: saved.id,
     });
     return saved;

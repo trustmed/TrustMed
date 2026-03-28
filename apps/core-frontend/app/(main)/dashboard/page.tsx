@@ -50,8 +50,8 @@ export default function DashboardPage() {
   });
 
   const appointments = useMemo(() => {
-    const records = (appointmentData as any)?.records;
-    return Array.isArray(records) ? (records as Appointment[]) : [];
+    const records = (appointmentData as { records?: Appointment[] })?.records;
+    return Array.isArray(records) ? records : [];
   }, [appointmentData]);
 
   const upcomingCount = appointments.filter((a) => a.status !== "cancelled").length;

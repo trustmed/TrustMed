@@ -10,7 +10,6 @@ import {
   useAppointmentsControllerDelete,
   useAppointmentsControllerFindAllByAuthUserId,
 } from "@/services/api/appointments/appointments";
-import type { AppointmentResponseDto } from "@/services/interfaces";
 import { getAuthUser } from "@/utils/auth";
 import type { Appointment } from "@/lib/appointments/types";
 import { AppointmentDeleteDialog } from "@/components/appointments/AppointmentDeleteDialog";
@@ -90,8 +89,8 @@ export default function AppointmentsPage() {
     );
 
     const appointments = useMemo(() => {
-        const records = (appointmentData as any)?.records;
-        return Array.isArray(records) ? (records as Appointment[]) : [];
+        const records = (appointmentData as { records?: Appointment[] })?.records;
+        return Array.isArray(records) ? records : [];
     }, [appointmentData]);
 
     const createMutation = useAppointmentsControllerCreate();
@@ -182,7 +181,7 @@ export default function AppointmentsPage() {
                 await refetchAppointments();
                 toast.success("Appointment added");
                 setFormDialogOpen(false);
-            } catch (e) {
+            } catch {
                 toast.error("Failed to add appointment");
             } finally {
                 setFormSubmitLoading(false);
