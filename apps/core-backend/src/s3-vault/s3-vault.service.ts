@@ -2,7 +2,7 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import * as crypto from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -13,7 +13,7 @@ import { CryptoService } from './crypto.service';
 import { AuditService, AuditEventType } from '../audit/audit.service';
 import { Person } from '../entities/person.entity';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { GetObjectCommand } from '@aws-sdk/client-s3';
+// Redundant import removed to fix TS2300 error
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -378,5 +378,58 @@ export class S3VaultService {
     /** Returns the SHA-256 hex digest of the given buffer. */
     private hashFile(buffer: Buffer): string {
         return crypto.createHash('sha256').update(buffer).digest('hex');
+    }
+
+    /**
+     * Deletes the physical file from storage (S3 or Local FS).
+     */
+    async deleteFile(recordId: string): Promise<void> {
+        const record = await this.medicalRecordRepo.findOne({
+            where: { id: recordId },
+        });
+
+        if (!record || !record.s3Uri) {
+            this.logger.warn(`Cannot delete file: Record ${recordId} not found or has no storage URI`);
+            return;
+        }
+
+        const s3Uri = record.s3Uri;
+
+        if (this.isLocalStorage || s3Uri.startsWith('local://')) {
+            const objectKey = s3Uri.startsWith('local://')
+                ? s3Uri.replace('local://', '')
+                : s3Uri.split('/').slice(3).join('/');
+
+            const fullPath = path.join(this.localStorageBasePath, objectKey);
+            
+            try {
+                if (fs.existsSync(fullPath)) {
+                    await fs.promises.unlink(fullPath);
+                    this.logger.log(`Deleted local file: ${fullPath}`);
+                } else {
+                    this.logger.warn(`Local file already missing: ${fullPath}`);
+                }
+            } catch (err: any) {
+                this.logger.error(`Failed to delete local file ${fullPath}: ${err.message}`);
+            }
+        } else {
+            if (!this.s3Client) {
+                this.logger.error('S3 client not initialized but storage type is s3');
+                return;
+            }
+            const objectKey = s3Uri.split('/').slice(3).join('/');
+
+            try {
+                await this.s3Client.send(
+                    new DeleteObjectCommand({
+                        Bucket: this.bucketName,
+                        Key: objectKey,
+                    }),
+                );
+                this.logger.log(`Deleted file from S3: ${objectKey}`);
+            } catch (err: any) {
+                this.logger.error(`Failed to delete file from S3 (${objectKey}): ${err.message}`);
+            }
+        }
     }
 }

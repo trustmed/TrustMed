@@ -84,7 +84,7 @@ export default function useMedicalRecords() {
         if (props.recordDate) formData.append("recordDate", props.recordDate);
 
         await createMutation.mutateAsync({
-          data: formData as unknown as CreateMedicalRecordRequestDto 
+          data: formData as unknown as CreateMedicalRecordRequestDto
         });
 
         queryClient.invalidateQueries({
@@ -98,7 +98,7 @@ export default function useMedicalRecords() {
 
         showToast(
           "Failed to upload record: " +
-            (err instanceof Error ? err.message : String(err)),
+          (err instanceof Error ? err.message : String(err)),
           "error",
         );
       }
@@ -161,13 +161,9 @@ export default function useMedicalRecords() {
     async (record: MedicalRecord) => {
       if (!AUTHUSER_ID) return;
       try {
-        const url = await MedicalRecordsApi.getDownloadUrl(
-          AUTHUSER_ID,
-          record.id,
-        );
-        window.open(url, "_blank");
+        await MedicalRecordsApi.downloadRecord(record.id);
       } catch {
-        showToast("Failed to get download URL", "error");
+        showToast("Failed to download record", "error");
       }
     },
     [AUTHUSER_ID, showToast],

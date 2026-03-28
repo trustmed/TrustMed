@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { CalendarClock, FolderHeart, FileText, UserCog, Lightbulb } from "lucide-react";
-import { SEED_APPOINTMENTS } from "@/lib/appointments/seed-data";
 import type { MedicalRecord } from "@/types/medical-records";
 import { useMedicalRecordControllerGetAllByAuthUserId } from "@/services/api/medical-records/medical-records";
+import { useAppointmentsControllerFindAllByAuthUserId } from "@/services/api/appointments/appointments";
 import { getAuthUser } from "@/utils/auth";
+import type { Appointment } from "@/lib/appointments/types";
 
 import { StatCard } from "@/components/dashboard/stat-card";
 import { UpcomingAppointments } from "@/components/dashboard/upcoming-appointments";
@@ -39,7 +40,20 @@ export default function DashboardPage() {
     }
   });
   const records = (recordsData?.records as MedicalRecord[]) || [];
-  const appointments = SEED_APPOINTMENTS;
+
+  const { data: appointmentData, isLoading: appointmentsLoading } = useAppointmentsControllerFindAllByAuthUserId({
+    authUserId: AUTHUSER_ID
+  }, {
+    query: {
+      enabled: !!AUTHUSER_ID,
+    }
+  });
+
+  const appointments = useMemo(() => {
+    const records = (appointmentData as any)?.records;
+    return Array.isArray(records) ? (records as Appointment[]) : [];
+  }, [appointmentData]);
+
   const upcomingCount = appointments.filter((a) => a.status !== "cancelled").length;
   const pendingCount = appointments.filter((a) => a.status === "pending").length;
   const firstName = authUser?.firstName ?? authUser?.email?.split("@")[0];
@@ -64,7 +78,7 @@ export default function DashboardPage() {
         <StatCard
           icon={<CalendarClock className="h-5 w-5" />}
           label="Upcoming"
-          value={upcomingCount}
+          value={appointmentsLoading ? "—" : upcomingCount}
           description="Active appointments"
           accent="indigo"
         />
@@ -78,7 +92,7 @@ export default function DashboardPage() {
         <StatCard
           icon={<FileText className="h-5 w-5" />}
           label="Pending"
-          value={pendingCount}
+          value={appointmentsLoading ? "—" : pendingCount}
           description="Awaiting confirmation"
           accent="amber"
         />

@@ -52,7 +52,7 @@ export const dataSourceOptions: DataSourceOptions = {
     CreateMedicalRecordTable1774144345789,
     CreateConsentRequests1774296327000,
   ],
-  synchronize: false,
+  synchronize: true,
   logging: process.env.NODE_ENV === 'development',
 };
 

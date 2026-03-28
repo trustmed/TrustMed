@@ -6,7 +6,7 @@ import {
   HealthResponseDto,
 } from './dto/health-response.dto';
 import { Public } from '../auth/public.decorator';
-import { BlockchainConnectorService } from 'src/blockchain/blockchain-connector.service';
+import { BlockchainConnectorService } from '../blockchain/blockchain-connector.service';
 
 @ApiTags('health')
 @Controller('health')

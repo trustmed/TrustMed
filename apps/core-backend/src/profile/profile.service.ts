@@ -7,6 +7,7 @@ import { MedicalProfile } from '../entities/medical-profile.entity';
 import { Allergy } from '../entities/allergy.entity';
 import { Medication } from '../entities/medication.entity';
 import { EmergencyContact } from '../entities/emergency-contact.entity';
+import { AuditService, AuditEventType } from '../audit/audit.service';
 
 const PROFILE_RELATIONS = [
   'authUser',
@@ -31,7 +32,8 @@ export class ProfileService {
     private medicationRepository: Repository<Medication>,
     @InjectRepository(EmergencyContact)
     private emergencyContactRepository: Repository<EmergencyContact>,
-  ) {}
+    private auditService: AuditService,
+  ) { }
 
   async getProfile(personId: string) {
     const person = await this.personRepository.findOne({
@@ -133,6 +135,12 @@ export class ProfileService {
 
   async updatePerson(personId: string, data: Partial<Person>) {
     await this.personRepository.update(personId, data);
+    await this.auditService.log({
+      eventType: AuditEventType.PROFILE_UPDATED,
+      actorId: personId,
+      targetResource: personId,
+      additionalData: { field: 'person' },
+    });
     return this.getProfile(personId);
   }
 
@@ -160,7 +168,14 @@ export class ProfileService {
       this.medicalProfileRepository.merge(profile, data);
     }
 
-    return this.medicalProfileRepository.save(profile);
+    const saved = await this.medicalProfileRepository.save(profile);
+    await this.auditService.log({
+      eventType: AuditEventType.PROFILE_UPDATED,
+      actorId: personId,
+      targetResource: personId,
+      additionalData: { field: 'medical_profile' },
+    });
+    return saved;
   }
 
   async addAllergy(personId: string, data: Partial<Allergy>) {
@@ -168,7 +183,14 @@ export class ProfileService {
     if (!person) throw new NotFoundException('Person not found');
 
     const allergy = this.allergyRepository.create({ ...data, person });
-    return this.allergyRepository.save(allergy);
+    const saved = await this.allergyRepository.save(allergy);
+    await this.auditService.log({
+      eventType: AuditEventType.PROFILE_UPDATED,
+      actorId: personId,
+      targetResource: personId,
+      additionalData: { field: 'allergy', id: saved.id },
+    });
+    return saved;
   }
 
   async addMedication(personId: string, data: Partial<Medication>) {
@@ -176,7 +198,14 @@ export class ProfileService {
     if (!person) throw new NotFoundException('Person not found');
 
     const medication = this.medicationRepository.create({ ...data, person });
-    return this.medicationRepository.save(medication);
+    const saved = await this.medicationRepository.save(medication);
+    await this.auditService.log({
+      eventType: AuditEventType.PROFILE_UPDATED,
+      actorId: personId,
+      targetResource: personId,
+      additionalData: { field: 'medication', id: saved.id },
+    });
+    return saved;
   }
 
   async addEmergencyContact(personId: string, data: Partial<EmergencyContact>) {
@@ -184,7 +213,14 @@ export class ProfileService {
     if (!person) throw new NotFoundException('Person not found');
 
     const contact = this.emergencyContactRepository.create({ ...data, person });
-    return this.emergencyContactRepository.save(contact);
+    const saved = await this.emergencyContactRepository.save(contact);
+    await this.auditService.log({
+      eventType: AuditEventType.PROFILE_UPDATED,
+      actorId: personId,
+      targetResource: personId,
+      additionalData: { field: 'emergency_contact', id: saved.id },
+    });
+    return saved;
   }
 
   async deleteAllergy(id: string) {

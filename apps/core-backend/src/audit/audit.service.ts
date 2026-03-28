@@ -6,9 +6,15 @@ import { AuditLog } from '../entities/audit-log.entity';
 /** Well-known audit event types for medical records. */
 export enum AuditEventType {
     RECORD_UPLOADED = 'RECORD_UPLOADED',
+    RECORD_UPDATED = 'RECORD_UPDATED',
+    RECORD_DELETED = 'RECORD_DELETED',
     RECORD_DOWNLOADED = 'RECORD_DOWNLOADED',
     RECORD_LISTED = 'RECORD_LISTED',
     RECORD_ACCESS_DENIED = 'RECORD_ACCESS_DENIED',
+    APPOINTMENT_CREATED = 'APPOINTMENT_CREATED',
+    APPOINTMENT_UPDATED = 'APPOINTMENT_UPDATED',
+    APPOINTMENT_CANCELLED = 'APPOINTMENT_CANCELLED',
+    PROFILE_UPDATED = 'PROFILE_UPDATED',
 }
 
 export interface AuditEvent {

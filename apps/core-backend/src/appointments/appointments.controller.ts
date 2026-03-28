@@ -18,7 +18,7 @@ import { FindAppointmentByIdDto } from './dto/find-appointment-by-id.dto';
 @ApiTags('appointments')
 @Controller('appointments')
 export class AppointmentsController {
-  constructor(private readonly appointmentsService: AppointmentsService) {}
+  constructor(private readonly appointmentsService: AppointmentsService) { }
 
   @Post()
   @ApiOperation({ summary: 'Create a new appointment' })
@@ -26,19 +26,18 @@ export class AppointmentsController {
   async create(
     @Body() dto: CreateAppointmentDto,
   ): Promise<AppointmentResponseDto> {
-    console.log('Received appointment creation request:', dto);
     const a = await this.appointmentsService.create(dto);
     return {
       id: a.id,
-      appointmentNo: a['appointmentNo'] || '',
-      appointmentType: a['type'] || '',
-      doctorName: a['doctor'] || '',
+      appointmentNo: a.id.slice(0, 8),
+      appointmentType: a.type || '',
+      doctorName: a.doctor || '',
       date: a.date instanceof Date ? a.date.toISOString().slice(0, 10) : a.date,
-      hospitalLocation: a['location'] || '',
+      hospitalLocation: a.location || '',
       status: a.status,
-      address: a['address'] || '',
-      phone: a['phone'] || '',
-      email: a['email'] || '',
+      address: a.address || '',
+      phone: a.phone || '',
+      email: a.email || '',
     };
   }
 
@@ -59,9 +58,9 @@ export class AppointmentsController {
   @ApiOperation({ summary: 'Find appointment by id' })
   @ApiResponse({ status: 200, type: AppointmentResponseDto })
   async findOneById(
-    @Query() dto: FindAppointmentByIdDto,
+    @Query('id') id: string,
   ): Promise<AppointmentResponseDto> {
-    return await this.appointmentsService.findOneById(dto.id);
+    return await this.appointmentsService.findOneById(id);
   }
 
   @Patch()

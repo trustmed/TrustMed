@@ -17,5 +17,6 @@ import { S3VaultModule } from '../s3-vault/s3-vault.module';
   ],
   providers: [MedicalRecordService, ConsentService],
   controllers: [MedicalRecordController, ConsentRequestsController],
+  exports: [MedicalRecordService],
 })
-export class MedicalRecordModule {}
+export class MedicalRecordModule { }
