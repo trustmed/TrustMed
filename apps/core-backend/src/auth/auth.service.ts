@@ -80,12 +80,17 @@ export class AuthService {
       throw new InternalServerErrorException('Authentication failed');
     }
 
+    const person = await this.personRepository.findOneBy({
+      authUserId: registeredUser.id,
+    });
+
     // 3. Issue backend JWT with AuthUser details
     return this.signJwt({
       sub: registeredUser.id,
       email: registeredUser.email,
       firstName: registeredUser.firstName,
       lastName: registeredUser.lastName,
+      personId: person?.id,
       isDemoDisabled: registeredUser.isDemoDisabled,
       active: registeredUser.active,
     });
@@ -124,7 +129,7 @@ export class AuthService {
       );
 
       // 3. Create linked Person record (minimal, email only)
-      await this.personRepository.save(
+      const person = await this.personRepository.save(
         this.personRepository.create({
           email,
           authUserId: savedAuthUser.id,
@@ -137,6 +142,7 @@ export class AuthService {
         email: savedAuthUser.email,
         firstName: savedAuthUser.firstName,
         lastName: savedAuthUser.lastName,
+        personId: person.id,
         isDemoDisabled: savedAuthUser.isDemoDisabled,
         active: savedAuthUser.active,
       });

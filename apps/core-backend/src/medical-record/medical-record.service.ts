@@ -7,6 +7,7 @@ import { CreateMedicalRecordRequestDto } from './dto/create-medical-record-reque
 import { CreateMedicalRecordResponseDto } from './dto/create-medical-record-response.dto';
 import { S3VaultService } from '../s3-vault/s3-vault.service';
 import { ConsentService } from './consent.service';
+import { AuditService, AuditEventType } from '../audit/audit.service';
 
 @Injectable()
 export class MedicalRecordService {
@@ -19,6 +20,7 @@ export class MedicalRecordService {
     private readonly personRepo: Repository<Person>,
     private readonly s3VaultService: S3VaultService,
     private readonly consentService: ConsentService,
+    private readonly auditService: AuditService,
   ) {}
 
   async create(
@@ -45,6 +47,12 @@ export class MedicalRecordService {
       );
 
       const saved = result.savedRecord;
+      await this.auditService.log({
+        eventType: AuditEventType.RECORD_UPLOADED,
+        actorId: person.id,
+        patientId: person.id,
+        targetResource: saved.id,
+      });
       return {
         id: saved.id,
         personId: saved.person?.id || person.id,
@@ -78,6 +86,12 @@ export class MedicalRecordService {
     const saved = (await this.recordRepo.save(
       record,
     )) as unknown as MedicalRecord;
+    await this.auditService.log({
+      eventType: AuditEventType.RECORD_UPLOADED,
+      actorId: person.id,
+      patientId: person.id,
+      targetResource: saved.id,
+    });
     return {
       id: saved.id,
       personId: saved.person?.id || person.id,
@@ -130,7 +144,17 @@ export class MedicalRecordService {
     });
     if (!record)
       throw new NotFoundException('Medical record not found or not authorized');
+
+    // Physical file deletion (cleanup from local FS or S3)
+    await this.s3VaultService.deleteFile(recordId);
+
     await this.recordRepo.remove(record);
+    await this.auditService.log({
+      eventType: AuditEventType.RECORD_DELETED,
+      actorId: person.id,
+      patientId: record.patientId,
+      targetResource: recordId,
+    });
     return true;
   }
 
@@ -169,6 +193,12 @@ export class MedicalRecordService {
       record.recordDate = new Date(dto.recordDate);
     }
     const saved = await this.recordRepo.save(record);
+    await this.auditService.log({
+      eventType: AuditEventType.RECORD_UPDATED,
+      actorId: person.id,
+      patientId: record.patientId,
+      targetResource: recordId,
+    });
     return saved;
   }
 
@@ -196,6 +226,12 @@ export class MedicalRecordService {
 
     const { buffer, fileName, mimeType } =
       await this.s3VaultService.getDecryptedBuffer(recordId);
+    await this.auditService.log({
+      eventType: AuditEventType.RECORD_DOWNLOADED,
+      actorId: person.id,
+      patientId: record.patientId,
+      targetResource: recordId,
+    });
     return { buffer, originalFileName: fileName, mimeType };
   }
 }

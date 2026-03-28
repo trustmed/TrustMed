@@ -2,11 +2,11 @@ import { PipeTransform, Injectable, BadRequestException } from '@nestjs/common';
 
 /** MIME types accepted for medical record uploads. */
 const ALLOWED_MIME_TYPES: ReadonlySet<string> = new Set([
-    'application/pdf',
-    'image/jpeg',
-    'image/png',
-    'application/dicom',
-    'text/plain',
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+  'application/dicom',
+  'text/plain',
 ]);
 
 /**
@@ -19,18 +19,18 @@ const ALLOWED_MIME_TYPES: ReadonlySet<string> = new Set([
  */
 @Injectable()
 export class FileValidationPipe implements PipeTransform {
-    transform(file: Express.Multer.File): Express.Multer.File {
-        if (!file) {
-            throw new BadRequestException('No file provided. Use form field "file".');
-        }
-
-        if (!ALLOWED_MIME_TYPES.has(file.mimetype)) {
-            throw new BadRequestException(
-                `File type "${file.mimetype}" is not allowed. ` +
-                `Accepted types: ${[...ALLOWED_MIME_TYPES].join(', ')}`,
-            );
-        }
-
-        return file;
+  transform(file: Express.Multer.File): Express.Multer.File {
+    if (!file) {
+      throw new BadRequestException('No file provided. Use form field "file".');
     }
+
+    if (!ALLOWED_MIME_TYPES.has(file.mimetype)) {
+      throw new BadRequestException(
+        `File type "${file.mimetype}" is not allowed. ` +
+          `Accepted types: ${[...ALLOWED_MIME_TYPES].join(', ')}`,
+      );
+    }
+
+    return file;
+  }
 }

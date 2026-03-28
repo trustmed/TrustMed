@@ -9,11 +9,14 @@ export class AuditLog extends BaseEntity {
   @Column({ name: 'actor_did' })
   actorDid: string;
 
+  @Column({ name: 'patient_id', nullable: true })
+  patientId?: string;
+
   @Column({ name: 'target_resource', nullable: true })
-  targetResource: string;
+  targetResource?: string;
 
   @Column({ name: 'ip_address', nullable: true })
-  ipAddress: string;
+  ipAddress?: string;
 
   @Column({ name: 'timestamp', type: 'timestamp' })
   timestamp: Date;

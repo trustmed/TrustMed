@@ -33,6 +33,54 @@ export class BlockchainConnectorService {
     }
   }
 
+  async getAllAccessRequests(patientDid: string): Promise<unknown[]> {
+    try {
+      const { data } = await firstValueFrom(
+        this.httpService.get<unknown[]>(
+          `${this.gatewayUrl}/patient/${patientDid}`,
+        ),
+      );
+      return data;
+    } catch {
+      this.logger.error(
+        `Failed to fetch access requests for patient ${patientDid} from ${this.gatewayUrl}`,
+      );
+      return [];
+    }
+  }
+
+  async getAccessRequest(requestId: string): Promise<unknown> {
+    try {
+      const { data } = await firstValueFrom(
+        this.httpService.get<unknown>(`${this.gatewayUrl}/${requestId}`),
+      );
+      return data;
+    } catch (error) {
+      this.logger.error(
+        `Failed to fetch access request ${requestId} from ${this.gatewayUrl}`,
+      );
+      throw error;
+    }
+  }
+
+  async getRecordRegistry(patientDid: string): Promise<unknown[]> {
+    try {
+      const registryUrl = this.configService.get<string>(
+        'BLOCKCHAIN_REGISTRY_URL',
+        'http://localhost:4001/record-registry',
+      );
+      const { data } = await firstValueFrom(
+        this.httpService.get<unknown[]>(`${registryUrl}/patient/${patientDid}`),
+      );
+      return data;
+    } catch {
+      this.logger.error(
+        `Failed to fetch record registry for patient ${patientDid}`,
+      );
+      return [];
+    }
+  }
+
   // verify connectivity from local machine to gateway
   async checkGatewayHealth(): Promise<BlockchainHealthResponseDto> {
     const { data } = await firstValueFrom(

@@ -18,6 +18,15 @@ export class Appointment extends BaseEntity {
   @Column({ length: 100 })
   location: string;
 
+  @Column({ length: 200, nullable: true })
+  address: string;
+
+  @Column({ length: 50, nullable: true })
+  phone: string;
+
+  @Column({ length: 100, nullable: true })
+  email: string;
+
   @Column({
     type: 'enum',
     enum: ['pending', 'accepted', 'cancelled'],

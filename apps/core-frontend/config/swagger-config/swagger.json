@@ -38,7 +38,9 @@
           }
         },
         "summary": "Login with email and password",
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/api/auth/register": {
@@ -68,7 +70,9 @@
           }
         },
         "summary": "Register a new account",
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/api/auth/logout": {
@@ -88,7 +92,9 @@
           }
         },
         "summary": "Logout and clear session cookie",
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/api/health": {
@@ -108,7 +114,9 @@
           }
         },
         "summary": "Check application health and database status",
-        "tags": ["health"]
+        "tags": [
+          "health"
+        ]
       }
     },
     "/api/health/blockchainhealth": {
@@ -128,7 +136,9 @@
           }
         },
         "summary": "Get Blockchain network health",
-        "tags": ["health"]
+        "tags": [
+          "health"
+        ]
       }
     },
     "/api/profile/me": {
@@ -141,7 +151,9 @@
           }
         },
         "summary": "Get profile for the logged-in user (via JWT cookie)",
-        "tags": ["profile"]
+        "tags": [
+          "profile"
+        ]
       }
     },
     "/api/profile/{personId}": {
@@ -163,7 +175,9 @@
           }
         },
         "summary": "Get full user profile by person ID",
-        "tags": ["profile"]
+        "tags": [
+          "profile"
+        ]
       }
     },
     "/api/profile/email/{email}": {
@@ -185,7 +199,9 @@
           }
         },
         "summary": "Get full user profile by email",
-        "tags": ["profile"]
+        "tags": [
+          "profile"
+        ]
       }
     },
     "/api/profile/auth/{clerkUserId}": {
@@ -207,7 +223,9 @@
           }
         },
         "summary": "Get full user profile by Clerk user ID",
-        "tags": ["profile"]
+        "tags": [
+          "profile"
+        ]
       }
     },
     "/api/profile/{personId}/personal": {
@@ -229,7 +247,9 @@
           }
         },
         "summary": "Update personal details",
-        "tags": ["profile"]
+        "tags": [
+          "profile"
+        ]
       }
     },
     "/api/profile/{personId}/medical": {
@@ -251,7 +271,9 @@
           }
         },
         "summary": "Update medical profile",
-        "tags": ["profile"]
+        "tags": [
+          "profile"
+        ]
       }
     },
     "/api/profile/{personId}/allergies": {
@@ -273,7 +295,9 @@
           }
         },
         "summary": "Add allergy",
-        "tags": ["profile"]
+        "tags": [
+          "profile"
+        ]
       }
     },
     "/api/profile/allergies/{id}": {
@@ -295,7 +319,9 @@
           }
         },
         "summary": "Delete allergy",
-        "tags": ["profile"]
+        "tags": [
+          "profile"
+        ]
       }
     },
     "/api/profile/{personId}/medications": {
@@ -317,7 +343,9 @@
           }
         },
         "summary": "Add medication",
-        "tags": ["profile"]
+        "tags": [
+          "profile"
+        ]
       }
     },
     "/api/profile/medications/{id}": {
@@ -339,7 +367,9 @@
           }
         },
         "summary": "Delete medication",
-        "tags": ["profile"]
+        "tags": [
+          "profile"
+        ]
       }
     },
     "/api/profile/{personId}/contacts": {
@@ -361,7 +391,9 @@
           }
         },
         "summary": "Add emergency contact",
-        "tags": ["profile"]
+        "tags": [
+          "profile"
+        ]
       }
     },
     "/api/profile/contacts/{id}": {
@@ -383,7 +415,34 @@
           }
         },
         "summary": "Delete emergency contact",
-        "tags": ["profile"]
+        "tags": [
+          "profile"
+        ]
+      }
+    },
+    "/api/medical-records/{recordId}/download": {
+      "get": {
+        "operationId": "MedicalRecordController_download",
+        "parameters": [
+          {
+            "name": "recordId",
+            "required": true,
+            "in": "path",
+            "description": "UUID of the medical record",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Download a decrypted medical record",
+        "tags": [
+          "medical-records"
+        ]
       }
     },
     "/api/medical-records/{authuserId}/{recordId}": {
@@ -429,7 +488,9 @@
             }
           }
         },
-        "tags": ["medical-records"]
+        "tags": [
+          "medical-records"
+        ]
       },
       "get": {
         "operationId": "MedicalRecordController_getById",
@@ -463,7 +524,9 @@
             }
           }
         },
-        "tags": ["medical-records"]
+        "tags": [
+          "medical-records"
+        ]
       },
       "delete": {
         "operationId": "MedicalRecordController_deleteById",
@@ -497,7 +560,9 @@
             }
           }
         },
-        "tags": ["medical-records"]
+        "tags": [
+          "medical-records"
+        ]
       }
     },
     "/api/medical-records": {
@@ -526,7 +591,9 @@
             }
           }
         },
-        "tags": ["medical-records"]
+        "tags": [
+          "medical-records"
+        ]
       }
     },
     "/api/medical-records/{authuserId}": {
@@ -554,7 +621,452 @@
             }
           }
         },
-        "tags": ["medical-records"]
+        "tags": [
+          "medical-records"
+        ]
+      }
+    },
+    "/api/consent-requests/{recordId}": {
+      "post": {
+        "operationId": "ConsentRequestsController_requestAccess",
+        "parameters": [
+          {
+            "name": "recordId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Request access to a specific medical record",
+        "tags": [
+          "consent-requests"
+        ]
+      },
+      "get": {
+        "operationId": "ConsentRequestsController_getStatusAndDownload",
+        "parameters": [
+          {
+            "name": "recordId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Check request status and get download URL if accepted",
+        "tags": [
+          "consent-requests"
+        ]
+      }
+    },
+    "/api/consent-requests/me/received": {
+      "get": {
+        "operationId": "ConsentRequestsController_getReceivedRequests",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Get consent requests received by the patient",
+        "tags": [
+          "consent-requests"
+        ]
+      }
+    },
+    "/api/consent-requests/me/sent": {
+      "get": {
+        "operationId": "ConsentRequestsController_getSentRequests",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Get consent requests sent by the requester (doctor/hospital)",
+        "tags": [
+          "consent-requests"
+        ]
+      }
+    },
+    "/api/consent-requests/{id}/accept": {
+      "patch": {
+        "operationId": "ConsentRequestsController_acceptRequest",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptConsentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Accept a consent request with a specific duration",
+        "tags": [
+          "consent-requests"
+        ]
+      }
+    },
+    "/api/consent-requests/{id}/reject": {
+      "patch": {
+        "operationId": "ConsentRequestsController_rejectRequest",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Reject a consent request",
+        "tags": [
+          "consent-requests"
+        ]
+      }
+    },
+    "/api/s3-vault/upload": {
+      "post": {
+        "operationId": "S3VaultController_uploadFile",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Medical record file to encrypt and upload"
+                  },
+                  "patientId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "UUID of the patient this record belongs to"
+                  },
+                  "category": {
+                    "type": "string",
+                    "enum": [
+                      "lab_report",
+                      "prescription",
+                      "imaging",
+                      "discharge_summary",
+                      "vaccination",
+                      "other"
+                    ],
+                    "description": "Category of the medical record"
+                  },
+                  "notes": {
+                    "type": "string",
+                    "description": "Optional notes about the record"
+                  },
+                  "doctorName": {
+                    "type": "string",
+                    "description": "Name of the doctor who issued the record"
+                  },
+                  "hospitalName": {
+                    "type": "string",
+                    "description": "Name of the hospital/clinic"
+                  },
+                  "recordDate": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "Date when the record was issued"
+                  }
+                },
+                "required": [
+                  "file",
+                  "patientId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Upload, hash, encrypt, and store a medical record file",
+        "tags": [
+          "s3-vault"
+        ]
+      }
+    },
+    "/api/s3-vault/download/{recordId}": {
+      "get": {
+        "operationId": "S3VaultController_getDownloadUrl",
+        "parameters": [
+          {
+            "name": "recordId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DownloadUrlResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Generate a presigned S3 URL for record download",
+        "tags": [
+          "s3-vault"
+        ]
+      }
+    },
+    "/api/appointments": {
+      "post": {
+        "operationId": "AppointmentsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAppointmentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppointmentResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create a new appointment",
+        "tags": [
+          "appointments"
+        ]
+      },
+      "get": {
+        "operationId": "AppointmentsController_findAllByAuthUserId",
+        "parameters": [
+          {
+            "name": "authUserId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "summary": "List all appointments for a person by auth user id",
+        "tags": [
+          "appointments"
+        ]
+      },
+      "patch": {
+        "operationId": "AppointmentsController_edit",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditAppointmentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppointmentResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Edit appointment by id",
+        "tags": [
+          "appointments"
+        ]
+      },
+      "delete": {
+        "operationId": "AppointmentsController_delete",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteAppointmentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "success": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Delete appointment by id",
+        "tags": [
+          "appointments"
+        ]
+      }
+    },
+    "/api/appointments/find": {
+      "get": {
+        "operationId": "AppointmentsController_findOneById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppointmentResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Find appointment by id",
+        "tags": [
+          "appointments"
+        ]
+      }
+    },
+    "/api/ai-chat": {
+      "post": {
+        "operationId": "AiChatController_chat",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AiChat"
+        ]
+      }
+    },
+    "/api/medical-history": {
+      "get": {
+        "operationId": "getHistory",
+        "parameters": [
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the medical history for the authenticated patient",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MedicalHistoryResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get audit-log & blockchain history for the authenticated patient",
+        "tags": [
+          "Medical History"
+        ]
       }
     }
   },
@@ -585,7 +1097,10 @@
             "example": "password123"
           }
         },
-        "required": ["email", "password"]
+        "required": [
+          "email",
+          "password"
+        ]
       },
       "AuthMessageDto": {
         "type": "object",
@@ -595,7 +1110,9 @@
             "example": "Login successful"
           }
         },
-        "required": ["message"]
+        "required": [
+          "message"
+        ]
       },
       "ErrorResponseDto": {
         "type": "object",
@@ -613,7 +1130,11 @@
             "example": "Unauthorized"
           }
         },
-        "required": ["statusCode", "message", "error"]
+        "required": [
+          "statusCode",
+          "message",
+          "error"
+        ]
       },
       "RegisterDto": {
         "type": "object",
@@ -635,14 +1156,21 @@
             "example": "Doe"
           }
         },
-        "required": ["email", "password", "firstName"]
+        "required": [
+          "email",
+          "password",
+          "firstName"
+        ]
       },
       "DatabaseHealth": {
         "type": "object",
         "properties": {
           "status": {
             "type": "string",
-            "enum": ["connected", "disconnected"],
+            "enum": [
+              "connected",
+              "disconnected"
+            ],
             "example": "connected"
           },
           "type": {
@@ -651,14 +1179,20 @@
             "description": "The type of database currently in use"
           }
         },
-        "required": ["status", "type"]
+        "required": [
+          "status",
+          "type"
+        ]
       },
       "HealthResponseDto": {
         "type": "object",
         "properties": {
           "status": {
             "type": "string",
-            "enum": ["up", "down"],
+            "enum": [
+              "up",
+              "down"
+            ],
             "example": "up"
           },
           "uptime": {
@@ -679,14 +1213,23 @@
             "$ref": "#/components/schemas/DatabaseHealth"
           }
         },
-        "required": ["status", "uptime", "timestamp", "message"]
+        "required": [
+          "status",
+          "uptime",
+          "timestamp",
+          "message"
+        ]
       },
       "SubStatusDto": {
         "type": "object",
         "properties": {
           "status": {
             "type": "string",
-            "enum": ["UP", "DOWN", "DEGRADED"],
+            "enum": [
+              "UP",
+              "DOWN",
+              "DEGRADED"
+            ],
             "example": "UP"
           },
           "mspId": {
@@ -702,14 +1245,20 @@
             "example": "PEER_UNREACHABLE"
           }
         },
-        "required": ["status"]
+        "required": [
+          "status"
+        ]
       },
       "NetworkStatusDto": {
         "type": "object",
         "properties": {
           "status": {
             "type": "string",
-            "enum": ["UP", "DOWN", "DEGRADED"],
+            "enum": [
+              "UP",
+              "DOWN",
+              "DEGRADED"
+            ],
             "example": "UP"
           },
           "mspId": {
@@ -733,14 +1282,22 @@
             "example": "trustmed"
           }
         },
-        "required": ["status", "channel", "chaincode"]
+        "required": [
+          "status",
+          "channel",
+          "chaincode"
+        ]
       },
       "BlockchainHealthResponseDto": {
         "type": "object",
         "properties": {
           "status": {
             "type": "string",
-            "enum": ["OK", "ERROR", "DEGRADED"],
+            "enum": [
+              "OK",
+              "ERROR",
+              "DEGRADED"
+            ],
             "example": "OK"
           },
           "gateway": {
@@ -750,7 +1307,11 @@
             "$ref": "#/components/schemas/NetworkStatusDto"
           }
         },
-        "required": ["status", "gateway", "network"]
+        "required": [
+          "status",
+          "gateway",
+          "network"
+        ]
       },
       "UpdateMedicalRecordRequestDto": {
         "type": "object",
@@ -795,6 +1356,9 @@
           "fileUrl": {
             "type": "string"
           },
+          "downloadUrl": {
+            "type": "string"
+          },
           "fileType": {
             "type": "string"
           },
@@ -823,6 +1387,9 @@
           "updatedAt": {
             "format": "date-time",
             "type": "string"
+          },
+          "requestStatus": {
+            "type": "object"
           }
         },
         "required": [
@@ -830,6 +1397,7 @@
           "personId",
           "fileName",
           "fileUrl",
+          "downloadUrl",
           "fileType",
           "fileSize",
           "category",
@@ -863,7 +1431,11 @@
             "type": "string"
           }
         },
-        "required": ["file", "personId", "category"]
+        "required": [
+          "file",
+          "personId",
+          "category"
+        ]
       },
       "CreateMedicalRecordResponseDto": {
         "type": "object",
@@ -932,7 +1504,9 @@
             }
           }
         },
-        "required": ["records"]
+        "required": [
+          "records"
+        ]
       },
       "DeleteMedicalRecordResponseDto": {
         "type": "object",
@@ -942,7 +1516,193 @@
             "example": true
           }
         },
-        "required": ["success"]
+        "required": [
+          "success"
+        ]
+      },
+      "AcceptConsentDto": {
+        "type": "object",
+        "properties": {
+          "duration": {
+            "type": "string",
+            "description": "The duration for which access is granted",
+            "enum": [
+              "30m",
+              "1h",
+              "2h",
+              "4h",
+              "24h"
+            ]
+          }
+        },
+        "required": [
+          "duration"
+        ]
+      },
+      "DownloadUrlResponseDto": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "Presigned URL that grants temporary download access to the encrypted file",
+            "example": "https://s3.example.com/trustmed-vault/encrypted/uuid-file.pdf?X-Amz-..."
+          },
+          "objectKey": {
+            "type": "string",
+            "description": "S3 object key for the requested file",
+            "example": "encrypted/550e8400-e29b-41d4-a716-446655440000-report.pdf"
+          },
+          "expiresInSeconds": {
+            "type": "number",
+            "description": "Number of seconds until the presigned URL expires",
+            "example": 300
+          },
+          "downloadUrl": {
+            "type": "string",
+            "description": "Direct backend URL to download the decrypted file",
+            "example": "/api/medical-records/550e8400-e29b-41d4-a716-446655440000/download"
+          }
+        },
+        "required": [
+          "url",
+          "objectKey",
+          "expiresInSeconds",
+          "downloadUrl"
+        ]
+      },
+      "CreateAppointmentDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "AppointmentResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "appointmentNo": {
+            "type": "string"
+          },
+          "appointmentType": {
+            "type": "string"
+          },
+          "doctorName": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "description": "ISO date string YYYY-MM-DD"
+          },
+          "hospitalLocation": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "accepted",
+              "cancelled",
+              "pending"
+            ]
+          },
+          "address": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "appointmentNo",
+          "appointmentType",
+          "doctorName",
+          "date",
+          "hospitalLocation",
+          "status",
+          "address",
+          "phone",
+          "email"
+        ]
+      },
+      "EditAppointmentDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "DeleteAppointmentDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "HistoryEventDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string",
+            "description": "Originating source: local | blockchain"
+          },
+          "eventType": {
+            "type": "string",
+            "description": "Event type / action performed"
+          },
+          "actorId": {
+            "type": "string",
+            "description": "UUID of the actor"
+          },
+          "targetResource": {
+            "type": "string",
+            "description": "UUID of the target resource"
+          },
+          "fileName": {
+            "type": "string",
+            "description": "Original filename of the document"
+          },
+          "category": {
+            "type": "string",
+            "description": "Document category"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the event occurred"
+          },
+          "description": {
+            "type": "string",
+            "description": "Human-readable summary"
+          },
+          "additionalData": {
+            "type": "object",
+            "description": "Extra metadata"
+          }
+        },
+        "required": [
+          "id",
+          "source",
+          "eventType",
+          "timestamp"
+        ]
+      },
+      "MedicalHistoryResponseDto": {
+        "type": "object",
+        "properties": {
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HistoryEventDto"
+            }
+          },
+          "totalCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "events",
+          "totalCount"
+        ]
       }
     }
   }

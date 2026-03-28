@@ -2,12 +2,11 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HealthController } from './health.controller';
 import { HealthService } from './health.service';
-import { BlockchainConnectorService } from 'src/blockchain/blockchain-connector.service';
-import { HttpModule } from '@nestjs/axios';
+import { BlockchainModule } from '../blockchain/blockchain.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([]), HttpModule],
+  imports: [TypeOrmModule.forFeature([]), BlockchainModule],
   controllers: [HealthController],
-  providers: [HealthService, BlockchainConnectorService],
+  providers: [HealthService],
 })
 export class HealthModule {}
