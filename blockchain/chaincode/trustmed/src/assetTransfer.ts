@@ -21,6 +21,17 @@ interface AccessRequest {
   expiresAt?: string;
 }
 
+export interface BlockchainAuditLog {
+  auditId: string;
+  eventType: string;
+  actorId: string;
+  patientId?: string;
+  targetResource?: string;
+  ipAddress?: string;
+  additionalData?: string;
+  timestamp: string;
+}
+
 @Info({ title: 'TrustMedContract', description: 'TrustMed access request contract' })
 export class TrustMedContract extends Contract {
   private getTxTimestampIsoString(ctx: Context): string {
@@ -162,9 +173,70 @@ export class TrustMedContract extends Contract {
 
   @Transaction(false)
   @Returns('boolean')
-  public async AssetExists(ctx: Context, requestId: string): Promise<boolean> {
-    const data = await ctx.stub.getState(requestId);
+  public async AssetExists(ctx: Context, id: string): Promise<boolean> {
+    const data = await ctx.stub.getState(id);
     return !!data && data.length > 0;
+  }
+
+  @Transaction()
+  public async LogAuditEvent(
+    ctx: Context,
+    auditId: string,
+    eventType: string,
+    actorId: string,
+    patientId: string,
+    targetResource: string,
+    ipAddress: string,
+    additionalData: string,
+  ): Promise<void> {
+    const exists = await this.AssetExists(ctx, auditId);
+    if (exists) {
+      throw new Error(`Audit log ${auditId} already exists`);
+    }
+
+    const log: BlockchainAuditLog = {
+      auditId,
+      eventType,
+      actorId,
+      patientId: patientId || undefined,
+      targetResource: targetResource || undefined,
+      ipAddress: ipAddress || undefined,
+      additionalData: additionalData || undefined,
+      timestamp: this.getTxTimestampIsoString(ctx),
+    };
+
+    await ctx.stub.putState(auditId, Buffer.from(JSON.stringify(log)));
+    
+    if (patientId) {
+       const indexName = 'patient~auditId';
+       const indexKey = ctx.stub.createCompositeKey(indexName, [patientId, auditId]);
+       await ctx.stub.putState(indexKey, Buffer.from('\u0000'));
+    }
+  }
+
+  @Transaction(false)
+  @Returns('string')
+  public async GetAuditHistory(ctx: Context, patientId: string): Promise<string> {
+    const results = [];
+    const iterator = await ctx.stub.getStateByPartialCompositeKey('patient~auditId', [patientId]);
+    
+    let result = await iterator.next();
+    while (!result.done) {
+      const { value } = result;
+      if (value && value.key) {
+        const keyParts = ctx.stub.splitCompositeKey(value.key);
+        const auditId = keyParts.attributes[1];
+        
+        const logBytes = await ctx.stub.getState(auditId);
+        if (logBytes && logBytes.length > 0) {
+          results.push(JSON.parse(logBytes.toString()));
+        }
+      }
+      result = await iterator.next();
+    }
+    
+    await iterator.close();
+    return JSON.stringify(results);
   }
 
   private async GetRequest(ctx: Context, requestId: string): Promise<AccessRequest> {

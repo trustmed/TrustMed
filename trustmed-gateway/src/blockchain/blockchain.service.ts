@@ -159,6 +159,35 @@ export class BlockchainService implements OnModuleDestroy {
     };
   }
 
+  async logAuditEvent(input: {
+    auditId: string;
+    eventType: string;
+    actorId: string;
+    patientId?: string;
+    targetResource?: string;
+    ipAddress?: string;
+    additionalData?: string;
+  }) {
+    const contract = await this.getContract();
+
+    await contract.submitTransaction(
+      "LogAuditEvent",
+      input.auditId,
+      input.eventType,
+      input.actorId,
+      input.patientId || "",
+      input.targetResource || "",
+      input.ipAddress || "",
+      input.additionalData || "",
+    );
+
+    return {
+      ok: true,
+      message: "Audit event logged",
+      auditId: input.auditId,
+    };
+  }
+
   async checkAccess(requestId: string): Promise<CheckAccessResult> {
     const contract = await this.getContract();
     const result = await contract.evaluateTransaction("CheckAccess", requestId);

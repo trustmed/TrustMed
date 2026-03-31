@@ -33,6 +33,24 @@ export class BlockchainConnectorService {
     }
   }
 
+  async logAuditEvent(auditEvent: unknown): Promise<unknown> {
+    try {
+      const { data } = await firstValueFrom(
+        this.httpService.post<unknown>(
+          `${this.gatewayUrl}/audit-logs`,
+          auditEvent,
+        ),
+      );
+      return data;
+    } catch (error) {
+      console.log(error);
+      this.logger.error(
+        `Failed to reach Blockchain Gateway for Audit Log at ${this.gatewayUrl}/audit-logs`,
+      );
+      return null;
+    }
+  }
+
   async getAllAccessRequests(patientDid: string): Promise<unknown[]> {
     try {
       const { data } = await firstValueFrom(

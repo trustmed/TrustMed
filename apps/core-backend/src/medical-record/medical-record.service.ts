@@ -232,6 +232,7 @@ export class MedicalRecordService {
       patientId: record.patientId,
       targetResource: recordId,
     });
+
     return { buffer, originalFileName: fileName, mimeType };
   }
 }
