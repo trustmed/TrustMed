@@ -188,6 +188,16 @@ export class BlockchainService implements OnModuleDestroy {
     };
   }
 
+  async getAuditHistory(patientId: string): Promise<any[]> {
+    const contract = await this.getContract();
+    const result = await contract.evaluateTransaction(
+      "GetAuditHistory",
+      patientId,
+    );
+    const json = Buffer.from(result).toString("utf8");
+    return JSON.parse(json);
+  }
+
   async checkAccess(requestId: string): Promise<CheckAccessResult> {
     const contract = await this.getContract();
     const result = await contract.evaluateTransaction("CheckAccess", requestId);

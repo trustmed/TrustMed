@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from "@nestjs/common";
+import { Controller, Post, Body, Get, Param } from "@nestjs/common";
 import { BlockchainService } from "./blockchain.service";
 
 @Controller("audit-logs")
@@ -8,5 +8,10 @@ export class AuditController {
   @Post()
   log(@Body() body: any) {
     return this.service.logAuditEvent(body);
+  }
+
+  @Get(":patientId")
+  getHistory(@Param("patientId") patientId: string) {
+    return this.service.getAuditHistory(patientId);
   }
 }
