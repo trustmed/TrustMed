@@ -199,6 +199,7 @@ export class MedicalRecordService {
       patientId: record.patientId,
       targetResource: recordId,
     });
+
     return saved;
   }
 
