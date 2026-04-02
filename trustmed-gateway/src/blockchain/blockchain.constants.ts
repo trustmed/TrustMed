@@ -16,7 +16,7 @@ export const FABRIC = {
     'Admin@org1.example.com',
     'msp',
     'signcerts',
-    'cert.pem',
+    'Admin@org1.example.com-cert.pem',
   ),
 
   keyDirPath: path.join(
