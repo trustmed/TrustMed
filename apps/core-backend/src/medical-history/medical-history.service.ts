@@ -107,21 +107,25 @@ export class MedicalHistoryService {
       };
     });
 
-    // 4) Fetch blockchain access-request events (non-blocking)
+    // 4) Fetch blockchain access-request and audit events (non-blocking)
     let blockchainEvents: HistoryEventDto[] = [];
     try {
-      const bcItems =
-        await this.blockchainConnector.getAllAccessRequests(personId);
-      blockchainEvents = (
+      const [bcItems, auditItems] = await Promise.all([
+        this.blockchainConnector.getAllAccessRequests(personId).catch(() => []),
+        this.blockchainConnector.getAuditHistory(personId).catch(() => [])
+      ]);
+      
+      const accessRequests = (
         bcItems as {
           status?: string;
           requesterId?: string;
           recordId?: string;
           createdAt?: string;
           timestamp?: string;
+          transactionHash?: string;
         }[]
       ).map((item, index) => ({
-        id: `bc-${personId}-${index}`,
+        id: `bc-ar-${personId}-${index}`,
         source: 'blockchain' as const,
         eventType: item.status || 'ACCESS_REQUEST',
         actorId: item.requesterId || '',
@@ -130,8 +134,31 @@ export class MedicalHistoryService {
         description: `Blockchain access request: ${item.status || 'pending'}`,
         additionalData: item as Record<string, unknown>,
       }));
+
+      const auditLogs = (
+        auditItems as {
+          eventType?: string;
+          actorId?: string;
+          targetResource?: string;
+          timestamp?: string;
+          transactionHash?: string;
+          description?: string;
+          [key: string]: unknown;
+        }[]
+      ).map((item, index) => ({
+        id: `bc-au-${personId}-${index}`,
+        source: 'blockchain' as const,
+        eventType: item.eventType || 'BLOCKCHAIN_AUDIT',
+        actorId: item.actorId || '',
+        targetResource: item.targetResource,
+        timestamp: new Date(item.timestamp || Date.now()),
+        description: item.description || `Blockchain audit: ${item.eventType || 'Log'}`,
+        additionalData: item as Record<string, unknown>,
+      }));
+
+      blockchainEvents = [...accessRequests, ...auditLogs];
     } catch {
-      this.logger.warn('Blockchain access requests unavailable');
+      this.logger.warn('Blockchain events unavailable');
     }
 
     // 5) Merge & sort
