@@ -112,9 +112,9 @@ export class MedicalHistoryService {
     try {
       const [bcItems, auditItems] = await Promise.all([
         this.blockchainConnector.getAllAccessRequests(personId).catch(() => []),
-        this.blockchainConnector.getAuditHistory(personId).catch(() => [])
+        this.blockchainConnector.getAuditHistory(personId).catch(() => []),
       ]);
-      
+
       const accessRequests = (
         bcItems as {
           status?: string;
@@ -152,7 +152,8 @@ export class MedicalHistoryService {
         actorId: item.actorId || '',
         targetResource: item.targetResource,
         timestamp: new Date(item.timestamp || Date.now()),
-        description: item.description || `Blockchain audit: ${item.eventType || 'Log'}`,
+        description:
+          item.description || `Blockchain audit: ${item.eventType || 'Log'}`,
         additionalData: item as Record<string, unknown>,
       }));
 

@@ -200,7 +200,6 @@ export class MedicalRecordService {
       targetResource: recordId,
     });
 
-
     return saved;
   }
 
