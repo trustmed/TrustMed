@@ -15,13 +15,9 @@ import { Medication } from '../entities/medication.entity';
 import { EmergencyContact } from '../entities/emergency-contact.entity';
 import { AuthUser } from '../entities/auth-user.entity';
 import { ConsentRequest } from '../entities/consent-request.entity';
-import { InitialOracle1773847768524 } from '../entities/migrations/1773847768524-initial-oracle';
 import { MedicalRecord } from '../entities/medical-record.entity';
 import { Appointment } from '../entities/appointment.entity';
-import { CreateMedicalRecordTable1774144345789 } from '../entities/migrations/1774144345789-CreateMedicalRecordTable';
-import { CreateConsentRequests1774296327000 } from '../entities/migrations/1774296327000-CreateConsentRequests';
-import { MedicalHistory1774724789047 } from '../entities/migrations/1774724789047-medical-history';
-import { Fixmedicalhistoryfilterissue1774727471819 } from '../entities/migrations/1774727471819-fixmedicalhistoryfilterissue';
+import { Init1775252452217 } from '../entities/migrations/1775252452217-init';
 dotenv.config();
 
 export const dataSourceOptions: DataSourceOptions = {
@@ -49,13 +45,7 @@ export const dataSourceOptions: DataSourceOptions = {
     ConsentRequest,
     Appointment,
   ],
-  migrations: [
-    InitialOracle1773847768524,
-    CreateMedicalRecordTable1774144345789,
-    CreateConsentRequests1774296327000,
-    MedicalHistory1774724789047,
-    Fixmedicalhistoryfilterissue1774727471819,
-  ],
+  migrations: [Init1775252452217],
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
 };
