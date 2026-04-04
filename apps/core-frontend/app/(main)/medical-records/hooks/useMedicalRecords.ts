@@ -17,7 +17,13 @@ import {
   UpdateMedicalRecordRequestDto,
 } from "@/services/interfaces";
 
-type ModalState = "upload" | "edit" | "delete" | "accept_request" | null;
+type ModalState =
+  | "upload"
+  | "view"
+  | "edit"
+  | "delete"
+  | "accept_request"
+  | null;
 type Toast = { id: number; message: string; type: "success" | "error" };
 
 export default function useMedicalRecords() {
@@ -169,6 +175,11 @@ export default function useMedicalRecords() {
     [AUTHUSER_ID, showToast],
   );
 
+  const handleView = useCallback((record: MedicalRecord) => {
+    setSelectedRecord(record);
+    setModal("view");
+  }, []);
+
   //handle medical record filtering
   const filtered = records.filter((r) => {
     const matchSearch =
@@ -185,6 +196,7 @@ export default function useMedicalRecords() {
     handleEdit,
     handleDelete,
     handleDownload,
+    handleView,
     search,
     setSearch,
     filterCategory,
