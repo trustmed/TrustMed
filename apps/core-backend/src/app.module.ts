@@ -13,6 +13,7 @@ import { S3VaultModule } from './s3-vault/s3-vault.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { AiModule } from './ai/ai.module';
 import { MedicalHistoryModule } from './medical-history/medical-history.module';
+import { StorageModule } from './storage/storage.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { MedicalHistoryModule } from './medical-history/medical-history.module';
     AppointmentsModule,
     AiModule,
     MedicalHistoryModule,
+    StorageModule,
   ],
   controllers: [],
   providers: [

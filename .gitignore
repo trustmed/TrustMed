@@ -95,3 +95,4 @@ explorer/walletstore/
 # APPLICATION SPECIFIC
 # -----------------------------------------------------------------------------
 uploads/
+apps/core-backend/storage/*
