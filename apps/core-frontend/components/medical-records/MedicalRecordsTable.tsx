@@ -2,7 +2,8 @@ import React from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 
 export interface MedicalRecord {
-  id: number;
+  id: string;
+  fileOriginalName: string;
   patientName: string;
   recordType: string;
   date: string;
@@ -11,8 +12,8 @@ export interface MedicalRecord {
 
 interface MedicalRecordsTableProps {
   records: MedicalRecord[];
-  selectedIds: number[];
-  onSelect: (id: number, checked: boolean) => void;
+  selectedIds: string[];
+  onSelect: (id: string, checked: boolean) => void;
 }
 
 export const MedicalRecordsTable: React.FC<MedicalRecordsTableProps> = ({ records, selectedIds, onSelect }) => (
@@ -21,7 +22,7 @@ export const MedicalRecordsTable: React.FC<MedicalRecordsTableProps> = ({ record
       <thead>
         <tr className="border-b border-neutral-200 dark:border-neutral-800">
           <th className="px-4 py-2 text-left font-semibold text-neutral-500 w-8"></th>
-          <th className="px-4 py-2 text-left font-semibold text-neutral-500">ID</th>
+          <th className="px-4 py-2 text-left font-semibold text-neutral-500">File Name</th>
           <th className="px-4 py-2 text-left font-semibold text-neutral-500">Patient</th>
           <th className="px-4 py-2 text-left font-semibold text-neutral-500">Type</th>
           <th className="px-4 py-2 text-left font-semibold text-neutral-500">Date</th>
@@ -34,7 +35,7 @@ export const MedicalRecordsTable: React.FC<MedicalRecordsTableProps> = ({ record
             <td className="px-4 py-2">
               <Checkbox checked={selectedIds.includes(rec.id)} onCheckedChange={checked => onSelect(rec.id, !!checked)} />
             </td>
-            <td className="px-4 py-2">{rec.id}</td>
+            <td className="px-4 py-2">{rec.fileOriginalName}</td>
             <td className="px-4 py-2">{rec.patientName}</td>
             <td className="px-4 py-2">{rec.recordType}</td>
             <td className="px-4 py-2">{rec.date}</td>
