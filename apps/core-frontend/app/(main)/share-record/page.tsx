@@ -2,10 +2,19 @@
 import { Send, Trash2, Eye, KeyRound, Share2, Copy } from "lucide-react";
 import { useRef } from "react";
 import { useState } from "react";
+import { useEffect } from "react";
+import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { MedicalRecordsTable } from "@/components/medical-records/MedicalRecordsTable";
+import { getAuthUser } from "@/utils/auth";
+import { CATEGORY_LABELS, type RecordCategory } from "@/types/medical-records";
+import { useMedicalRecordControllerGetAllByAuthUserId } from "@/services/api/medical-records/medical-records";
+import {
+  SharedRecordsApi,
+  type SharedRecordItem,
+} from "@/lib/api/sharedRecords";
 // ActionButton with tooltip on hover
 function ActionButton({ onClick, title, children }: { onClick?: () => void; title: string; children: React.ReactNode }) {
   const [show, setShow] = useState(false);
@@ -29,13 +38,6 @@ function ActionButton({ onClick, title, children }: { onClick?: () => void; titl
   );
 }
 
-const initialRecords = [
-  { id: 1, recipient: "Dr. John Doe", date: "2026-03-20", status: "active" },
-  { id: 2, recipient: "Dr. Jane Smith", date: "2026-02-15", status: "expired" },
-  { id: 3, recipient: "Dr. Alice Brown", date: "2026-03-01", status: "deactive" },
-  { id: 4, recipient: "Dr. Bob Lee", date: "2026-03-10", status: "active" },
-];
-
 const statusStyles: Record<string, string> = {
   active: "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
   deactive: "bg-yellow-50 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
@@ -44,7 +46,9 @@ const statusStyles: Record<string, string> = {
 
 export default function ShareRecordPage() {
   const [showSendModal, setShowSendModal] = useState(false);
-  const [records, setRecords] = useState(initialRecords);
+  const [records, setRecords] = useState<SharedRecordItem[]>([]);
+  const [isLoadingRecords, setIsLoadingRecords] = useState(true);
+  const [recordsError, setRecordsError] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [manageId, setManageId] = useState<number | null>(null);
   const [viewId, setViewId] = useState<number | null>(null);
@@ -57,6 +61,25 @@ export default function ShareRecordPage() {
     pinEnabled: false,
     pin: "",
   });
+  const authUser = getAuthUser();
+  const authUserId = authUser?.sub ?? "";
+  const { data: medicalRecordsData } = useMedicalRecordControllerGetAllByAuthUserId(authUserId, {
+    query: {
+      enabled: !!authUserId,
+    },
+  });
+  const medicalRecords = useMemo(
+    () =>
+      (medicalRecordsData?.records ?? []).map((record) => ({
+        id: record.id,
+        fileOriginalName: record.fileName || "-",
+        patientName: authUser?.firstName || authUser?.email?.split("@")[0] || "You",
+        recordType: CATEGORY_LABELS[(record.category as RecordCategory) ?? "other" as RecordCategory] ?? record.category,
+        date: record.recordDate || record.createdAt?.slice(0, 10) || "-",
+        doctor: record.doctorName || "-",
+      })),
+    [authUser?.email, authUser?.firstName, medicalRecordsData?.records],
+  );
 
   // Generate a dummy share link for the record
   const getShareLink = (id: number) => `https://trustmed.app/share/${id}`;
@@ -84,6 +107,23 @@ export default function ShareRecordPage() {
     // Optionally, update the record in state here
     setManageId(null);
   };
+
+  useEffect(() => {
+    const fetchRecords = async () => {
+      try {
+        setIsLoadingRecords(true);
+        setRecordsError(null);
+        const response = await SharedRecordsApi.getMySharedRecords();
+        setRecords(response.sharedRecords);
+      } catch {
+        setRecordsError("Unable to load records right now.");
+      } finally {
+        setIsLoadingRecords(false);
+      }
+    };
+
+    void fetchRecords();
+  }, []);
 
   let viewModal = null;
   if (viewId !== null) {
@@ -133,28 +173,27 @@ export default function ShareRecordPage() {
     }
   }
 
-  // Dummy medical records data
-  const medicalRecords = [
-    { id: 1, patientName: "John Doe", recordType: "Lab Report", date: "2026-03-01", doctor: "Dr. Smith" },
-    { id: 2, patientName: "Jane Smith", recordType: "Prescription", date: "2026-02-20", doctor: "Dr. Brown" },
-    { id: 3, patientName: "Alice Brown", recordType: "Imaging", date: "2026-01-15", doctor: "Dr. Lee" },
-    { id: 4, patientName: "Bob Lee", recordType: "Discharge Summary", date: "2025-12-10", doctor: "Dr. Green" },
-  ];
-  const [selectedRecordIds, setSelectedRecordIds] = useState<number[]>([]);
+  const [selectedRecordIds, setSelectedRecordIds] = useState<string[]>([]);
   const [sendDrName, setSendDrName] = useState("Dr. Name");
-  const handleSelectRecord = (id: number, checked: boolean) => {
+  const handleSelectRecord = (id: string, checked: boolean) => {
     setSelectedRecordIds((prev) =>
       checked ? [...prev, id] : prev.filter((rid) => rid !== id)
     );
   };
   const handleSendRecords = () => {
-    const toAdd = medicalRecords.filter(r => selectedRecordIds.includes(r.id)).map(() => ({
-      id: Math.max(...records.map(rec => rec.id), 0) + 1 + Math.floor(Math.random()*10000),
+    if (selectedRecordIds.length === 0) {
+      return;
+    }
+
+    const nextId = Math.max(...records.map((rec) => rec.id), 0) + 1;
+    const nextRecord: SharedRecordItem = {
+      id: nextId,
       recipient: sendDrName,
       date: new Date().toISOString().slice(0, 10),
-      status: "active"
-    }));
-    setRecords(prev => [...prev, ...toAdd]);
+      status: "active",
+    };
+
+    setRecords((prev) => [...prev, nextRecord]);
     setShowSendModal(false);
     setSelectedRecordIds([]);
     setSendDrName("Dr. Name");
@@ -163,7 +202,7 @@ export default function ShareRecordPage() {
   return (
     <div className="relative min-h-screen bg-slate-50 dark:bg-neutral-950 w-full">
       <Dialog open={showSendModal} onOpenChange={setShowSendModal}>
-        <DialogContent>
+        <DialogContent className="w-[95vw] max-w-3xl">
           <DialogHeader>
             <DialogTitle>Select Medical Record to Send</DialogTitle>
           </DialogHeader>
@@ -205,7 +244,20 @@ export default function ShareRecordPage() {
           </button>
         </div>
         <div className="flex flex-col gap-2.5">
-          {records.length === 0 ? (
+          {recordsError ? (
+            <div className="flex flex-col items-center justify-center py-24 text-center bg-white dark:bg-neutral-900 rounded-2xl border border-dashed border-neutral-200 dark:border-neutral-800 shadow-sm">
+              <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                Failed to load records
+              </h3>
+              <p className="text-sm text-neutral-500 mt-1 max-w-xs">{recordsError}</p>
+            </div>
+          ) : isLoadingRecords ? (
+            <div className="flex flex-col items-center justify-center py-24 text-center bg-white dark:bg-neutral-900 rounded-2xl border border-dashed border-neutral-200 dark:border-neutral-800 shadow-sm">
+              <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                Loading records...
+              </h3>
+            </div>
+          ) : records.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 text-center bg-white dark:bg-neutral-900 rounded-2xl border border-dashed border-neutral-200 dark:border-neutral-800 shadow-sm">
               <div className="mb-4 h-14 w-14 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
                 <Send className="h-7 w-7 text-neutral-400" />
