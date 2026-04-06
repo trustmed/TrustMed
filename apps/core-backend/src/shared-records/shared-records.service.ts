@@ -15,6 +15,8 @@ import {
 import { SharedLinkMedicalRecord } from '../entities/shared-link-medical-record.entity';
 import { MedicalRecord } from '../entities/medical-record.entity';
 import { AuthUser } from '../entities/auth-user.entity';
+import { SharedLinkMedicalRecordItemDto } from './dto/shared-records-response.dto';
+import { SharedLinkMedicalRecordsResponseDto } from './dto/shared-records-response.dto';
 
 @Injectable()
 export class SharedRecordsService {
@@ -109,6 +111,53 @@ export class SharedRecordsService {
         status: record.status,
       })),
       medicalRecords: [],
+    };
+  }
+
+  async getSharedLinkRecordsForUser(
+    authUserId: string,
+    sharedLinkId: string,
+  ): Promise<SharedLinkMedicalRecordsResponseDto> {
+    const sharedLink = await this.sharedLinkRecordRepository.findOne({
+      where: { id: sharedLinkId, authUserId },
+      relations: {
+        sharedMedicalRecords: {
+          medicalRecord: true,
+        },
+      },
+    });
+
+    if (!sharedLink) {
+      throw new UnauthorizedException('Invalid shared record');
+    }
+
+    const medicalRecords: SharedLinkMedicalRecordItemDto[] = [
+      ...(sharedLink.sharedMedicalRecords ?? []),
+    ].map((item) => {
+      const record = item.medicalRecord;
+      const recordDate = record.recordDate
+        ? new Date(record.recordDate).toISOString().slice(0, 10)
+        : new Date(record.createdAt).toISOString().slice(0, 10);
+
+      return {
+        id: record.id,
+        fileOriginalName:
+          record.originalFileName ?? record.fileName ?? 'Untitled record',
+        recordType: String(record.category ?? 'other')
+          .replace(/_/g, ' ')
+          .replace(/\b\w/g, (char) => char.toUpperCase()),
+        date: recordDate,
+      };
+    });
+
+    return {
+      sharedRecord: {
+        id: sharedLink.id,
+        recipient: sharedLink.recipientName,
+        date: String(sharedLink.sharedDate).slice(0, 10),
+        status: sharedLink.status,
+        medicalRecords,
+      },
     };
   }
 }
