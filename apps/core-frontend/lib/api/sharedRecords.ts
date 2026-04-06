@@ -2,18 +2,28 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const API_URL = `${BASE_URL}/api`;
 
 export interface SharedRecordItem {
-  id: number;
+  id: string;
   recipient: string;
   date: string;
-  status: "active" | "expired" | "deactive";
+  status: "active" | "expired" | "deactivated";
 }
 
 export interface ShareMedicalRecordItem {
-  id: number;
+  id: string;
   patientName: string;
   recordType: string;
   date: string;
   doctor: string;
+}
+
+export interface SendSharedRecordsPayload {
+  recipientName: string;
+  medicalRecordIds: string[];
+}
+
+export interface SendSharedRecordsResponse {
+  success: true;
+  message: string;
 }
 
 export interface SharedRecordsResponse {
@@ -22,6 +32,25 @@ export interface SharedRecordsResponse {
 }
 
 export const SharedRecordsApi = {
+  sendSharedRecords: async (
+    payload: SendSharedRecordsPayload,
+  ): Promise<SendSharedRecordsResponse> => {
+    const response = await fetch(`${API_URL}/shared-records/send-link`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to send shared records");
+    }
+
+    return response.json();
+  },
+
   getMySharedRecords: async (): Promise<SharedRecordsResponse> => {
     const response = await fetch(`${API_URL}/shared-records/me`, {
       method: "GET",

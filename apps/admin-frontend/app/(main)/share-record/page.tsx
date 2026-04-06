@@ -32,13 +32,13 @@ function ActionButton({ onClick, title, children }: { onClick?: () => void; titl
 const initialRecords = [
   { id: 1, recipient: "Dr. John Doe", date: "2026-03-20", status: "active" },
   { id: 2, recipient: "Dr. Jane Smith", date: "2026-02-15", status: "expired" },
-  { id: 3, recipient: "Dr. Alice Brown", date: "2026-03-01", status: "deactive" },
+  { id: 3, recipient: "Dr. Alice Brown", date: "2026-03-01", status: "deactivated" },
   { id: 4, recipient: "Dr. Bob Lee", date: "2026-03-10", status: "active" },
 ];
 
 const statusStyles: Record<string, string> = {
   active: "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
-  deactive: "bg-yellow-50 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
+  deactivated: "bg-yellow-50 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
   expired: "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400",
 };
 
@@ -230,7 +230,7 @@ export default function ShareRecordPage() {
                   "h-10 w-10 shrink-0 rounded-xl flex items-center justify-center",
                   record.status === "active"
                     ? "bg-emerald-50 dark:bg-emerald-900/20"
-                    : record.status === "deactive"
+                    : record.status === "deactivated"
                     ? "bg-yellow-50 dark:bg-yellow-900/20"
                     : "bg-red-50 dark:bg-red-900/20"
                 )}>
@@ -238,7 +238,7 @@ export default function ShareRecordPage() {
                     "h-5 w-5",
                     record.status === "active"
                       ? "text-emerald-500 dark:text-emerald-400"
-                      : record.status === "deactive"
+                      : record.status === "deactivated"
                       ? "text-yellow-500 dark:text-yellow-400"
                       : "text-red-500 dark:text-red-400"
                   )} />
@@ -376,7 +376,7 @@ export default function ShareRecordPage() {
                                   className="w-full rounded-lg border border-neutral-200 dark:border-neutral-700 px-3 py-2 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                                 />
                               </div>
-                              {/* Active/Deactive Toggle */}
+                              {/* Active/Deactivated Toggle */}
                               <div className="flex items-center gap-3">
                                 <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">Active</label>
                                 <input

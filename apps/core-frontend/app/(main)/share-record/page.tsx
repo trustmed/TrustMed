@@ -40,7 +40,7 @@ function ActionButton({ onClick, title, children }: { onClick?: () => void; titl
 
 const statusStyles: Record<string, string> = {
   active: "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
-  deactive: "bg-yellow-50 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
+  deactivated: "bg-yellow-50 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
   expired: "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400",
 };
 
@@ -49,10 +49,11 @@ export default function ShareRecordPage() {
   const [records, setRecords] = useState<SharedRecordItem[]>([]);
   const [isLoadingRecords, setIsLoadingRecords] = useState(true);
   const [recordsError, setRecordsError] = useState<string | null>(null);
-  const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [manageId, setManageId] = useState<number | null>(null);
-  const [viewId, setViewId] = useState<number | null>(null);
-  const [shareId, setShareId] = useState<number | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [manageId, setManageId] = useState<string | null>(null);
+  const [viewId, setViewId] = useState<string | null>(null);
+  const [shareId, setShareId] = useState<string | null>(null);
+  const [refreshToken, setRefreshToken] = useState(0);
   const [copied, setCopied] = useState(false);
   const linkInputRef = useRef<HTMLInputElement>(null);
   const [modalState, setModalState] = useState({
@@ -82,7 +83,7 @@ export default function ShareRecordPage() {
   );
 
   // Generate a dummy share link for the record
-  const getShareLink = (id: number) => `https://trustmed.app/share/${id}`;
+  const getShareLink = (id: string) => `https://trustmed.app/share/${id}`;
 
   const handleCopy = (link: string) => {
     if (navigator && navigator.clipboard) {
@@ -92,12 +93,12 @@ export default function ShareRecordPage() {
     }
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     setRecords((prev) => prev.filter((r) => r.id !== id));
     setDeleteId(null);
   };
 
-  const handleOpenManage = (id: number) => {
+  const handleOpenManage = (id: string) => {
     // Optionally, load real values for the record here
     setManageId(id);
     setModalState({ validity: 24, active: true, pinEnabled: false, pin: "" });
@@ -123,7 +124,7 @@ export default function ShareRecordPage() {
     };
 
     void fetchRecords();
-  }, []);
+  }, [refreshToken]);
 
   let viewModal = null;
   if (viewId !== null) {
@@ -180,23 +181,24 @@ export default function ShareRecordPage() {
       checked ? [...prev, id] : prev.filter((rid) => rid !== id)
     );
   };
-  const handleSendRecords = () => {
+  const handleSendRecords = async () => {
     if (selectedRecordIds.length === 0) {
       return;
     }
 
-    const nextId = Math.max(...records.map((rec) => rec.id), 0) + 1;
-    const nextRecord: SharedRecordItem = {
-      id: nextId,
-      recipient: sendDrName,
-      date: new Date().toISOString().slice(0, 10),
-      status: "active",
-    };
+    try {
+      await SharedRecordsApi.sendSharedRecords({
+        recipientName: sendDrName.trim(),
+        medicalRecordIds: selectedRecordIds,
+      });
 
-    setRecords((prev) => [...prev, nextRecord]);
-    setShowSendModal(false);
-    setSelectedRecordIds([]);
-    setSendDrName("Dr. Name");
+      setShowSendModal(false);
+      setSelectedRecordIds([]);
+      setSendDrName("Dr. Name");
+      setRefreshToken((prev) => prev + 1);
+    } catch {
+      setRecordsError("Unable to send records right now.");
+    }
   };
 
   return (
@@ -282,7 +284,7 @@ export default function ShareRecordPage() {
                   "h-10 w-10 shrink-0 rounded-xl flex items-center justify-center",
                   record.status === "active"
                     ? "bg-emerald-50 dark:bg-emerald-900/20"
-                    : record.status === "deactive"
+                    : record.status === "deactivated"
                     ? "bg-yellow-50 dark:bg-yellow-900/20"
                     : "bg-red-50 dark:bg-red-900/20"
                 )}>
@@ -290,7 +292,7 @@ export default function ShareRecordPage() {
                     "h-5 w-5",
                     record.status === "active"
                       ? "text-emerald-500 dark:text-emerald-400"
-                      : record.status === "deactive"
+                      : record.status === "deactivated"
                       ? "text-yellow-500 dark:text-yellow-400"
                       : "text-red-500 dark:text-red-400"
                   )} />
@@ -428,7 +430,7 @@ export default function ShareRecordPage() {
                                   className="w-full rounded-lg border border-neutral-200 dark:border-neutral-700 px-3 py-2 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100"
                                 />
                               </div>
-                              {/* Active/Deactive Toggle */}
+                              {/* Active/Deactivated Toggle */}
                               <div className="flex items-center gap-3">
                                 <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">Active</label>
                                 <input
