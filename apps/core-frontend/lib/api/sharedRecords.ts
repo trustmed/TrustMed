@@ -16,6 +16,21 @@ export interface ShareMedicalRecordItem {
   doctor: string;
 }
 
+export interface SharedLinkMedicalRecordItem {
+  id: string;
+  fileOriginalName: string;
+  recordType: string;
+  date: string;
+}
+
+export interface SharedLinkWithMedicalRecords {
+  id: string;
+  recipient: string;
+  date: string;
+  status: "active" | "expired" | "deactivated";
+  medicalRecords: SharedLinkMedicalRecordItem[];
+}
+
 export interface SendSharedRecordsPayload {
   recipientName: string;
   medicalRecordIds: string[];
@@ -29,6 +44,10 @@ export interface SendSharedRecordsResponse {
 export interface SharedRecordsResponse {
   sharedRecords: SharedRecordItem[];
   medicalRecords: ShareMedicalRecordItem[];
+}
+
+export interface SharedLinkMedicalRecordsResponse {
+  sharedRecord: SharedLinkWithMedicalRecords;
 }
 
 export const SharedRecordsApi = {
@@ -62,6 +81,24 @@ export const SharedRecordsApi = {
 
     if (!response.ok) {
       throw new Error("Failed to fetch shared records");
+    }
+
+    return response.json();
+  },
+
+  getSharedLinkRecords: async (
+    sharedLinkId: string,
+  ): Promise<SharedLinkMedicalRecordsResponse> => {
+    const response = await fetch(`${API_URL}/shared-records/${sharedLinkId}/records`, {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch shared link records");
     }
 
     return response.json();

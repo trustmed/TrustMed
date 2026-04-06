@@ -38,3 +38,39 @@ export class SharedRecordsResponseDto {
   @ApiProperty({ type: [ShareMedicalRecordItemDto] })
   medicalRecords: ShareMedicalRecordItemDto[];
 }
+
+export class SharedLinkMedicalRecordItemDto {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  fileOriginalName: string;
+
+  @ApiProperty()
+  recordType: string;
+
+  @ApiProperty()
+  date: string;
+}
+
+export class SharedLinkWithMedicalRecordsDto {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  recipient: string;
+
+  @ApiProperty()
+  date: string;
+
+  @ApiProperty({ enum: ['active', 'expired', 'deactivated'] })
+  status: 'active' | 'expired' | 'deactivated';
+
+  @ApiProperty({ type: [SharedLinkMedicalRecordItemDto] })
+  medicalRecords: SharedLinkMedicalRecordItemDto[];
+}
+
+export class SharedLinkMedicalRecordsResponseDto {
+  @ApiProperty({ type: SharedLinkWithMedicalRecordsDto })
+  sharedRecord: SharedLinkWithMedicalRecordsDto;
+}
