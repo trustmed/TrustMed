@@ -17,7 +17,12 @@ import { AuthUser } from '../entities/auth-user.entity';
 import { ConsentRequest } from '../entities/consent-request.entity';
 import { MedicalRecord } from '../entities/medical-record.entity';
 import { Appointment } from '../entities/appointment.entity';
+import { SharedLinkRecord } from '../entities/shared-link-record.entity';
+import { SharedLinkMedicalRecord } from '../entities/shared-link-medical-record.entity';
+
 import { Init1775252452217 } from '../entities/migrations/1775252452217-init';
+import { InitSharedRecords1775439988102 } from '../entities/migrations/1775439988102-initSharedRecords';
+
 dotenv.config();
 
 export const dataSourceOptions: DataSourceOptions = {
@@ -44,8 +49,10 @@ export const dataSourceOptions: DataSourceOptions = {
     MedicalRecord,
     ConsentRequest,
     Appointment,
+    SharedLinkRecord,
+    SharedLinkMedicalRecord,
   ],
-  migrations: [Init1775252452217],
+  migrations: [Init1775252452217, InitSharedRecords1775439988102],
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
 };

@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class SharedRecordItemDto {
   @ApiProperty()
-  id: number;
+  id: string;
 
   @ApiProperty()
   recipient: string;
@@ -10,13 +10,13 @@ export class SharedRecordItemDto {
   @ApiProperty()
   date: string;
 
-  @ApiProperty({ enum: ['active', 'expired', 'deactive'] })
-  status: 'active' | 'expired' | 'deactive';
+  @ApiProperty({ enum: ['active', 'expired', 'deactivated'] })
+  status: 'active' | 'expired' | 'deactivated';
 }
 
 export class ShareMedicalRecordItemDto {
   @ApiProperty()
-  id: number;
+  id: string;
 
   @ApiProperty()
   patientName: string;
