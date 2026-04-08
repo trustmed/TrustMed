@@ -1,6 +1,7 @@
+
 'use client';
 
-import { FileText, FileImage, File, Pencil, Trash2, Download, MoreHorizontal } from 'lucide-react';
+import { FileText, FileImage, File, Pencil, Trash2, Download, MoreHorizontal, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MedicalRecord, CATEGORY_LABELS, CATEGORY_COLORS } from '@/types/medical-records';
 import { cn } from '@/lib/utils';
@@ -8,6 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 
 interface Props {
   record: MedicalRecord;
+  onView: (record: MedicalRecord) => void;
   onEdit: (record: MedicalRecord) => void;
   onDelete: (record: MedicalRecord) => void;
   onDownload: (record: MedicalRecord) => void;
@@ -31,7 +33,7 @@ function FileTypeIcon({ type }: { type: string }) {
   return <File className="h-5 w-5" />;
 }
 
-export function RecordCard({ record, onEdit, onDelete, onDownload, onAcceptRequest }: Props) {
+export function RecordCard({ record, onView, onEdit, onDelete, onDownload, onAcceptRequest }: Props) {
   const primaryTitle = record.doctorName || record.hospitalName || "—";
   const isPending = record.requestStatus?.status === 'PENDING';
 
@@ -106,6 +108,9 @@ export function RecordCard({ record, onEdit, onDelete, onDownload, onAcceptReque
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-40 p-1 hidden sm:block" align="end" sideOffset={5}>
+            <button onClick={() => onView(record)} className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-md text-neutral-700 dark:text-neutral-200 transition-colors">
+              <Eye className="h-4 w-4 text-neutral-500" /> View
+            </button>
             <button onClick={() => onDownload(record)} className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-md text-neutral-700 dark:text-neutral-200 transition-colors">
               <Download className="h-4 w-4 text-neutral-500" /> Download
             </button>
@@ -137,6 +142,9 @@ export function RecordCard({ record, onEdit, onDelete, onDownload, onAcceptReque
          )}
          <Button variant="ghost" size="sm" className="h-8 px-2 text-neutral-500" onClick={() => onDownload(record)}>
            <Download className="h-4 w-4 mr-1" /> Download
+         </Button>
+         <Button variant="ghost" size="sm" className="h-8 px-2 text-neutral-500" onClick={() => onView(record)}>
+           <Eye className="h-4 w-4 mr-1" /> View
          </Button>
          <Button variant="ghost" size="sm" className="h-8 px-2 text-neutral-500" onClick={() => onEdit(record)}>
            <Pencil className="h-4 w-4 mr-1" /> Edit

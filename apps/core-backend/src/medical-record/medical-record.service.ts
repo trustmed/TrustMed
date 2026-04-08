@@ -8,6 +8,7 @@ import { CreateMedicalRecordResponseDto } from './dto/create-medical-record-resp
 import { S3VaultService } from '../s3-vault/s3-vault.service';
 import { ConsentService } from './consent.service';
 import { AuditService, AuditEventType } from '../audit/audit.service';
+import { StorageService } from '../storage/storage.service';
 
 @Injectable()
 export class MedicalRecordService {
@@ -19,6 +20,7 @@ export class MedicalRecordService {
     @InjectRepository(Person)
     private readonly personRepo: Repository<Person>,
     private readonly s3VaultService: S3VaultService,
+    private readonly storageService: StorageService,
     private readonly consentService: ConsentService,
     private readonly auditService: AuditService,
   ) {}
@@ -30,75 +32,67 @@ export class MedicalRecordService {
       authUserId: dto.personId,
     });
 
+    let saved: MedicalRecord;
+
     if (dto.file) {
-      const result = await this.s3VaultService.uploadEncryptedFile(
-        dto.file.buffer,
-        dto.file.originalname,
-        dto.file.mimetype,
-        person.id, // patientId as UUID
-        person.id, // uploaderId as UUID (assuming self-upload for now)
-        {
+      const customFileName = `${Date.now()}_${person.id}`;
+      const uploadResult = this.storageService.upload({
+        file: {
+          originalname: dto.file.originalname,
+          mimetype: dto.file.mimetype,
+          size: dto.file.size,
+          buffer: dto.file.buffer,
+        },
+        customFileName,
+        nestedDirectories: ['medical-records', person.id],
+      });
+
+      saved = await this.recordRepo.save(
+        this.recordRepo.create({
+          person,
+          patientId: person.id,
+          uploaderId: person.id,
+          originalFileName: dto.file.originalname,
+          fileName: uploadResult.fileName,
+          mimeType: uploadResult.mimeType,
+          fileType: uploadResult.mimeType,
+          fileSize: uploadResult.size,
           category: dto.category as any,
           notes: dto.notes,
           doctorName: dto.doctorName,
           hospitalName: dto.hospitalName,
-          recordDate: dto.recordDate ? new Date(dto.recordDate) : undefined,
-        },
+          recordDate: dto.recordDate ? new Date(dto.recordDate) : null,
+        }),
       );
-
-      const saved = result.savedRecord;
-      await this.auditService.log({
-        eventType: AuditEventType.RECORD_UPLOADED,
-        actorId: person.id,
-        patientId: person.id,
-        targetResource: saved.id,
-      });
-      return {
-        id: saved.id,
-        personId: saved.person?.id || person.id,
-        fileName: saved.originalFileName || saved.fileName || '',
-        fileUrl: saved.s3Uri || '',
-        fileType: saved.mimeType || saved.fileType || '',
-        fileSize: Number(saved.fileSize) || 0,
-        category: saved.category as string,
-        notes: saved.notes || undefined,
-        doctorName: saved.doctorName || undefined,
-        hospitalName: saved.hospitalName || undefined,
-        recordDate: saved.recordDate
-          ? new Date(saved.recordDate).toISOString()
-          : undefined,
-        createdAt: saved.createdAt,
-        updatedAt: saved.updatedAt,
-      };
+    } else {
+      saved = (await this.recordRepo.save(
+        this.recordRepo.create({
+          person,
+          patientId: person.id,
+          uploaderId: person.id,
+          category: dto.category as any,
+          notes: dto.notes,
+          doctorName: dto.doctorName,
+          hospitalName: dto.hospitalName,
+          recordDate: dto.recordDate ? new Date(dto.recordDate) : null,
+        }),
+      )) as unknown as MedicalRecord;
     }
 
-    // Fallback for metadata-only records if ever supported
-    const record = this.recordRepo.create({
-      person,
-      patientId: person.id,
-      uploaderId: person.id,
-      category: dto.category as any,
-      notes: dto.notes,
-      doctorName: dto.doctorName,
-      hospitalName: dto.hospitalName,
-      recordDate: dto.recordDate ? new Date(dto.recordDate) : null,
-    });
-    const saved = (await this.recordRepo.save(
-      record,
-    )) as unknown as MedicalRecord;
     await this.auditService.log({
       eventType: AuditEventType.RECORD_UPLOADED,
       actorId: person.id,
       patientId: person.id,
       targetResource: saved.id,
     });
+
     return {
       id: saved.id,
       personId: saved.person?.id || person.id,
-      fileName: '',
+      fileName: dto.file ? saved.originalFileName || saved.fileName || '' : '',
       fileUrl: '',
-      fileType: '',
-      fileSize: 0,
+      fileType: dto.file ? saved.mimeType || saved.fileType || '' : '',
+      fileSize: dto.file ? Number(saved.fileSize) || 0 : 0,
       category: saved.category as string,
       notes: saved.notes || undefined,
       doctorName: saved.doctorName || undefined,
@@ -156,6 +150,43 @@ export class MedicalRecordService {
       targetResource: recordId,
     });
     return true;
+  }
+
+  async viewRecord(
+    recordId: string,
+    authUserId: string,
+  ): Promise<{ buffer: Buffer; mimeType: string; fileName: string }> {
+    console.log('Viewing record:', { recordId, authUserId });
+    const person = await this.personRepo.findOne({
+      where: { authUserId },
+    });
+    if (!person) {
+      throw new NotFoundException('User profile not found');
+    }
+
+    const record = await this.recordRepo.findOne({
+      where: { id: recordId, person: { id: person.id } },
+    });
+
+    if (!record) {
+      throw new NotFoundException('Medical record not found or not authorized');
+    }
+
+    const fileName = record.fileName || record.originalFileName;
+    if (!fileName) {
+      throw new NotFoundException('File not found for this medical record');
+    }
+
+    const viewed = this.storageService.view({
+      fileName,
+      nestedDirectories: ['medical-records', person.id],
+    });
+
+    return {
+      buffer: viewed.buffer,
+      mimeType: viewed.mimeType,
+      fileName: viewed.fileName,
+    };
   }
 
   // Removed duplicate methods and misplaced code. Only one set of methods is kept above. Class ends here.

@@ -13,6 +13,7 @@ import {
 import { UploadRecordModal } from "@/components/medical-records/upload-record-modal";
 import { EditRecordModal } from "@/components/medical-records/edit-record-modal";
 import { DeleteRecordModal } from "@/components/medical-records/delete-record-modal";
+import { ViewRecordModal } from "@/components/medical-records/view-record-modal";
 import { RecordCard } from "@/components/medical-records/record-card";
 import { AcceptRequestModal } from "@/components/medical-records/accept-request-modal";
 import { RecordCategory, CATEGORY_LABELS } from "@/types/medical-records";
@@ -21,6 +22,7 @@ import useMedicalRecords from "./hooks/useMedicalRecords";
 export default function MedicalRecordsPage() {
   const {
     handleUpload,
+    handleView,
     handleEdit,
     handleDelete,
     handleDownload,
@@ -111,6 +113,7 @@ export default function MedicalRecordsPage() {
               <RecordCard
                 key={record.id}
                 record={record}
+                onView={handleView}
                 onEdit={(r) => {
                   setSelectedRecord(r);
                   setModal("edit");
@@ -159,6 +162,14 @@ export default function MedicalRecordsPage() {
         open={modal === "upload"}
         onClose={() => setModal(null)}
         onUpload={handleUpload}
+      />
+      <ViewRecordModal
+        record={selectedRecord}
+        open={modal === "view"}
+        onClose={() => {
+          setModal(null);
+          setSelectedRecord(null);
+        }}
       />
       <EditRecordModal
         record={selectedRecord}

@@ -78,6 +78,50 @@ export class MedicalRecordController {
     }
   }
 
+  @Get(':recordId/view')
+  @ApiOperation({
+    summary: 'View an uploaded medical record from storage',
+  })
+  @ApiParam({
+    name: 'recordId',
+    description: 'UUID of the medical record',
+  })
+  async view(
+    @Param('recordId', new ParseUUIDPipe({ version: '4' })) recordId: string,
+    @CurrentUser() user: JwtPayload,
+    @Res() res: Response,
+  ): Promise<void> {
+    console.log(
+      `Received view request for record ${recordId} from user ${user.sub}`,
+    );
+    try {
+      const { buffer, fileName, mimeType } = await this.service.viewRecord(
+        recordId,
+        user.sub,
+      );
+
+      const sanitizedFileName = fileName.replace(/["\\]/g, '_');
+
+      res.setHeader('Content-Type', mimeType || 'application/octet-stream');
+      res.setHeader(
+        'Content-Disposition',
+        `inline; filename="${sanitizedFileName}"`,
+      );
+      res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
+      res.send(buffer);
+    } catch (err: unknown) {
+      const error = err as { message?: string; status?: number };
+      this.logger.error(
+        `View failed for record ${recordId}: ${error.message ?? 'Unknown error'}`,
+      );
+      const statusCode = error.status ?? 500;
+      res.status(statusCode).json({
+        statusCode: statusCode,
+        message: error.message ?? 'Internal server error during view',
+      });
+    }
+  }
+
   @ApiResponse({ status: 200, type: MedicalRecordItemResponseDto })
   @ApiBody({ type: UpdateMedicalRecordRequestDto })
   @Put(':authuserId/:recordId')
