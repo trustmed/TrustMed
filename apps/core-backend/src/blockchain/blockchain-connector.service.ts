@@ -26,10 +26,46 @@ export class BlockchainConnectorService {
       );
       return data;
     } catch (error) {
+      console.log(error);
       this.logger.error(
         `Failed to reach Blockchain Gateway at ${this.gatewayUrl}`,
       );
       throw error;
+    }
+  }
+
+  async logAuditEvent(auditEvent: unknown): Promise<unknown> {
+    try {
+      const { data } = await firstValueFrom(
+        this.httpService.post<unknown>(
+          `${this.gatewayUrl}/audit-logs`,
+          auditEvent,
+        ),
+      );
+      return data;
+    } catch (error) {
+      console.log(error);
+      this.logger.error(
+        `Failed to reach Blockchain Gateway for Audit Log at ${this.gatewayUrl}/audit-logs`,
+      );
+      return null;
+    }
+  }
+
+  async getAuditHistory(patientDid: string): Promise<any[]> {
+    try {
+      const { data } = await firstValueFrom(
+        this.httpService.get<any[]>(
+          `${this.gatewayUrl}/audit-logs/${patientDid}`,
+        ),
+      );
+      return data;
+    } catch (error) {
+      console.log(error);
+      this.logger.error(
+        `Failed to fetch audit history for ${patientDid} from blockchain gateway`,
+      );
+      return [];
     }
   }
 
@@ -41,9 +77,11 @@ export class BlockchainConnectorService {
         ),
       );
       return data;
-    } catch {
+    } catch (error) {
+      console.log(error);
       this.logger.error(
         `Failed to fetch access requests for patient ${patientDid} from ${this.gatewayUrl}`,
+        error,
       );
       return [];
     }
@@ -56,8 +94,10 @@ export class BlockchainConnectorService {
       );
       return data;
     } catch (error) {
+      console.log(error);
       this.logger.error(
         `Failed to fetch access request ${requestId} from ${this.gatewayUrl}`,
+        error,
       );
       throw error;
     }
@@ -73,9 +113,11 @@ export class BlockchainConnectorService {
         this.httpService.get<unknown[]>(`${registryUrl}/patient/${patientDid}`),
       );
       return data;
-    } catch {
+    } catch (error) {
+      console.log(error);
       this.logger.error(
         `Failed to fetch record registry for patient ${patientDid}`,
+        error,
       );
       return [];
     }

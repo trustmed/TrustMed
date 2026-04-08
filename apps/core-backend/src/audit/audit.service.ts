@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuditLog } from '../entities/audit-log.entity';
+import { BlockchainConnectorService } from '../blockchain/blockchain-connector.service';
 
 /** Well-known audit event types for medical records. */
 export enum AuditEventType {
@@ -38,6 +39,7 @@ export class AuditService {
   constructor(
     @InjectRepository(AuditLog)
     private readonly auditLogRepo: Repository<AuditLog>,
+    private readonly blockchainConnector: BlockchainConnectorService,
   ) {}
 
   /**
@@ -58,6 +60,25 @@ export class AuditService {
       this.logger.debug(
         `Audit: ${event.eventType} by ${event.actorId} on ${event.targetResource ?? 'N/A'}`,
       );
+
+      this.blockchainConnector
+        .logAuditEvent({
+          auditId: entry.id,
+          eventType: entry.eventType,
+          actorId: entry.actorDid,
+          patientId: entry.patientId,
+          targetResource: entry.targetResource,
+          ipAddress: entry.ipAddress,
+          additionalData: entry.additionalData
+            ? JSON.stringify(entry.additionalData)
+            : undefined,
+        })
+        .catch((err) => {
+          this.logger.error(
+            'Failed to push audit log to Blockchain Gateway',
+            err,
+          );
+        });
     } catch (err) {
       this.logger.error('Failed to persist audit log', err);
     }

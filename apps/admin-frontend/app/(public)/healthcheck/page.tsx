@@ -183,20 +183,20 @@ export default function HealthCheckPage() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between px-1">
                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/70">Fabric Network</span>
-                    <StatusBadge status={blockchainHealthData.network.status?.toUpperCase()} />
+                    <StatusBadge status={blockchainHealthData.network?.status?.toUpperCase()} />
                   </div>
                   <div className="bg-zinc-50 dark:bg-zinc-800/40 p-4 rounded-2xl space-y-1 border border-border/30">
-                    <InfoLine label="MSP ID" value={blockchainHealthData.network.mspId} icon={ShieldCheck} />
+                    <InfoLine label="MSP ID" value={blockchainHealthData?.network?.mspId} icon={ShieldCheck} />
                     <InfoLine label="Chaincode" value={blockchainHealthData.network.chaincode} icon={Cpu} />
                     <InfoLine label="Channel" value={blockchainHealthData.network.channel} icon={Globe} />
                     <InfoLine 
                       label="Last Check" 
-                      value={blockchainHealthData.network.timestamp ? new Date(blockchainHealthData.network.timestamp).toLocaleTimeString() : undefined} 
+                      value={blockchainHealthData?.network?.timestamp ? new Date(blockchainHealthData?.network?.timestamp).toLocaleTimeString() : undefined} 
                       icon={Clock} 
                     />
-                    {blockchainHealthData.network.details && (
+                    {blockchainHealthData?.network?.details && (
                       <div className="mt-2 pt-2 border-t border-border/20 text-[9px] text-muted-foreground italic truncate">
-                        {blockchainHealthData.network.details}
+                        {blockchainHealthData?.network?.details}
                       </div>
                     )}
                   </div>
