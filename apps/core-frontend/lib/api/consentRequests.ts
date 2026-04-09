@@ -7,11 +7,18 @@ export interface ConsentRequest {
   recordId: string;
   status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
   expiresAt: string | null;
+  createdAt?: string;
   requester?: {
     id: string;
     firstName: string;
     lastName: string;
     email: string;
+  };
+  record?: {
+    id: string;
+    originalFileName?: string;
+    fileName?: string;
+    category?: string;
   };
 }
 

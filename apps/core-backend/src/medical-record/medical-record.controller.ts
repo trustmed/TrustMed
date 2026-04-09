@@ -51,10 +51,15 @@ export class MedicalRecordController {
     summary: 'Search for patients by name or email and list their records',
   })
   @ApiQuery({ name: 'query', type: 'string', required: true })
-  async searchPatients(@Query('query') query: string) {
+  async searchPatients(
+    @Query('query') query: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
     if (!query) {
       throw new NotFoundException('Query parameter is required');
     }
+
+    const currentUserId = user.sub;
 
     const results = await this.service.searchPatients(query);
     if (!results || results.length === 0) {
@@ -83,11 +88,15 @@ export class MedicalRecordController {
         createdAt: rec.createdAt,
         updatedAt: rec.updatedAt,
         requestStatus: (() => {
+          // Only show the current user's own consent request status
+          const myRequests = rec.consentRequests?.filter(
+            (req: ConsentRequest) => req.requesterId === currentUserId,
+          );
           const r: ConsentRequest | undefined =
-            rec.consentRequests?.find(
+            myRequests?.find(
               (req: ConsentRequest) =>
                 req.status === ConsentRequestStatus.PENDING,
-            ) || rec.consentRequests?.[rec.consentRequests.length - 1];
+            ) || myRequests?.[myRequests.length - 1];
           return r
             ? {
                 status: r.status as string,
