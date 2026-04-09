@@ -25,7 +25,6 @@ import { InitSharedRecords1775439988102 } from '../entities/migrations/177543998
 import { AddAppoinmentNoToAppoinmentTabel1775708269564 } from '../entities/migrations/1775708269564-addAppoinmentNoToAppoinmentTabel';
 import { ResolveConsentIdIssue1775758008335 } from '../entities/migrations/1775758008335-resolve-consent-id-issue';
 
-
 dotenv.config();
 
 export const dataSourceOptions: DataSourceOptions = {
