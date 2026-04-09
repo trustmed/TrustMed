@@ -270,20 +270,22 @@ export default function PatientSearchPage() {
                           </div>
 
                           {/* Action / Status */}
-                          <div className="shrink-0">
-                            {hasExistingRequest && statusInfo ? (
+                          <div className="shrink-0 flex items-center gap-3">
+                            {hasExistingRequest && statusInfo && (
                               <span
                                 className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${statusInfo.style}`}
                               >
                                 <statusInfo.icon className="h-3 w-3" />
                                 {statusInfo.label}
                               </span>
-                            ) : justRequested ? (
+                            )}
+                            
+                            {justRequested ? (
                               <span className="inline-flex items-center gap-1.5 rounded-full border border-warning/20 bg-warning/10 px-3 py-1 text-xs font-medium text-warning">
                                 <Clock className="h-3 w-3" />
                                 Requested
                               </span>
-                            ) : (
+                            ) : (!hasExistingRequest || statusInfo?.label === "Rejected") && (
                               <button
                                 onClick={() => handleRequestAccess(record.id)}
                                 disabled={isRequesting}
@@ -294,7 +296,7 @@ export default function PatientSearchPage() {
                                 ) : (
                                   <Send className="h-3 w-3" />
                                 )}
-                                Request Access
+                                {statusInfo?.label === "Rejected" ? "Re-request" : "Request Access"}
                               </button>
                             )}
                           </div>

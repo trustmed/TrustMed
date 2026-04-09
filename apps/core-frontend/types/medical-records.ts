@@ -18,6 +18,12 @@ export interface MedicalRecord {
     createdAt: string;
     id?: string;
   };
+  requests?: Array<{
+    id: string;
+    status: string;
+    createdBy: string;
+    createdAt: string;
+  }>;
 }
 
 export enum RecordCategory {

@@ -103,6 +103,15 @@ export class MedicalRecordController {
                 createdAt: '',
               };
         })(),
+        requests:
+          rec.consentRequests?.map((r: ConsentRequest) => ({
+            id: r.id,
+            status: r.status as string,
+            createdBy: r.requester
+              ? `${r.requester.firstName} ${r.requester.lastName}`
+              : r.requesterId,
+            createdAt: r.createdAt.toISOString(),
+          })) || [],
       })),
     }));
   }
@@ -218,6 +227,8 @@ export class MedicalRecordController {
         : undefined,
       createdAt: updated.createdAt,
       updatedAt: updated.updatedAt,
+      requestStatus: undefined,
+      requests: [],
     };
   }
 
@@ -288,6 +299,15 @@ export class MedicalRecordController {
                 createdAt: '',
               };
         })(),
+        requests:
+          rec.consentRequests?.map((r: ConsentRequest) => ({
+            id: r.id,
+            status: r.status as string,
+            createdBy: r.requester
+              ? `${r.requester.firstName} ${r.requester.lastName}`
+              : r.requesterId,
+            createdAt: r.createdAt.toISOString(),
+          })) || [],
       })),
     };
   }
@@ -341,6 +361,15 @@ export class MedicalRecordController {
               createdAt: '',
             };
       })(),
+      requests:
+        rec.consentRequests?.map((r: ConsentRequest) => ({
+          id: r.id,
+          status: r.status as string,
+          createdBy: r.requester
+            ? `${r.requester.firstName} ${r.requester.lastName}`
+            : r.requesterId,
+          createdAt: r.createdAt.toISOString(),
+        })) || [],
     };
   }
 

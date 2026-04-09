@@ -24,7 +24,7 @@ function TestPage() {
 
   const getApiUrl = (path: string) => `${process.env.NEXT_PUBLIC_API_URL}${path}`;
 
-  const handleRequest = async (type: "create" | "approve" | "check") => {
+  const handleRequest = async (type: "create" | "approve" | "check" |"audit") => {
     setLoading(type);
     setResponse(null);
 

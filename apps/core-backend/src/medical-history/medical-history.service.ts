@@ -48,6 +48,9 @@ export class MedicalHistoryService {
           AuditEventType.APPOINTMENT_UPDATED,
           AuditEventType.APPOINTMENT_CANCELLED,
           AuditEventType.PROFILE_UPDATED,
+          AuditEventType.CONSENT_ACCESS_REQUESTED,
+          AuditEventType.CONSENT_ACCESS_ACCEPTED,
+          AuditEventType.CONSENT_ACCESS_REJECTED,
         ]),
       },
       order: { timestamp: sort === 'asc' ? 'ASC' : 'DESC' },
@@ -199,6 +202,12 @@ export class MedicalHistoryService {
         return 'Cancelled an appointment';
       case AuditEventType.PROFILE_UPDATED:
         return 'Updated profile information';
+      case AuditEventType.CONSENT_ACCESS_REQUESTED:
+        return `Requested access to medical record${file}`;
+      case AuditEventType.CONSENT_ACCESS_ACCEPTED:
+        return `Approved access to medical record${file}`;
+      case AuditEventType.CONSENT_ACCESS_REJECTED:
+        return `Denied access to medical record${file}`;
       default:
         return eventType;
     }

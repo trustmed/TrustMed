@@ -1,11 +1,12 @@
 
 'use client';
 
-import { FileText, FileImage, File, Pencil, Trash2, Download, MoreHorizontal, Eye } from 'lucide-react';
+import { FileText, FileImage, File, Pencil, Trash2, Download, MoreHorizontal, Eye, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MedicalRecord, CATEGORY_LABELS, CATEGORY_COLORS } from '@/types/medical-records';
 import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useRouter } from 'next/navigation';
 
 interface Props {
   record: MedicalRecord;
@@ -34,6 +35,7 @@ function FileTypeIcon({ type }: { type: string }) {
 }
 
 export function RecordCard({ record, onView, onEdit, onDelete, onDownload, onAcceptRequest }: Props) {
+  const router = useRouter();
   const primaryTitle = record.doctorName || record.hospitalName || "—";
   const isPending = record.requestStatus?.status === 'PENDING';
 
@@ -71,7 +73,7 @@ export function RecordCard({ record, onView, onEdit, onDelete, onDownload, onAcc
       </div>
 
       {/* 3. Doctor / Hospital */}
-      <div className="hidden md:flex w-[20%] items-center min-w-0 pr-4">
+      <div className="hidden md:flex w-[15%] items-center min-w-0 pr-4">
         <p className="text-sm text-neutral-600 dark:text-neutral-400 truncate" title={primaryTitle}>
           {primaryTitle}
         </p>
@@ -85,6 +87,26 @@ export function RecordCard({ record, onView, onEdit, onDelete, onDownload, onAcc
         <span className="text-[11px] text-neutral-400">
           {formatBytes(record.fileSize)}
         </span>
+      </div>
+
+      {/* 4.5 Requesters */}
+      <div className="hidden lg:flex w-[15%] items-end justify-end min-w-0 pr-4">
+        {record.requests && record.requests.length > 0 && (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="h-7 text-xs bg-transparent border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 px-2 group/btn z-20 relative cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              router.push(`/medical-records/${record.id}/access`);
+            }}
+          >
+            <Clock className="h-3 w-3 mr-1.5 transition-transform group-hover/btn:-rotate-12" />
+            <span className="font-medium whitespace-nowrap">
+              Show Requests
+            </span>
+          </Button>
+        )}
       </div>
 
       {/* 5. Desktop Actions (Ellipsis Menu) */}

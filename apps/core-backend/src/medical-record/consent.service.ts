@@ -13,6 +13,7 @@ import {
   ConsentRequest,
   ConsentRequestStatus,
 } from '../entities/consent-request.entity';
+import { AuditService, AuditEventType } from '../audit/audit.service';
 
 @Injectable()
 export class ConsentService {
@@ -25,6 +26,7 @@ export class ConsentService {
     private readonly medicalRecordRepo: Repository<MedicalRecord>,
     @InjectRepository(Person)
     private readonly personRepo: Repository<Person>,
+    private readonly auditService: AuditService,
   ) {}
 
   /**
@@ -80,23 +82,9 @@ export class ConsentService {
   ): Promise<ConsentRequest> {
     const record = await this.medicalRecordRepo.findOne({
       where: { id: recordId },
-      relations: ['person'],
     });
     if (!record) {
       throw new NotFoundException('Medical record not found');
-    }
-
-    // record.patientId is actually a Person ID. We need the AuthUser ID.
-    let authUserId = record.person?.authUserId;
-    if (!authUserId) {
-      // Fallback lookup if relation wasn't loaded properly
-      const person = await this.personRepo.findOne({
-        where: { id: record.patientId },
-      });
-      if (!person || !person.authUserId) {
-        throw new NotFoundException('Patient authorization profile not found');
-      }
-      authUserId = person.authUserId;
     }
 
     // Don't create duplicate pending requests
@@ -114,12 +102,21 @@ export class ConsentService {
 
     const consentRequest = this.consentRequestRepo.create({
       requesterId,
-      patientId: authUserId, // Store the AuthUser ID to satisfy the FK constraint
+      patientId: record.patientId,
       recordId,
       status: ConsentRequestStatus.PENDING,
     });
 
-    return this.consentRequestRepo.save(consentRequest);
+    const saved = await this.consentRequestRepo.save(consentRequest);
+
+    await this.auditService.log({
+      eventType: AuditEventType.CONSENT_ACCESS_REQUESTED,
+      actorId: requesterId,
+      patientId: record.patientId,
+      targetResource: recordId,
+    });
+
+    return saved;
   }
 
   async getReceivedRequests(patientId: string): Promise<ConsentRequest[]> {
@@ -177,7 +174,16 @@ export class ConsentService {
     request.status = ConsentRequestStatus.ACCEPTED;
     request.expiresAt = new Date(Date.now() + durationMs);
 
-    return this.consentRequestRepo.save(request);
+    const saved = await this.consentRequestRepo.save(request);
+
+    await this.auditService.log({
+      eventType: AuditEventType.CONSENT_ACCESS_ACCEPTED,
+      actorId: patientId,
+      patientId: patientId,
+      targetResource: request.recordId,
+    });
+
+    return saved;
   }
 
   async rejectRequest(
@@ -197,6 +203,15 @@ export class ConsentService {
 
     request.status = ConsentRequestStatus.REJECTED;
 
-    return this.consentRequestRepo.save(request);
+    const saved = await this.consentRequestRepo.save(request);
+
+    await this.auditService.log({
+      eventType: AuditEventType.CONSENT_ACCESS_REJECTED,
+      actorId: patientId,
+      patientId: patientId,
+      targetResource: request.recordId,
+    });
+
+    return saved;
   }
 }
