@@ -25,7 +25,7 @@ export const PORTAL_LINKS = [
     ),
   },
   {
-    label: "Medical Records",
+    label: "Access Logs",
     href: "/medical-records",
     icon: (
       <FileText className="text-neutral-700 dark:text-neutral-200 h-5 w-5 shrink-0" />
