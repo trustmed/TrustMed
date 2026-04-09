@@ -9,11 +9,13 @@ import { MedicalRecordController } from './medical-record.controller';
 import { ConsentService } from './consent.service';
 import { ConsentRequestsController } from './consent-requests.controller';
 import { StorageModule } from '../storage/storage.module';
+import { AuditModule } from '../audit/audit.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([MedicalRecord, Person, AuthUser, ConsentRequest]),
     StorageModule,
+    AuditModule,
   ],
   providers: [MedicalRecordService, ConsentService],
   controllers: [MedicalRecordController, ConsentRequestsController],

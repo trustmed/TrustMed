@@ -17,11 +17,11 @@ import {
   ShieldAlert,
   Activity,
   SlidersHorizontal,
-  Link2,
   RefreshCw,
   AlertCircle,
   CheckCircle,
   Lock,
+  Network,
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -100,10 +100,28 @@ const EVENT_META: Record<
     bgColor: "bg-violet-50 dark:bg-violet-900/20",
   },
   ACCESS_REQUEST: {
-    label: "Blockchain Access Request",
-    icon: Link2,
+    label: "Blockchain Request",
+    icon: Network,
     color: "text-cyan-500 dark:text-cyan-400",
     bgColor: "bg-cyan-50 dark:bg-cyan-900/20",
+  },
+  CONSENT_ACCESS_REQUESTED: {
+    label: "Access Requested",
+    icon: Lock,
+    color: "text-amber-500 dark:text-amber-400",
+    bgColor: "bg-amber-50 dark:bg-amber-900/20",
+  },
+  CONSENT_ACCESS_ACCEPTED: {
+    label: "Access Approved",
+    icon: CheckCircle,
+    color: "text-green-500 dark:text-green-400",
+    bgColor: "bg-green-50 dark:bg-green-900/20",
+  },
+  CONSENT_ACCESS_REJECTED: {
+    label: "Access Denied",
+    icon: ShieldAlert,
+    color: "text-red-600 dark:text-red-400",
+    bgColor: "bg-red-50 dark:bg-red-900/20",
   },
 };
 
@@ -141,6 +159,9 @@ function matchesFilter(event: HistoryEventDto, filter: FilterValue): boolean {
       "RECORD_DOWNLOADED",
       "RECORD_LISTED",
       "RECORD_ACCESS_DENIED",
+      "CONSENT_ACCESS_REQUESTED",
+      "CONSENT_ACCESS_ACCEPTED",
+      "CONSENT_ACCESS_REJECTED",
     ].includes(event.eventType);
   if (filter === "appointment")
     return [
@@ -324,58 +345,52 @@ function BlockchainEventRow({ event }: { event: HistoryEventDto }) {
   const [open, setOpen] = React.useState(false);
   const ts = new Date(event.timestamp);
 
-  //  hash derived from ID i
-  // const txHash = (event.additionalData as any)?.transactionHash ;
-
   return (
     <div
       className={cn(
-        "border rounded-xl bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-slate-700/50 shadow-lg overflow-hidden transition-all duration-300 relative group",
+        "border rounded-xl bg-white dark:bg-neutral-900 overflow-hidden transition-all duration-300 relative group",
         open
-          ? "border-cyan-500/50 shadow-[0_0_15px_rgba(34,211,238,0.2)]"
-          : "hover:border-cyan-500/30 hover:shadow-cyan-500/10"
+          ? "border-cyan-200 dark:border-cyan-900 shadow-[0_0_0_3px_rgba(207,250,254,0.5)] dark:shadow-[0_0_0_3px_rgba(8,145,178,0.1)]"
+          : "border-neutral-200 dark:border-neutral-800 hover:border-cyan-300 dark:hover:border-cyan-700 hover:shadow-sm"
       )}
     >
-      <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none"></div>
-
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="relative w-full flex items-center gap-4 px-4 sm:px-5 py-4 text-left transition-colors z-10"
+        className="relative w-full flex items-center gap-4 px-4 sm:px-5 py-4 text-left transition-colors z-10 hover:bg-neutral-50 dark:hover:bg-neutral-800/40"
       >
         <div
           className={cn(
             "h-10 w-10 shrink-0 rounded-xl flex items-center justify-center transition-transform duration-300",
-            "bg-cyan-500/10 border border-cyan-500/20 shadow-[0_0_10px_rgba(34,211,238,0.1)_inset]",
+            "bg-cyan-50 dark:bg-cyan-950/40 border border-cyan-100 dark:border-cyan-800/50",
             open && "scale-105"
           )}
         >
-          <Lock className="h-5 w-5 text-cyan-400" />
+          <Network className="h-5 w-5 text-cyan-500 dark:text-cyan-400" />
         </div>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-slate-100 truncate">
-              {event.eventType === "BLOCKCHAIN_AUDIT" ? "Blockchain Audit Verify" : "Blockchain Access Request"}
+            <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 truncate">
+              {getEventMeta(event.eventType).label}
             </p>
-            <CheckCircle className="h-3.5 w-3.5 text-cyan-400 shrink-0" />
           </div>
-          <p className="text-xs text-slate-400 truncate mt-0.5 font-mono">
+          <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate mt-0.5 font-mono">
             {event.description || event.eventType}
           </p>
         </div>
 
         {/* Source Badge */}
-        <span className="hidden sm:inline-flex shrink-0 items-center rounded-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+        <span className="hidden sm:inline-flex shrink-0 items-center rounded-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-cyan-50 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400 border border-cyan-100 dark:border-cyan-800/50">
           Verified On-Chain
         </span>
 
         {/* Date Column */}
         <div className="hidden md:flex flex-col items-end shrink-0 min-w-[72px]">
-          <span className="text-sm font-medium text-slate-200">
+          <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
             {format(ts, "MMM d")}
           </span>
-          <span className="text-[11px] text-cyan-400 font-mono mt-0.5">
+          <span className="text-[11px] text-cyan-600 dark:text-cyan-400 font-mono mt-0.5">
             {format(ts, "HH:mm")}
           </span>
         </div>
@@ -383,27 +398,27 @@ function BlockchainEventRow({ event }: { event: HistoryEventDto }) {
         <ChevronDown
           className={cn(
             "h-[18px] w-[18px] shrink-0 ml-2 transition-all duration-300",
-            open ? "rotate-180 text-cyan-400" : "text-slate-500 group-hover:text-cyan-400/50"
+            open ? "rotate-180 text-cyan-500" : "text-neutral-300 group-hover:text-cyan-500/50"
           )}
         />
       </button>
 
       {open && (
-        <div className="relative px-4 sm:px-5 pb-5 border-t border-slate-700/50 bg-slate-900/50 z-10">
+        <div className="relative px-4 sm:px-5 pb-5 border-t border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-800/20 z-10">
           <div className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">
                 Timestamp (UTC)
               </p>
-              <p className="font-semibold text-slate-200 mt-0.5 font-mono text-xs">
+              <p className="font-semibold text-neutral-800 dark:text-neutral-200 mt-0.5 font-mono text-xs">
                 {format(ts, "yyyy-MM-dd HH:mm:ss.SSS")}
               </p>
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">
                 Network Status
               </p>
-              <div className="flex items-center gap-1.5 mt-0.5 text-xs font-semibold text-cyan-400">
+              <div className="flex items-center gap-1.5 mt-0.5 text-xs font-semibold text-cyan-600 dark:text-cyan-400">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
@@ -412,21 +427,12 @@ function BlockchainEventRow({ event }: { event: HistoryEventDto }) {
               </div>
             </div>
 
-            {/* {<div className="sm:col-span-2 bg-black/40 border border-slate-800 rounded-lg p-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">
-                Transaction / Reference Hash
-              </p>
-              <p className="font-mono text-xs text-cyan-300/80 break-all select-all">
-                {txHash}
-              </p>
-            </div>} */}
-
             {event.targetResource && (
               <div className="sm:col-span-2">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">
                   Target Resource
                 </p>
-                <p className="font-mono text-xs text-slate-300 mt-0.5 truncate bg-slate-800/50 p-1.5 rounded border border-slate-700/50">
+                <p className="font-mono text-xs text-neutral-600 dark:text-neutral-400 mt-0.5 truncate bg-white dark:bg-neutral-900 p-1.5 rounded border border-neutral-200 dark:border-neutral-800">
                   {event.targetResource}
                 </p>
               </div>
@@ -435,10 +441,10 @@ function BlockchainEventRow({ event }: { event: HistoryEventDto }) {
 
           {event.additionalData && Object.keys(event.additionalData).length > 0 && (
             <div className="mt-4">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-1">
                 Raw Payload
               </p>
-              <pre className="text-[10px] text-slate-400 font-mono bg-black/50 border border-slate-800 rounded-lg p-3 overflow-x-auto shadow-inner">
+              <pre className="text-[10px] text-neutral-600 dark:text-neutral-400 font-mono bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-3 overflow-x-auto">
                 {JSON.stringify(event.additionalData, null, 2)}
               </pre>
             </div>

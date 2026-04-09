@@ -128,9 +128,7 @@ export class LocalStorageService implements Storage {
     const filePath = path.join(directoryPath, fileName);
     fs.writeFileSync(filePath, file.buffer);
 
-    this.logger.log(
-      `Saved file locally: ${filePath} (${file.size} bytes)`,
-    );
+    this.logger.log(`Saved file locally: ${filePath} (${file.size} bytes)`);
 
     return {
       message: 'File received successfully',

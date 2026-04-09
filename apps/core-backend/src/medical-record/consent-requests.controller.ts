@@ -22,6 +22,7 @@ import {
 } from '../entities/consent-request.entity';
 import { MedicalRecordService } from './medical-record.service';
 import { MedicalRecord } from '../entities/medical-record.entity';
+import { Person } from '../entities/person.entity';
 
 @ApiTags('consent-requests')
 @Controller('consent-requests')
@@ -33,6 +34,8 @@ export class ConsentRequestsController {
     private readonly authUserRepo: Repository<AuthUser>,
     @InjectRepository(MedicalRecord)
     private readonly recordRepo: Repository<MedicalRecord>,
+    @InjectRepository(Person)
+    private readonly personRepo: Repository<Person>,
   ) {}
 
   private async resolveAuthUserId(authUserId: string): Promise<string> {
@@ -43,6 +46,16 @@ export class ConsentRequestsController {
       throw new NotFoundException('Auth user not found');
     }
     return authUser.id;
+  }
+
+  private async resolvePersonId(authUserId: string): Promise<string> {
+    const person = await this.personRepo.findOne({
+      where: { authUserId: authUserId },
+    });
+    if (!person) {
+      throw new NotFoundException('Person profile not found');
+    }
+    return person.id;
   }
 
   @Post(':recordId')
@@ -130,7 +143,7 @@ export class ConsentRequestsController {
   async getReceivedRequests(
     @CurrentUser() user: JwtPayload,
   ): Promise<ConsentRequest[]> {
-    const patientId = await this.resolveAuthUserId(user.sub);
+    const patientId = await this.resolvePersonId(user.sub);
     return this.consentService.getReceivedRequests(patientId);
   }
 
@@ -154,7 +167,7 @@ export class ConsentRequestsController {
     @Body() dto: AcceptConsentDto,
     @CurrentUser() user: JwtPayload,
   ): Promise<ConsentRequest> {
-    const patientId = await this.resolveAuthUserId(user.sub);
+    const patientId = await this.resolvePersonId(user.sub);
     return this.consentService.acceptRequest(id, patientId, dto.duration);
   }
 
@@ -164,7 +177,7 @@ export class ConsentRequestsController {
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @CurrentUser() user: JwtPayload,
   ): Promise<ConsentRequest> {
-    const patientId = await this.resolveAuthUserId(user.sub);
+    const patientId = await this.resolvePersonId(user.sub);
     return this.consentService.rejectRequest(id, patientId);
   }
 }

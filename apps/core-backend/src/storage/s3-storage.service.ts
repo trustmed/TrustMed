@@ -51,7 +51,6 @@ export interface UploadMetadata {
   recordDate?: Date;
 }
 
-
 @Injectable()
 export class S3StorageService implements Storage {
   private readonly logger = new Logger(S3StorageService.name);
@@ -131,7 +130,11 @@ export class S3StorageService implements Storage {
       this.validateNestedDirectories(nestedDirectories);
     const fileName = this.buildFileName(file, customFileName);
     if (encrypt) {
-      return this.uploadWithEncryption(file, fileName, validatedNestedDirectories);
+      return this.uploadWithEncryption(
+        file,
+        fileName,
+        validatedNestedDirectories,
+      );
     }
 
     const objectKey = this.buildObjectKey(validatedNestedDirectories, fileName);
@@ -143,9 +146,7 @@ export class S3StorageService implements Storage {
         fs.mkdirSync(dir, { recursive: true });
       }
       fs.writeFileSync(fullPath, file.buffer);
-      this.logger.log(
-        `Saved file locally: ${fullPath} (${file.size} bytes)`,
-      );
+      this.logger.log(`Saved file locally: ${fullPath} (${file.size} bytes)`);
     } else {
       if (!this.s3Client) {
         throw new Error('S3 client not initialized');
@@ -158,9 +159,7 @@ export class S3StorageService implements Storage {
           ContentType: file.mimetype,
         }),
       );
-      this.logger.log(
-        `Uploaded file to S3: ${objectKey} (${file.size} bytes)`,
-      );
+      this.logger.log(`Uploaded file to S3: ${objectKey} (${file.size} bytes)`);
     }
 
     return {
@@ -394,9 +393,7 @@ export class S3StorageService implements Storage {
         : s3Uri.split('/').slice(3).join('/');
 
       const fullPath = path.join(this.localStorageBasePath, objectKey);
-      this.logger.log(
-        `Reading encrypted file from local storage: ${fullPath}`,
-      );
+      this.logger.log(`Reading encrypted file from local storage: ${fullPath}`);
 
       if (!fs.existsSync(fullPath)) {
         this.logger.error(`Local file not found: ${fullPath}`);
@@ -791,16 +788,25 @@ export class S3StorageService implements Storage {
   private detectMimeType(fileName: string): string {
     const extension = path.extname(fileName).toLowerCase();
     switch (extension) {
-      case '.png': return 'image/png';
+      case '.png':
+        return 'image/png';
       case '.jpg':
-      case '.jpeg': return 'image/jpeg';
-      case '.gif': return 'image/gif';
-      case '.webp': return 'image/webp';
-      case '.pdf': return 'application/pdf';
-      case '.txt': return 'text/plain';
-      case '.html': return 'text/html';
-      case '.json': return 'application/json';
-      default: return 'application/octet-stream';
+      case '.jpeg':
+        return 'image/jpeg';
+      case '.gif':
+        return 'image/gif';
+      case '.webp':
+        return 'image/webp';
+      case '.pdf':
+        return 'application/pdf';
+      case '.txt':
+        return 'text/plain';
+      case '.html':
+        return 'text/html';
+      case '.json':
+        return 'application/json';
+      default:
+        return 'application/octet-stream';
     }
   }
 }

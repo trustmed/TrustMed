@@ -45,11 +45,7 @@ export class EncryptionService implements Encryption {
     const authTag = Buffer.from(authTagHex, 'hex');
     const ciphertext = Buffer.from(ciphertextHex, 'hex');
 
-    const decipher = crypto.createDecipheriv(
-      'aes-256-gcm',
-      this.masterKey,
-      iv,
-    );
+    const decipher = crypto.createDecipheriv('aes-256-gcm', this.masterKey, iv);
     decipher.setAuthTag(authTag);
 
     return Buffer.concat([decipher.update(ciphertext), decipher.final()]);

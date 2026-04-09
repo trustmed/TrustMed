@@ -23,7 +23,7 @@ export const PORTAL_LINKS = [
     ),
   },
   {
-    label: "Medical History",
+    label: "Access Logs",
     href: "/medical-history",
     icon: (
       <FileClock className="text-neutral-700 dark:text-neutral-200 h-5 w-5 shrink-0" />

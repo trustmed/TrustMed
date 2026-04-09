@@ -1,6 +1,6 @@
 "use client";
 
-import { Upload, Search, FolderOpen, Filter } from "lucide-react";
+import { Upload, Search, FolderOpen, Filter, BellDot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -37,6 +37,7 @@ export default function MedicalRecordsPage() {
     toasts,
     records,
     filtered,
+    consentRequests,
     refetchConsentRequests,
     refetchRecords,
     showToast,
@@ -49,9 +50,8 @@ export default function MedicalRecordsPage() {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`px-4 py-3 rounded-lg shadow-lg text-sm text-white transition-all ${
-              t.type === "success" ? "bg-green-600" : "bg-red-600"
-            }`}
+            className={`px-4 py-3 rounded-lg shadow-lg text-sm text-white transition-all ${t.type === "success" ? "bg-green-600" : "bg-red-600"
+              }`}
           >
             {t.message}
           </div>
@@ -69,9 +69,24 @@ export default function MedicalRecordsPage() {
             securely
           </p>
         </div>
-        <Button onClick={() => setModal("upload")} className="gap-2 shrink-0">
-          <Upload className="h-4 w-4" /> Upload Record
-        </Button>
+        <div className="flex items-center gap-2 shrink-0">
+          {consentRequests.filter((r) => r.status === 'PENDING').length > 0 && (
+            <Button
+              variant="outline"
+              onClick={() => setModal("accept_request")}
+              className="gap-2 relative border-primary/20 text-primary font-bold rounded-xl transition-all"
+            >
+              <BellDot className="h-4 w-4" />
+              Show Requests
+              <span className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full bg-[#bb0000] text-[10px] font-black text-white flex items-center justify-center shadow-lg transform scale-110 ring-2 ring-white dark:ring-neutral-950">
+                {consentRequests.filter((r) => r.status === 'PENDING').length}
+              </span>
+            </Button>
+          )}
+          <Button onClick={() => setModal("upload")} className="gap-2">
+            <Upload className="h-4 w-4" /> Upload Record
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -108,27 +123,33 @@ export default function MedicalRecordsPage() {
 
       {/* Records list */}
       {filtered.length > 0 ? (
-        <div className="flex flex-col gap-3">
-            {filtered.map((record) => (
-              <RecordCard
-                key={record.id}
-                record={record}
-                onView={handleView}
-                onEdit={(r) => {
-                  setSelectedRecord(r);
-                  setModal("edit");
-                }}
-                onDelete={(r) => {
-                  setSelectedRecord(r);
-                  setModal("delete");
-                }}
-                onDownload={handleDownload}
-                onAcceptRequest={() => {
-                  setSelectedRecord(record);
-                  setModal("accept_request");
-                }}
-              />
-            ))}
+        <div className="flex flex-col gap-3 mt-4">
+          {/* Table Header (Desktop only) */}
+          <div className="hidden md:flex items-center px-4 py-2 text-[10px] font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-[0.15em] border-b border-neutral-100 dark:border-neutral-800/50 mb-1">
+            <div className="w-[35%] pr-4 flex items-center gap-2">Name</div>
+            <div className="w-[20%] pr-4">Category</div>
+            <div className="w-[15%] pr-4">Doctor Name</div>
+            <div className="w-[15%] pr-4 text-right">Uploaded</div>
+            <div className="hidden lg:block w-[15%] pr-4 text-right">Actions</div>
+            <div className="w-8 shrink-0"></div> {/* Space for actions button */}
+          </div>
+
+          {filtered.map((record) => (
+            <RecordCard
+              key={record.id}
+              record={record}
+              onView={handleView}
+              onEdit={(r) => {
+                setSelectedRecord(r);
+                setModal("edit");
+              }}
+              onDelete={(r) => {
+                setSelectedRecord(r);
+                setModal("delete");
+              }}
+              onDownload={handleDownload}
+            />
+          ))}
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -189,20 +210,17 @@ export default function MedicalRecordsPage() {
         }}
         onDelete={handleDelete}
       />
-      {modal === "accept_request" && selectedRecord && (
+      {modal === "accept_request" && (
         <AcceptRequestModal
-          record={selectedRecord}
-          pendingRequest={selectedRecord.requestStatus?.id ? {
-            id: selectedRecord.requestStatus.id,
-            status: 'PENDING' as never,
-          } as never : undefined}
+          pendingRequests={consentRequests.filter(
+            (r) => r.status === 'PENDING'
+          )}
           open={true}
           onClose={() => {
             setModal(null);
             setSelectedRecord(null);
           }}
           onSuccess={() => {
-            setModal(null);
             refetchConsentRequests();
             refetchRecords();
             showToast("Request responded successfully", "success");

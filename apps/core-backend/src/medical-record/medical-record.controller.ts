@@ -12,12 +12,18 @@ import {
   Res,
   ParseUUIDPipe,
   Logger,
+  Query,
 } from '@nestjs/common';
-import type { Response } from 'express';
+import type { Response, Express } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
-import type { Express } from 'express';
-// import type { Multer } from 'multer';
-import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiResponse,
+  ApiTags,
+  ApiQuery,
+  ApiOperation,
+  ApiParam,
+} from '@nestjs/swagger';
 import { MedicalRecordService } from './medical-record.service';
 import { CreateMedicalRecordRequestDto } from './dto/create-medical-record-request.dto';
 import { CreateMedicalRecordResponseDto } from './dto/create-medical-record-response.dto';
@@ -28,7 +34,6 @@ import { DeleteMedicalRecordResponseDto } from './dto/delete-medical-record-resp
 import { MedicalRecord } from '../entities/medical-record.entity';
 import { CurrentUser } from '../auth/current-user.decorator';
 import type { JwtPayload } from '../auth/jwt-payload.interface';
-import { ApiOperation, ApiParam } from '@nestjs/swagger';
 import {
   ConsentRequest,
   ConsentRequestStatus,
@@ -40,6 +45,85 @@ export class MedicalRecordController {
   private readonly logger = new Logger(MedicalRecordController.name);
 
   constructor(private readonly service: MedicalRecordService) {}
+
+  @Get('search')
+  @ApiOperation({
+    summary: 'Search for patients by name or email and list their records',
+  })
+  @ApiQuery({ name: 'query', type: 'string', required: true })
+  async searchPatients(
+    @Query('query') query: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    if (!query) {
+      throw new NotFoundException('Query parameter is required');
+    }
+
+    const currentUserId = user.sub;
+
+    const results = await this.service.searchPatients(query);
+    if (!results || results.length === 0) {
+      throw new NotFoundException('No patients found matching this query');
+    }
+
+    return results.map((result) => ({
+      patient: {
+        authUserId: result.authUserId,
+        firstName: result.firstName,
+        lastName: result.lastName,
+        email: result.email,
+      },
+      records: result.records.map((rec: MedicalRecord) => ({
+        id: rec.id,
+        fileName: rec.originalFileName || rec.fileName || '',
+        fileType: rec.fileType || '',
+        fileSize: Number(rec.fileSize) || 0,
+        category: rec.category as string,
+        notes: rec.notes || undefined,
+        doctorName: rec.doctorName || undefined,
+        hospitalName: rec.hospitalName || undefined,
+        recordDate: rec.recordDate
+          ? new Date(rec.recordDate).toISOString()
+          : undefined,
+        createdAt: rec.createdAt,
+        updatedAt: rec.updatedAt,
+        requestStatus: (() => {
+          // Only show the current user's own consent request status
+          const myRequests = rec.consentRequests?.filter(
+            (req: ConsentRequest) => req.requesterId === currentUserId,
+          );
+          const r: ConsentRequest | undefined =
+            myRequests?.find(
+              (req: ConsentRequest) =>
+                req.status === ConsentRequestStatus.PENDING,
+            ) || myRequests?.[myRequests.length - 1];
+          return r
+            ? {
+                status: r.status as string,
+                createdBy: r.requester
+                  ? `${r.requester.firstName} ${r.requester.lastName}`
+                  : r.requesterId,
+                createdAt: r.createdAt.toISOString(),
+                id: r.id,
+              }
+            : {
+                status: false,
+                createdBy: '',
+                createdAt: '',
+              };
+        })(),
+        requests:
+          rec.consentRequests?.map((r: ConsentRequest) => ({
+            id: r.id,
+            status: r.status as string,
+            createdBy: r.requester
+              ? `${r.requester.firstName} ${r.requester.lastName}`
+              : r.requesterId,
+            createdAt: r.createdAt.toISOString(),
+          })) || [],
+      })),
+    }));
+  }
 
   @Get(':recordId/download')
   @ApiOperation({
@@ -152,6 +236,8 @@ export class MedicalRecordController {
         : undefined,
       createdAt: updated.createdAt,
       updatedAt: updated.updatedAt,
+      requestStatus: undefined,
+      requests: [],
     };
   }
 
@@ -222,6 +308,15 @@ export class MedicalRecordController {
                 createdAt: '',
               };
         })(),
+        requests:
+          rec.consentRequests?.map((r: ConsentRequest) => ({
+            id: r.id,
+            status: r.status as string,
+            createdBy: r.requester
+              ? `${r.requester.firstName} ${r.requester.lastName}`
+              : r.requesterId,
+            createdAt: r.createdAt.toISOString(),
+          })) || [],
       })),
     };
   }
@@ -275,6 +370,15 @@ export class MedicalRecordController {
               createdAt: '',
             };
       })(),
+      requests:
+        rec.consentRequests?.map((r: ConsentRequest) => ({
+          id: r.id,
+          status: r.status as string,
+          createdBy: r.requester
+            ? `${r.requester.firstName} ${r.requester.lastName}`
+            : r.requesterId,
+          createdAt: r.createdAt.toISOString(),
+        })) || [],
     };
   }
 

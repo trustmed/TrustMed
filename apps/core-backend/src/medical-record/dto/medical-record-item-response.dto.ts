@@ -50,6 +50,14 @@ export class MedicalRecordItemResponseDto {
     createdAt: string;
     id?: string;
   };
+
+  @ApiProperty({ required: false })
+  requests?: Array<{
+    id: string;
+    status: string;
+    createdBy: string;
+    createdAt: string;
+  }>;
 }
 
 export class MedicalRecordListResponseDto {

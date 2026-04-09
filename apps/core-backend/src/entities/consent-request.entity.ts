@@ -2,6 +2,7 @@ import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { MedicalRecord } from './medical-record.entity';
 import { AuthUser } from './auth-user.entity';
+import { Person } from './person.entity';
 
 export enum ConsentRequestStatus {
   PENDING = 'PENDING',
@@ -21,9 +22,9 @@ export class ConsentRequest extends BaseEntity {
   @Column({ name: 'patient_id' })
   patientId: string;
 
-  @ManyToOne(() => AuthUser)
+  @ManyToOne(() => Person)
   @JoinColumn({ name: 'patient_id' })
-  patient: AuthUser;
+  patient: Person;
 
   @Column({ name: 'record_id' })
   recordId: string;

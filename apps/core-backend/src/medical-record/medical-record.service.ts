@@ -1,12 +1,12 @@
 import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, ILike } from 'typeorm';
 import { MedicalRecord } from '../entities/medical-record.entity';
 import { Person } from '../entities/person.entity';
+import { AuthUser } from '../entities/auth-user.entity';
 import { CreateMedicalRecordRequestDto } from './dto/create-medical-record-request.dto';
 import { CreateMedicalRecordResponseDto } from './dto/create-medical-record-response.dto';
 import { S3StorageService } from '../storage/s3-storage.service';
-import { ConsentService } from './consent.service';
 import { AuditService, AuditEventType } from '../audit/audit.service';
 import { StorageService } from '../storage/storage.service';
 
@@ -19,11 +19,63 @@ export class MedicalRecordService {
     private readonly recordRepo: Repository<MedicalRecord>,
     @InjectRepository(Person)
     private readonly personRepo: Repository<Person>,
+    @InjectRepository(AuthUser)
+    private readonly authUserRepo: Repository<AuthUser>,
     private readonly s3StorageService: S3StorageService,
     private readonly storageService: StorageService,
-    private readonly consentService: ConsentService,
     private readonly auditService: AuditService,
   ) {}
+
+  async searchPatients(query: string): Promise<
+    Array<{
+      authUserId: string;
+      firstName: string | null;
+      lastName: string | null;
+      email: string;
+      records: MedicalRecord[];
+    }>
+  > {
+    const authUsers = await this.authUserRepo.find({
+      where: [
+        { email: ILike(`%${query}%`) },
+        { firstName: ILike(`%${query}%`) },
+        { lastName: ILike(`%${query}%`) },
+      ],
+      take: 20, // Limit to 20 results for safety
+    });
+
+    if (!authUsers.length) return [];
+
+    const results: Array<{
+      authUserId: string;
+      firstName: string | null;
+      lastName: string | null;
+      email: string;
+      records: MedicalRecord[];
+    }> = [];
+
+    for (const authUser of authUsers) {
+      const person = await this.personRepo.findOne({
+        where: { authUserId: authUser.id },
+      });
+      if (!person) continue;
+
+      const records = await this.recordRepo.find({
+        where: { person: { id: person.id } },
+        relations: ['consentRequests', 'consentRequests.requester'],
+      });
+
+      results.push({
+        authUserId: authUser.id,
+        firstName: authUser.firstName,
+        lastName: authUser.lastName,
+        email: authUser.email,
+        records,
+      });
+    }
+
+    return results;
+  }
 
   async create(
     dto: CreateMedicalRecordRequestDto,
@@ -49,24 +101,26 @@ export class MedicalRecordService {
       });
 
       const recordEntity = this.recordRepo.create({
-          person,
-          patientId: person.id,
-          uploaderId: person.id,
-          originalFileName: dto.file.originalname,
-          fileName: uploadResult.fileName,
-          mimeType: uploadResult.mimeType,
-          fileType: uploadResult.mimeType,
-          fileSize: uploadResult.size,
-          s3Uri: uploadResult.storageUri ?? null,
-          documentHash: uploadResult.documentHash ?? null,
-          encryptedAesKey: uploadResult.encryptedAesKey ?? null,
-          category: dto.category as any,
-          notes: dto.notes,
-          doctorName: dto.doctorName,
-          hospitalName: dto.hospitalName,
-          recordDate: dto.recordDate ? new Date(dto.recordDate) : null,
-        } as any);
-      saved = await this.recordRepo.save(recordEntity) as unknown as MedicalRecord;
+        person,
+        patientId: person.id,
+        uploaderId: person.id,
+        originalFileName: dto.file.originalname,
+        fileName: uploadResult.fileName,
+        mimeType: uploadResult.mimeType,
+        fileType: uploadResult.mimeType,
+        fileSize: uploadResult.size,
+        s3Uri: uploadResult.storageUri ?? null,
+        documentHash: uploadResult.documentHash ?? null,
+        encryptedAesKey: uploadResult.encryptedAesKey ?? null,
+        category: dto.category as any,
+        notes: dto.notes,
+        doctorName: dto.doctorName,
+        hospitalName: dto.hospitalName,
+        recordDate: dto.recordDate ? new Date(dto.recordDate) : null,
+      } as any);
+      saved = (await this.recordRepo.save(
+        recordEntity,
+      )) as unknown as MedicalRecord;
     } else {
       saved = (await this.recordRepo.save(
         this.recordRepo.create({
