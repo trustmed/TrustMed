@@ -58,7 +58,7 @@ export const dataSourceOptions: DataSourceOptions = {
     InitSharedRecords1775439988102,
     AddAppoinmentNoToAppoinmentTabel1775708269564,
   ],
-  synchronize: false,
+  synchronize: true,
   logging: process.env.NODE_ENV === 'development',
 };
 
