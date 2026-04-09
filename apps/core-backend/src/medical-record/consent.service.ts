@@ -86,7 +86,6 @@ export class ConsentService {
       throw new NotFoundException('Medical record not found');
     }
 
-    // record.patientId is actually a Person ID. We need the AuthUser ID.
     let authUserId = record.person?.authUserId;
     if (!authUserId) {
       // Fallback lookup if relation wasn't loaded properly

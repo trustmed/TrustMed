@@ -289,16 +289,16 @@ export default function ProfilePage() {
 
                 {/* Right Column: Active Form */}
                 <div className="lg:col-span-8">
-                    <Card className="min-h-[500px]">
-                        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                            <div className="flex-1">
-                                <CardTitle>{SECTIONS.find(s => s.id === activeSection)?.label}</CardTitle>
-                                <CardDescription>
-                                    Complete your details to unlock full health insights.
-                                </CardDescription>
-                            </div>
+                    <Card className="min-h-[600px] flex flex-col relative overflow-hidden border-neutral-200 dark:border-neutral-800 shadow-sm transition-all duration-300">
+                        <CardHeader className="border-b border-neutral-100 dark:border-neutral-800/50 pb-6 mb-2">
+                            <CardTitle className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+                                {SECTIONS.find(s => s.id === activeSection)?.label}
+                            </CardTitle>
+                            <CardDescription className="text-neutral-500 dark:text-neutral-400">
+                                {SECTIONS.find(s => s.id === activeSection)?.description}
+                            </CardDescription>
                         </CardHeader>
-                        <CardContent className="pb-24 sm:pb-6 relative">
+                        <CardContent className="flex-1 pb-28 sm:pb-24 pt-4 relative px-6 overflow-y-auto">
                             {activeSection === "identity" && (
                                 <CoreIdentityForm
                                     onSave={handleSavePersonal}
@@ -329,28 +329,30 @@ export default function ProfilePage() {
                             )}
 
                             {/* Sticky Action Footer */}
-                            <div className="fixed bottom-0 left-0 right-0 z-10 p-4 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border-t border-neutral-200 dark:border-neutral-800 sm:absolute sm:inset-x-0 sm:bottom-0 sm:transform-none sm:rounded-b-xl sm:bg-neutral-50 sm:dark:bg-neutral-900/50 sm:p-6 sm:border-x-0 sm:border-b-0 flex items-center justify-between sm:justify-end gap-4 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] sm:shadow-none transition-all">
+                            <div className="fixed bottom-0 left-0 right-0 z-20 p-4 bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md border-t border-neutral-200 dark:border-neutral-800 
+                                sm:absolute sm:inset-x-0 sm:bottom-0 sm:transform-none sm:rounded-b-xl sm:bg-neutral-50/80 sm:dark:bg-neutral-900/80 sm:p-4 sm:border-t sm:border-neutral-200/50 sm:dark:border-neutral-800/50
+                                flex items-center justify-between sm:justify-end gap-4 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] sm:shadow-none transition-all">
                                 <div className="sm:hidden flex-1">
                                     {savedMsg && (
-                                        <span className="text-sm text-green-600 dark:text-green-400 font-medium">{savedMsg}</span>
+                                        <span className="text-sm text-green-600 dark:text-green-400 font-medium animate-in fade-in slide-in-from-bottom-2 duration-300">{savedMsg}</span>
                                     )}
                                 </div>
                                 <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
                                     <div className="hidden sm:block">
                                         {savedMsg && (
-                                            <span className="text-sm text-green-600 dark:text-green-400 font-medium">{savedMsg}</span>
+                                            <span className="text-sm text-green-600 dark:text-green-400 font-medium animate-in fade-in slide-in-from-right-2 duration-300">{savedMsg}</span>
                                         )}
                                     </div>
                                     <Button 
                                         size="lg"
                                         onClick={triggerSave} 
                                         disabled={saving || !hasChanges} 
-                                        className="w-full sm:w-auto shadow-sm"
+                                        className="w-full sm:w-auto shadow-md hover:shadow-lg transition-all duration-300 bg-indigo-600 hover:bg-indigo-700 text-white border-0"
                                     >
                                         {saving ? (
                                             <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</>
                                         ) : (
-                                            <>Save & Next<Save className="ml-2 h-4 w-4" /></>
+                                            <>Save & Next<Save className="ml-2 h-4 w-4 opacity-70" /></>
                                         )}
                                     </Button>
                                 </div>
