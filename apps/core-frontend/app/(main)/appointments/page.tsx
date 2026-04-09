@@ -59,7 +59,6 @@ function matchesAppointmentSearch(a: Appointment, query: string): boolean {
   return appointmentSearchBlob(a).includes(t);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function nextAppointmentKeys(appointments: Appointment[]): { id: string; appointmentNo: string } {
     let maxId = 0;
     let maxNo = 0;
@@ -99,6 +98,7 @@ export default function AppointmentsPage() {
 
     const [formDialogOpen, setFormDialogOpen] = useState(false);
     const [formMode, setFormMode] = useState<AppointmentFormMode>("add");
+    const [pendingAppointmentNo, setPendingAppointmentNo] = useState("");
     const [formSubmitLoading, setFormSubmitLoading] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [deleteLoading, setDeleteLoading] = useState(false);
@@ -139,19 +139,23 @@ export default function AppointmentsPage() {
       : Math.min(start + pageSlice.length, filteredAppointments.length);
 
   const openAdd = () => {
+    const nextKeys = nextAppointmentKeys(appointments);
     setFormMode("add");
+    setPendingAppointmentNo(nextKeys.appointmentNo);
     setActiveAppointment(null);
     setFormDialogOpen(true);
   };
 
   const openView = (a: Appointment) => {
     setFormMode("view");
+    setPendingAppointmentNo("");
     setActiveAppointment(a);
     setFormDialogOpen(true);
   };
 
   const openEdit = (a: Appointment) => {
     setFormMode("edit");
+    setPendingAppointmentNo("");
     setActiveAppointment(a);
     setFormDialogOpen(true);
   };
@@ -165,7 +169,10 @@ export default function AppointmentsPage() {
         if (formMode === "add") {
             setFormSubmitLoading(true);
             try {
+            const fallbackNo = nextAppointmentKeys(appointments).appointmentNo;
+            const appointmentNo = pendingAppointmentNo || fallbackNo;
                 const payload = {
+              appointmentNo,
                     date: values.date,
                     doctor: values.doctor.trim(),
                     type: values.appointmentType,
@@ -318,6 +325,7 @@ export default function AppointmentsPage() {
         open={formDialogOpen}
         onOpenChange={setFormDialogOpen}
         mode={formMode}
+        appointmentNo={pendingAppointmentNo}
         patientId={PATIENT_ID}
         patientName={PATIENT_NAME}
         appointment={activeAppointment}

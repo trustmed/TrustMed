@@ -20,7 +20,7 @@ export class AppointmentsService {
   private toResponseDto(a: Appointment): AppointmentResponseDto {
     return {
       id: a.id,
-      appointmentNo: a.id.slice(0, 8),
+      appointmentNo: a.appointmentNo ?? '',
       appointmentType: a.type || '',
       doctorName: a.doctor || '',
       date: a.date instanceof Date ? a.date.toISOString().slice(0, 10) : a.date,
@@ -39,6 +39,7 @@ export class AppointmentsService {
     if (!patient) throw new NotFoundException('Patient not found');
     const appointment = this.appointmentRepository.create({
       ...createDto,
+      appointmentNo: createDto.appointmentNo.trim(),
       date: new Date(createDto.date),
       patient,
     });
