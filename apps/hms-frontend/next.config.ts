@@ -8,6 +8,15 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
   transpilePackages: ["@trustmed/components"],
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4002"}/api/:path*`,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
+

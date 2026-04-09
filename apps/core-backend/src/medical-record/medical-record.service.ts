@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MedicalRecord } from '../entities/medical-record.entity';
 import { Person } from '../entities/person.entity';
+import { AuthUser } from '../entities/auth-user.entity';
 import { CreateMedicalRecordRequestDto } from './dto/create-medical-record-request.dto';
 import { CreateMedicalRecordResponseDto } from './dto/create-medical-record-response.dto';
 import { S3VaultService } from '../s3-vault/s3-vault.service';
@@ -19,11 +20,45 @@ export class MedicalRecordService {
     private readonly recordRepo: Repository<MedicalRecord>,
     @InjectRepository(Person)
     private readonly personRepo: Repository<Person>,
+    @InjectRepository(AuthUser)
+    private readonly authUserRepo: Repository<AuthUser>,
     private readonly s3VaultService: S3VaultService,
     private readonly storageService: StorageService,
     private readonly consentService: ConsentService,
     private readonly auditService: AuditService,
   ) {}
+
+  async searchByEmail(email: string): Promise<{
+    authUserId: string;
+    firstName: string | null;
+    lastName: string | null;
+    email: string;
+    records: MedicalRecord[];
+  } | null> {
+    const authUser = await this.authUserRepo.findOne({
+      where: { email },
+    });
+    if (!authUser) return null;
+
+    const person = await this.personRepo.findOne({
+      where: { authUserId: authUser.id },
+    });
+    if (!person) return null;
+
+    const records = await this.recordRepo.find({
+      where: { person: { id: person.id } },
+      relations: ['consentRequests', 'consentRequests.requester'],
+    });
+
+    return {
+      authUserId: authUser.id,
+      firstName: authUser.firstName,
+      lastName: authUser.lastName,
+      email: authUser.email,
+      records,
+    };
+  }
+
 
   async create(
     dto: CreateMedicalRecordRequestDto,

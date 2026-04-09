@@ -1,9 +1,23 @@
+"use client";
 
-export default function Home() {
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { isAuthenticated } from "@/lib/auth";
+
+export default function HomePage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isAuthenticated()) {
+      router.replace("/dashboard");
+    } else {
+      router.replace("/login");
+    }
+  }, [router]);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <p className="font-bold text-3xl">This is Hospital Portal</p>
-
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
     </div>
   );
 }

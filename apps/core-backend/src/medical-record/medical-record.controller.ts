@@ -12,6 +12,7 @@ import {
   Res,
   ParseUUIDPipe,
   Logger,
+  Query,
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -40,6 +41,65 @@ export class MedicalRecordController {
   private readonly logger = new Logger(MedicalRecordController.name);
 
   constructor(private readonly service: MedicalRecordService) {}
+
+  @Get('search')
+  @ApiOperation({ summary: 'Search for a patient by email and list their records' })
+  async searchByEmail(@Query('email') email: string) {
+    if (!email) {
+      throw new NotFoundException('Email query parameter is required');
+    }
+
+    const result = await this.service.searchByEmail(email);
+    if (!result) {
+      throw new NotFoundException('No patient found with this email');
+    }
+
+    return {
+      patient: {
+        authUserId: result.authUserId,
+        firstName: result.firstName,
+        lastName: result.lastName,
+        email: result.email,
+      },
+      records: result.records.map((rec: MedicalRecord) => ({
+        id: rec.id,
+        fileName: rec.originalFileName || rec.fileName || '',
+        fileType: rec.fileType || '',
+        fileSize: Number(rec.fileSize) || 0,
+        category: rec.category as string,
+        notes: rec.notes || undefined,
+        doctorName: rec.doctorName || undefined,
+        hospitalName: rec.hospitalName || undefined,
+        recordDate: rec.recordDate
+          ? new Date(rec.recordDate).toISOString()
+          : undefined,
+        createdAt: rec.createdAt,
+        updatedAt: rec.updatedAt,
+        requestStatus: (() => {
+          const r: ConsentRequest | undefined =
+            rec.consentRequests?.find(
+              (req: ConsentRequest) =>
+                req.status === ConsentRequestStatus.PENDING,
+            ) || rec.consentRequests?.[rec.consentRequests.length - 1];
+          return r
+            ? {
+                status: r.status as string,
+                createdBy: r.requester
+                  ? `${r.requester.firstName} ${r.requester.lastName}`
+                  : r.requesterId,
+                createdAt: r.createdAt.toISOString(),
+                id: r.id,
+              }
+            : {
+                status: false,
+                createdBy: '',
+                createdAt: '',
+              };
+        })(),
+      })),
+    };
+  }
+
 
   @Get(':recordId/download')
   @ApiOperation({
