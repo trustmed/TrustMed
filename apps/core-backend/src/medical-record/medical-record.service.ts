@@ -6,8 +6,7 @@ import { Person } from '../entities/person.entity';
 import { AuthUser } from '../entities/auth-user.entity';
 import { CreateMedicalRecordRequestDto } from './dto/create-medical-record-request.dto';
 import { CreateMedicalRecordResponseDto } from './dto/create-medical-record-response.dto';
-import { S3VaultService } from '../s3-vault/s3-vault.service';
-import { ConsentService } from './consent.service';
+import { S3StorageService } from '../storage/s3-storage.service';
 import { AuditService, AuditEventType } from '../audit/audit.service';
 import { StorageService } from '../storage/storage.service';
 
@@ -22,9 +21,8 @@ export class MedicalRecordService {
     private readonly personRepo: Repository<Person>,
     @InjectRepository(AuthUser)
     private readonly authUserRepo: Repository<AuthUser>,
-    private readonly s3VaultService: S3VaultService,
+    private readonly s3StorageService: S3StorageService,
     private readonly storageService: StorageService,
-    private readonly consentService: ConsentService,
     private readonly auditService: AuditService,
   ) {}
 
@@ -90,7 +88,7 @@ export class MedicalRecordService {
 
     if (dto.file) {
       const customFileName = `${Date.now()}_${person.id}`;
-      const uploadResult = this.storageService.upload({
+      const uploadResult = await this.storageService.upload({
         file: {
           originalname: dto.file.originalname,
           mimetype: dto.file.mimetype,
@@ -99,25 +97,30 @@ export class MedicalRecordService {
         },
         customFileName,
         nestedDirectories: ['medical-records', person.id],
+        encrypt: true,
       });
 
-      saved = await this.recordRepo.save(
-        this.recordRepo.create({
-          person,
-          patientId: person.id,
-          uploaderId: person.id,
-          originalFileName: dto.file.originalname,
-          fileName: uploadResult.fileName,
-          mimeType: uploadResult.mimeType,
-          fileType: uploadResult.mimeType,
-          fileSize: uploadResult.size,
-          category: dto.category as any,
-          notes: dto.notes,
-          doctorName: dto.doctorName,
-          hospitalName: dto.hospitalName,
-          recordDate: dto.recordDate ? new Date(dto.recordDate) : null,
-        }),
-      );
+      const recordEntity = this.recordRepo.create({
+        person,
+        patientId: person.id,
+        uploaderId: person.id,
+        originalFileName: dto.file.originalname,
+        fileName: uploadResult.fileName,
+        mimeType: uploadResult.mimeType,
+        fileType: uploadResult.mimeType,
+        fileSize: uploadResult.size,
+        s3Uri: uploadResult.storageUri ?? null,
+        documentHash: uploadResult.documentHash ?? null,
+        encryptedAesKey: uploadResult.encryptedAesKey ?? null,
+        category: dto.category as any,
+        notes: dto.notes,
+        doctorName: dto.doctorName,
+        hospitalName: dto.hospitalName,
+        recordDate: dto.recordDate ? new Date(dto.recordDate) : null,
+      } as any);
+      saved = (await this.recordRepo.save(
+        recordEntity,
+      )) as unknown as MedicalRecord;
     } else {
       saved = (await this.recordRepo.save(
         this.recordRepo.create({
@@ -194,7 +197,16 @@ export class MedicalRecordService {
       throw new NotFoundException('Medical record not found or not authorized');
 
     // Physical file deletion (cleanup from local FS or S3)
-    await this.s3VaultService.deleteFile(recordId);
+    if (record.s3Uri) {
+      // Vault-created file — delete by URI via S3StorageService
+      await this.s3StorageService.deleteFile(recordId);
+    } else if (record.fileName) {
+      // Storage-created file — delete by directory + fileName
+      await this.storageService.delete({
+        nestedDirectories: ['medical-records', person.id],
+        fileName: record.fileName,
+      });
+    }
 
     await this.recordRepo.remove(record);
     await this.auditService.log({
@@ -210,7 +222,7 @@ export class MedicalRecordService {
     recordId: string,
     authUserId: string,
   ): Promise<{ buffer: Buffer; mimeType: string; fileName: string }> {
-    console.log('Viewing record:', { recordId, authUserId });
+    this.logger.log(`Viewing record: ${recordId} for user: ${authUserId}`);
     const person = await this.personRepo.findOne({
       where: { authUserId },
     });
@@ -231,7 +243,24 @@ export class MedicalRecordService {
       throw new NotFoundException('File not found for this medical record');
     }
 
-    const viewed = this.storageService.view({
+    // If the record has an encrypted AES key, decrypt via the storage service
+    if (record.encryptedAesKey) {
+      const viewed = await this.storageService.view({
+        fileName,
+        nestedDirectories: ['medical-records', person.id],
+        encryptedAesKey: record.encryptedAesKey,
+        storageUri: record.s3Uri || undefined,
+      });
+
+      return {
+        buffer: viewed.buffer,
+        mimeType: viewed.mimeType || record.mimeType,
+        fileName: viewed.fileName,
+      };
+    }
+
+    // No encryption — read raw
+    const viewed = await this.storageService.view({
       fileName,
       nestedDirectories: ['medical-records', person.id],
     });
@@ -243,7 +272,6 @@ export class MedicalRecordService {
     };
   }
 
-  // Removed duplicate methods and misplaced code. Only one set of methods is kept above. Class ends here.
   async updateByIdForAuthUser(
     authuserId: string,
     recordId: string,
@@ -288,9 +316,6 @@ export class MedicalRecordService {
     return saved;
   }
 
-  /**
-   * Fetches the record, verifies authorization, and returns the decrypted buffer.
-   */
   async downloadRecord(
     recordId: string,
     authUserId: string,
@@ -310,8 +335,32 @@ export class MedicalRecordService {
       throw new NotFoundException('Medical record not found or not authorized');
     }
 
-    const { buffer, fileName, mimeType } =
-      await this.s3VaultService.getDecryptedBuffer(recordId);
+    // Use S3StorageService for encrypted records (backward compat with vault-created files)
+    if (record.encryptedAesKey && record.s3Uri) {
+      const { buffer, fileName, mimeType } =
+        await this.s3StorageService.getDecryptedBuffer(recordId);
+      await this.auditService.log({
+        eventType: AuditEventType.RECORD_DOWNLOADED,
+        actorId: person.id,
+        patientId: record.patientId,
+        targetResource: recordId,
+      });
+      return { buffer, originalFileName: fileName, mimeType };
+    }
+
+    // Use StorageService for non-encrypted records
+    const fileName = record.fileName || record.originalFileName;
+    if (!fileName) {
+      throw new NotFoundException('File not found for this medical record');
+    }
+
+    const viewed = await this.storageService.view({
+      fileName,
+      nestedDirectories: ['medical-records', person.id],
+      encryptedAesKey: record.encryptedAesKey || undefined,
+      storageUri: record.s3Uri || undefined,
+    });
+
     await this.auditService.log({
       eventType: AuditEventType.RECORD_DOWNLOADED,
       actorId: person.id,
@@ -319,6 +368,10 @@ export class MedicalRecordService {
       targetResource: recordId,
     });
 
-    return { buffer, originalFileName: fileName, mimeType };
+    return {
+      buffer: viewed.buffer,
+      originalFileName: viewed.fileName,
+      mimeType: viewed.mimeType,
+    };
   }
 }

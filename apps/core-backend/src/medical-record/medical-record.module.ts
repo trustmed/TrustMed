@@ -8,14 +8,12 @@ import { MedicalRecordService } from './medical-record.service';
 import { MedicalRecordController } from './medical-record.controller';
 import { ConsentService } from './consent.service';
 import { ConsentRequestsController } from './consent-requests.controller';
-import { S3VaultModule } from '../s3-vault/s3-vault.module';
 import { StorageModule } from '../storage/storage.module';
 import { AuditModule } from '../audit/audit.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([MedicalRecord, Person, AuthUser, ConsentRequest]),
-    S3VaultModule,
     StorageModule,
     AuditModule,
   ],

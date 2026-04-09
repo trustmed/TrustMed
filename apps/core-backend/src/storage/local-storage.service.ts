@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -13,10 +14,13 @@ import {
   StorageUploadResult,
   StorageViewInput,
   StorageViewResult,
+  StorageDeleteInput,
 } from './storage.interface';
 
 @Injectable()
 export class LocalStorageService implements Storage {
+  private readonly logger = new Logger(LocalStorageService.name);
+
   constructor(private readonly configService: ConfigService) {}
 
   private getStorageRootPath(): string {
@@ -111,7 +115,7 @@ export class LocalStorageService implements Storage {
     return `${sanitizedBaseName}${extension}`;
   }
 
-  upload(input: StorageUploadInput): StorageUploadResult {
+  async upload(input: StorageUploadInput): Promise<StorageUploadResult> {
     const { file, customFileName, nestedDirectories } = input;
 
     const validatedNestedDirectories =
@@ -124,6 +128,8 @@ export class LocalStorageService implements Storage {
     const filePath = path.join(directoryPath, fileName);
     fs.writeFileSync(filePath, file.buffer);
 
+    this.logger.log(`Saved file locally: ${filePath} (${file.size} bytes)`);
+
     return {
       message: 'File received successfully',
       fileName,
@@ -132,7 +138,7 @@ export class LocalStorageService implements Storage {
     };
   }
 
-  view(input: StorageViewInput): StorageViewResult {
+  async view(input: StorageViewInput): Promise<StorageViewResult> {
     const { fileName, nestedDirectories } = input;
 
     const validatedNestedDirectories =
@@ -157,6 +163,33 @@ export class LocalStorageService implements Storage {
       size: stats.size,
       buffer,
     };
+  }
+
+  async delete(input: StorageDeleteInput): Promise<void> {
+    const { fileName, nestedDirectories } = input;
+
+    const validatedNestedDirectories =
+      this.validateNestedDirectories(nestedDirectories);
+    const validatedFileName = this.validateFileName(fileName);
+    const directoryPath = path.join(
+      this.getStorageRootPath(),
+      ...validatedNestedDirectories,
+    );
+    const filePath = path.join(directoryPath, validatedFileName);
+
+    try {
+      if (fs.existsSync(filePath)) {
+        await fs.promises.unlink(filePath);
+        this.logger.log(`Deleted local file: ${filePath}`);
+      } else {
+        this.logger.warn(`Local file already missing: ${filePath}`);
+      }
+    } catch (err: unknown) {
+      const error = err as Error;
+      this.logger.error(
+        `Failed to delete local file ${filePath}: ${error.message}`,
+      );
+    }
   }
 
   private detectMimeType(fileName: string): string {

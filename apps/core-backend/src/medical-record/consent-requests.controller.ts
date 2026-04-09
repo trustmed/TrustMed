@@ -20,7 +20,6 @@ import {
   ConsentRequest,
   ConsentRequestStatus,
 } from '../entities/consent-request.entity';
-import { S3VaultService } from '../s3-vault/s3-vault.service';
 import { MedicalRecordService } from './medical-record.service';
 import { MedicalRecord } from '../entities/medical-record.entity';
 import { Person } from '../entities/person.entity';
@@ -30,7 +29,6 @@ import { Person } from '../entities/person.entity';
 export class ConsentRequestsController {
   constructor(
     private readonly consentService: ConsentService,
-    private readonly s3VaultService: S3VaultService,
     private readonly medicalRecordService: MedicalRecordService,
     @InjectRepository(AuthUser)
     private readonly authUserRepo: Repository<AuthUser>,
