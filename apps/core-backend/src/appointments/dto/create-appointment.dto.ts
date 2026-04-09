@@ -2,6 +2,9 @@ import { IsString, IsEnum, IsDateString, IsUUID } from 'class-validator';
 import type { AppointmentStatus } from '../../entities/appointment.entity';
 
 export class CreateAppointmentDto {
+  @IsString()
+  appointmentNo: string;
+
   @IsDateString()
   date: string;
 
