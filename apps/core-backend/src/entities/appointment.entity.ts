@@ -6,6 +6,9 @@ export type AppointmentStatus = 'pending' | 'accepted' | 'cancelled';
 
 @Entity('appointments')
 export class Appointment extends BaseEntity {
+  @Column({ type: 'varchar', length: 32, unique: true, nullable: true })
+  appointmentNo: string | null;
+
   @Column({ type: 'timestamp' })
   date: Date;
 

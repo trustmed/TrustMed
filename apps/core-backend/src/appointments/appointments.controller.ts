@@ -28,7 +28,7 @@ export class AppointmentsController {
     const a = await this.appointmentsService.create(dto);
     return {
       id: a.id,
-      appointmentNo: a.id.slice(0, 8),
+      appointmentNo: a.appointmentNo ?? '',
       appointmentType: a.type || '',
       doctorName: a.doctor || '',
       date: a.date instanceof Date ? a.date.toISOString().slice(0, 10) : a.date,

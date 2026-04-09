@@ -22,6 +22,7 @@ import { SharedLinkMedicalRecord } from '../entities/shared-link-medical-record.
 
 import { Init1775252452217 } from '../entities/migrations/1775252452217-init';
 import { InitSharedRecords1775439988102 } from '../entities/migrations/1775439988102-initSharedRecords';
+import { AddAppoinmentNoToAppoinmentTabel1775708269564 } from '../entities/migrations/1775708269564-addAppoinmentNoToAppoinmentTabel';
 
 dotenv.config();
 
@@ -52,7 +53,11 @@ export const dataSourceOptions: DataSourceOptions = {
     SharedLinkRecord,
     SharedLinkMedicalRecord,
   ],
-  migrations: [Init1775252452217, InitSharedRecords1775439988102],
+  migrations: [
+    Init1775252452217,
+    InitSharedRecords1775439988102,
+    AddAppoinmentNoToAppoinmentTabel1775708269564,
+  ],
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
 };
