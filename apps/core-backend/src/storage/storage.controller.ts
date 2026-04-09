@@ -63,7 +63,7 @@ export class StorageController {
       required: ['file', 'customFileName', 'nestedDirectories'],
     },
   })
-  saveFile(
+  async saveFile(
     @UploadedFile() file: Express.Multer.File,
     @Body('customFileName') customFileName: string,
     @Body('nestedDirectories') nestedDirectories: string[],
@@ -83,7 +83,7 @@ export class StorageController {
       throw new BadRequestException('nestedDirectories is required');
     }
 
-    return this.storageService.upload({
+    return await this.storageService.upload({
       file,
       customFileName,
       nestedDirectories,
@@ -91,12 +91,12 @@ export class StorageController {
   }
 
   @Get('view-file')
-  @ApiOperation({ summary: 'View a file from local storage' })
-  viewFile(
+  @ApiOperation({ summary: 'View a file from storage' })
+  async viewFile(
     @Query('fileName') fileName: string,
     @Query('nestedDirectories') nestedDirectories: string | string[],
     @Res() res: Response,
-  ): void {
+  ): Promise<void> {
     if (typeof fileName !== 'string' || !fileName.trim()) {
       throw new BadRequestException('fileName is required');
     }
@@ -108,7 +108,7 @@ export class StorageController {
       throw new BadRequestException('nestedDirectories is required');
     }
 
-    const viewedFile = this.storageService.view({
+    const viewedFile = await this.storageService.view({
       fileName,
       nestedDirectories: parsedNestedDirectories,
     });

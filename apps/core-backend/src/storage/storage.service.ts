@@ -7,6 +7,7 @@ import {
   StorageUploadResult,
   StorageViewInput,
   StorageViewResult,
+  StorageDeleteInput,
 } from './storage.interface';
 
 @Injectable()
@@ -18,25 +19,30 @@ export class StorageService {
     private readonly s3StorageService: S3StorageService,
   ) {}
 
-  upload(input: StorageUploadInput): StorageUploadResult {
+  private isLocal(): boolean {
     const nodeEnv = this.configService.get<string>('NODE_ENV', 'production');
     const environment = nodeEnv.toLowerCase();
+    return environment === 'local' || environment === 'development';
+  }
 
-    if (environment === 'local' || environment === 'development') {
+  async upload(input: StorageUploadInput): Promise<StorageUploadResult> {
+    if (this.isLocal()) {
       return this.localStorageService.upload(input);
     }
-
     return this.s3StorageService.upload(input);
   }
 
-  view(input: StorageViewInput): StorageViewResult {
-    const nodeEnv = this.configService.get<string>('NODE_ENV', 'production');
-    const environment = nodeEnv.toLowerCase();
-
-    if (environment === 'local' || environment === 'development') {
+  async view(input: StorageViewInput): Promise<StorageViewResult> {
+    if (this.isLocal()) {
       return this.localStorageService.view(input);
     }
-
     return this.s3StorageService.view(input);
+  }
+
+  async delete(input: StorageDeleteInput): Promise<void> {
+    if (this.isLocal()) {
+      return this.localStorageService.delete(input);
+    }
+    return this.s3StorageService.delete(input);
   }
 }
