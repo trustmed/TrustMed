@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, ILike } from 'typeorm';
 import { MedicalRecord } from '../entities/medical-record.entity';
 import { Person } from '../entities/person.entity';
 import { AuthUser } from '../entities/auth-user.entity';
@@ -28,37 +28,56 @@ export class MedicalRecordService {
     private readonly auditService: AuditService,
   ) {}
 
-  async searchByEmail(email: string): Promise<{
-    authUserId: string;
-    firstName: string | null;
-    lastName: string | null;
-    email: string;
-    records: MedicalRecord[];
-  } | null> {
-    const authUser = await this.authUserRepo.findOne({
-      where: { email },
-    });
-    if (!authUser) return null;
-
-    const person = await this.personRepo.findOne({
-      where: { authUserId: authUser.id },
-    });
-    if (!person) return null;
-
-    const records = await this.recordRepo.find({
-      where: { person: { id: person.id } },
-      relations: ['consentRequests', 'consentRequests.requester'],
+  async searchPatients(query: string): Promise<
+    Array<{
+      authUserId: string;
+      firstName: string | null;
+      lastName: string | null;
+      email: string;
+      records: MedicalRecord[];
+    }>
+  > {
+    const authUsers = await this.authUserRepo.find({
+      where: [
+        { email: ILike(`%${query}%`) },
+        { firstName: ILike(`%${query}%`) },
+        { lastName: ILike(`%${query}%`) },
+      ],
+      take: 20, // Limit to 20 results for safety
     });
 
-    return {
-      authUserId: authUser.id,
-      firstName: authUser.firstName,
-      lastName: authUser.lastName,
-      email: authUser.email,
-      records,
-    };
+    if (!authUsers.length) return [];
+
+    const results: Array<{
+      authUserId: string;
+      firstName: string | null;
+      lastName: string | null;
+      email: string;
+      records: MedicalRecord[];
+    }> = [];
+
+    for (const authUser of authUsers) {
+      const person = await this.personRepo.findOne({
+        where: { authUserId: authUser.id },
+      });
+      if (!person) continue;
+
+      const records = await this.recordRepo.find({
+        where: { person: { id: person.id } },
+        relations: ['consentRequests', 'consentRequests.requester'],
+      });
+
+      results.push({
+        authUserId: authUser.id,
+        firstName: authUser.firstName,
+        lastName: authUser.lastName,
+        email: authUser.email,
+        records,
+      });
+    }
+
+    return results;
   }
-
 
   async create(
     dto: CreateMedicalRecordRequestDto,

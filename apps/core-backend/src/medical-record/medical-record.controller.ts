@@ -14,11 +14,16 @@ import {
   Logger,
   Query,
 } from '@nestjs/common';
-import type { Response } from 'express';
+import type { Response, Express } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
-import type { Express } from 'express';
-// import type { Multer } from 'multer';
-import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiResponse,
+  ApiTags,
+  ApiQuery,
+  ApiOperation,
+  ApiParam,
+} from '@nestjs/swagger';
 import { MedicalRecordService } from './medical-record.service';
 import { CreateMedicalRecordRequestDto } from './dto/create-medical-record-request.dto';
 import { CreateMedicalRecordResponseDto } from './dto/create-medical-record-response.dto';
@@ -29,7 +34,6 @@ import { DeleteMedicalRecordResponseDto } from './dto/delete-medical-record-resp
 import { MedicalRecord } from '../entities/medical-record.entity';
 import { CurrentUser } from '../auth/current-user.decorator';
 import type { JwtPayload } from '../auth/jwt-payload.interface';
-import { ApiOperation, ApiParam } from '@nestjs/swagger';
 import {
   ConsentRequest,
   ConsentRequestStatus,
@@ -43,18 +47,21 @@ export class MedicalRecordController {
   constructor(private readonly service: MedicalRecordService) {}
 
   @Get('search')
-  @ApiOperation({ summary: 'Search for a patient by email and list their records' })
-  async searchByEmail(@Query('email') email: string) {
-    if (!email) {
-      throw new NotFoundException('Email query parameter is required');
+  @ApiOperation({
+    summary: 'Search for patients by name or email and list their records',
+  })
+  @ApiQuery({ name: 'query', type: 'string', required: true })
+  async searchPatients(@Query('query') query: string) {
+    if (!query) {
+      throw new NotFoundException('Query parameter is required');
     }
 
-    const result = await this.service.searchByEmail(email);
-    if (!result) {
-      throw new NotFoundException('No patient found with this email');
+    const results = await this.service.searchPatients(query);
+    if (!results || results.length === 0) {
+      throw new NotFoundException('No patients found matching this query');
     }
 
-    return {
+    return results.map((result) => ({
       patient: {
         authUserId: result.authUserId,
         firstName: result.firstName,
@@ -97,9 +104,8 @@ export class MedicalRecordController {
               };
         })(),
       })),
-    };
+    }));
   }
-
 
   @Get(':recordId/download')
   @ApiOperation({
