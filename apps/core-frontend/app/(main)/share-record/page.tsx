@@ -493,7 +493,10 @@ export default function ShareRecordPage() {
   );
 
   // Generate a dummy share link for the record
-  const getShareLink = (id: string) => `https://trustmed.app/share/${id}`;
+  const getShareLink = (id: string) => {
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    return `${origin}/records/shared/${id}`;
+  };
 
   const handleCopy = (link: string) => {
     if (navigator && navigator.clipboard) {

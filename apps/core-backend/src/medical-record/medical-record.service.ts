@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, ILike } from 'typeorm';
+import type { DeepPartial } from 'typeorm';
 import { MedicalRecord } from '../entities/medical-record.entity';
 import { Person } from '../entities/person.entity';
 import { AuthUser } from '../entities/auth-user.entity';
@@ -88,6 +89,7 @@ export class MedicalRecordService {
 
     if (dto.file) {
       const customFileName = `${Date.now()}_${person.id}`;
+
       const uploadResult = await this.storageService.upload({
         file: {
           originalname: dto.file.originalname,
@@ -100,7 +102,7 @@ export class MedicalRecordService {
         encrypt: true,
       });
 
-      const recordEntity = this.recordRepo.create({
+      const recordEntityPayload: DeepPartial<MedicalRecord> = {
         person,
         patientId: person.id,
         uploaderId: person.id,
@@ -112,28 +114,30 @@ export class MedicalRecordService {
         s3Uri: uploadResult.storageUri ?? null,
         documentHash: uploadResult.documentHash ?? null,
         encryptedAesKey: uploadResult.encryptedAesKey ?? null,
-        category: dto.category as any,
+        category: dto.category as MedicalRecord['category'],
         notes: dto.notes,
         doctorName: dto.doctorName,
         hospitalName: dto.hospitalName,
         recordDate: dto.recordDate ? new Date(dto.recordDate) : null,
-      } as any);
-      saved = (await this.recordRepo.save(
-        recordEntity,
-      )) as unknown as MedicalRecord;
+      };
+
+      const recordEntity = this.recordRepo.create(recordEntityPayload);
+      saved = await this.recordRepo.save(recordEntity);
     } else {
-      saved = (await this.recordRepo.save(
-        this.recordRepo.create({
-          person,
-          patientId: person.id,
-          uploaderId: person.id,
-          category: dto.category as any,
-          notes: dto.notes,
-          doctorName: dto.doctorName,
-          hospitalName: dto.hospitalName,
-          recordDate: dto.recordDate ? new Date(dto.recordDate) : null,
-        }),
-      )) as unknown as MedicalRecord;
+      const recordEntityPayload: DeepPartial<MedicalRecord> = {
+        person,
+        patientId: person.id,
+        uploaderId: person.id,
+        category: dto.category as MedicalRecord['category'],
+        notes: dto.notes,
+        doctorName: dto.doctorName,
+        hospitalName: dto.hospitalName,
+        recordDate: dto.recordDate ? new Date(dto.recordDate) : null,
+      };
+
+      saved = await this.recordRepo.save(
+        this.recordRepo.create(recordEntityPayload),
+      );
     }
 
     await this.auditService.log({
@@ -199,9 +203,11 @@ export class MedicalRecordService {
     // Physical file deletion (cleanup from local FS or S3)
     if (record.s3Uri) {
       // Vault-created file — delete by URI via S3StorageService
+
       await this.s3StorageService.deleteFile(recordId);
     } else if (record.fileName) {
       // Storage-created file — delete by directory + fileName
+
       await this.storageService.delete({
         nestedDirectories: ['medical-records', person.id],
         fileName: record.fileName,
@@ -260,6 +266,7 @@ export class MedicalRecordService {
     }
 
     // No encryption — read raw
+
     const viewed = await this.storageService.view({
       fileName,
       nestedDirectories: ['medical-records', person.id],
@@ -354,7 +361,8 @@ export class MedicalRecordService {
       throw new NotFoundException('File not found for this medical record');
     }
 
-    const viewed = await this.storageService.view({
+    // eslint-disable-next-line prettier/prettier
+    const viewed =  await this.storageService.view({
       fileName,
       nestedDirectories: ['medical-records', person.id],
       encryptedAesKey: record.encryptedAesKey || undefined,
