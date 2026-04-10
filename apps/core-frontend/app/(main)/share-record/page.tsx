@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { useState } from "react";
 import { useEffect } from "react";
 import { useMemo } from "react";
+import { useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -56,19 +57,26 @@ function SharedRecordRow({
   onView,
   onManage,
   onDelete,
+  availableMedicalRecords,
+  onRecordsAdded,
 }: {
   record: SharedRecordItem;
   onShare: (id: string) => void;
   onView: (id: string) => void;
   onManage: (id: string) => void;
   onDelete: (id: string) => void;
+  availableMedicalRecords: Array<{ id: string; fileOriginalName: string; recordType: string; date: string }>;
+  onRecordsAdded?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [medicalRecords, setMedicalRecords] = useState<SharedLinkMedicalRecordItem[]>([]);
-  const [expandedRecordToView, setExpandedRecordToView] = useState<SharedLinkMedicalRecordItem | null>(null);
   const [hiddenRecordIds, setHiddenRecordIds] = useState<Set<string>>(new Set());
+  const [showAddRecordsDialog, setShowAddRecordsDialog] = useState(false);
+  const [selectedRecordsToAdd, setSelectedRecordsToAdd] = useState<string[]>([]);
+  const [isAddingRecords, setIsAddingRecords] = useState(false);
+  const [isDeletingRecordIds, setIsDeletingRecordIds] = useState<Set<string>>(new Set());
   const hasLoadedRef = useRef(false);
 
   const toggleEndUserVisibility = (recordId: string) => {
@@ -83,17 +91,82 @@ function SharedRecordRow({
     });
   };
 
-  const removeExpandedRecord = (recordId: string) => {
-    setMedicalRecords((previous) => previous.filter((entry) => entry.id !== recordId));
-    setHiddenRecordIds((previous) => {
-      if (!previous.has(recordId)) return previous;
-      const updated = new Set(previous);
-      updated.delete(recordId);
-      return updated;
-    });
-    setExpandedRecordToView((previous) =>
-      previous?.id === recordId ? null : previous,
-    );
+  const loadSharedLinkMedicalRecords = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await SharedRecordsApi.getSharedLinkRecords(record.id);
+      setMedicalRecords(response.sharedRecord.medicalRecords);
+      hasLoadedRef.current = true;
+    } catch {
+      setError("Unable to load selected medical records right now.");
+    } finally {
+      setLoading(false);
+    }
+  }, [record.id]);
+
+  const handleOpenAddRecordsDialog = async () => {
+    setShowAddRecordsDialog(true);
+    setSelectedRecordsToAdd([]);
+
+    if (!hasLoadedRef.current) {
+      await loadSharedLinkMedicalRecords();
+    }
+  };
+
+  const handleAddRecords = async () => {
+    if (selectedRecordsToAdd.length === 0) {
+      return;
+    }
+
+    try {
+      setIsAddingRecords(true);
+      await SharedRecordsApi.addRecordsToSharedLink(record.id, {
+        medicalRecordIds: selectedRecordsToAdd,
+      });
+      setShowAddRecordsDialog(false);
+      setSelectedRecordsToAdd([]);
+      // Reload the records
+      hasLoadedRef.current = false;
+      const response = await SharedRecordsApi.getSharedLinkRecords(record.id);
+      setMedicalRecords(response.sharedRecord.medicalRecords);
+      onRecordsAdded?.();
+    } catch {
+      setError("Unable to add records right now.");
+    } finally {
+      setIsAddingRecords(false);
+    }
+  };
+
+  const filteredAvailableRecords = useMemo(() => {
+    const addedRecordIds = new Set(medicalRecords.map((entry) => entry.id));
+    return availableMedicalRecords.filter((entry) => !addedRecordIds.has(entry.id));
+  }, [availableMedicalRecords, medicalRecords]);
+
+  const removeExpandedRecord = async (recordId: string) => {
+    try {
+      setIsDeletingRecordIds((previous) => new Set(previous).add(recordId));
+      await SharedRecordsApi.deleteRecordFromSharedLink(record.id, recordId);
+      setMedicalRecords((previous) =>
+        previous.filter((entry) => entry.id !== recordId),
+      );
+      setHiddenRecordIds((previous) => {
+        if (!previous.has(recordId)) return previous;
+        const updated = new Set(previous);
+        updated.delete(recordId);
+        return updated;
+      });
+      onRecordsAdded?.();
+    } catch {
+      setError("Unable to remove record from shared link right now.");
+    } finally {
+      setIsDeletingRecordIds((previous) => {
+        const updated = new Set(previous);
+        updated.delete(recordId);
+        return updated;
+      });
+    }
   };
 
   useEffect(() => {
@@ -108,10 +181,7 @@ function SharedRecordRow({
       setError(null);
 
       try {
-        const response = await SharedRecordsApi.getSharedLinkRecords(record.id);
-        if (cancelled) return;
-        setMedicalRecords(response.sharedRecord.medicalRecords);
-        hasLoadedRef.current = true;
+        await loadSharedLinkMedicalRecords();
       } catch {
         if (!cancelled) {
           setError("Unable to load selected medical records right now.");
@@ -128,7 +198,7 @@ function SharedRecordRow({
     return () => {
       cancelled = true;
     };
-  }, [open, record.id]);
+  }, [loadSharedLinkMedicalRecords, open, record.id]);
 
   return (
     <div
@@ -192,7 +262,7 @@ function SharedRecordRow({
           <ActionButton title="Manage Access" onClick={() => onManage(record.id)}>
             <KeyRound className="h-5 w-5" />
           </ActionButton>
-          <ActionButton title="Add Record" onClick={() => undefined}>
+          <ActionButton title="Add Record" onClick={() => void handleOpenAddRecordsDialog()}>
             <Plus className="h-5 w-5" />
           </ActionButton>
           <ActionButton title="Delete" onClick={() => onDelete(record.id)}>
@@ -277,10 +347,26 @@ function SharedRecordRow({
                           <Eye className="h-4 w-4" />
                         )}
                       </ActionButton>
-                      <ActionButton title="View" onClick={() => setExpandedRecordToView(item)}>
+                      <ActionButton
+                        title="View"
+                        onClick={() =>
+                          window.open(
+                            `/medical-records/${item.id}/view`,
+                            "_blank",
+                            "noopener,noreferrer",
+                          )
+                        }
+                      >
                         <FileText className="h-4 w-4" />
                       </ActionButton>
-                      <ActionButton title="Delete record" onClick={() => removeExpandedRecord(item.id)}>
+                      <ActionButton
+                        title="Delete record"
+                        onClick={() => {
+                          if (!isDeletingRecordIds.has(item.id)) {
+                            void removeExpandedRecord(item.id);
+                          }
+                        }}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </ActionButton>
                     </div>
@@ -294,40 +380,71 @@ function SharedRecordRow({
         </div>
       )}
 
-      <ModalDialog open={!!expandedRecordToView} onOpenChange={(openState) => {
-        if (!openState) {
-          setExpandedRecordToView(null);
-        }
-      }}>
+      <ModalDialog open={showAddRecordsDialog} onOpenChange={setShowAddRecordsDialog}>
         <ModalContent className="w-[95vw] max-w-md">
           <ModalHeader>
-            <ModalTitle>Medical Record</ModalTitle>
+            <ModalTitle>Add Medical Records</ModalTitle>
           </ModalHeader>
-          {expandedRecordToView && (
-            <div className="space-y-3">
-              <div>
-                <p className="text-xs uppercase tracking-wide text-neutral-400">File Name</p>
-                <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mt-1">
-                  {expandedRecordToView.fileOriginalName}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-wide text-neutral-400">Type</p>
-                <p className="text-sm text-neutral-700 dark:text-neutral-300 mt-1">
-                  {expandedRecordToView.recordType}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-wide text-neutral-400">Date</p>
-                <p className="text-sm text-neutral-700 dark:text-neutral-300 mt-1">
-                  {expandedRecordToView.date}
-                </p>
-              </div>
+          {loading ? (
+            <p className="text-sm text-neutral-500 dark:text-neutral-400 py-6 text-center">
+              Loading records...
+            </p>
+          ) : filteredAvailableRecords.length === 0 ? (
+            <p className="text-sm text-neutral-500 dark:text-neutral-400 py-6 text-center">
+              No additional records available to add.
+            </p>
+          ) : (
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {filteredAvailableRecords.map((item) => (
+                <label
+                  key={item.id}
+                  className="flex items-start gap-3 p-3 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900/50 cursor-pointer transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedRecordsToAdd.includes(item.id)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedRecordsToAdd((prev) => [...prev, item.id]);
+                      } else {
+                        setSelectedRecordsToAdd((prev) =>
+                          prev.filter((id) => id !== item.id)
+                        );
+                      }
+                    }}
+                    className="mt-1 h-4 w-4 accent-indigo-600"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate">
+                      {item.fileOriginalName}
+                    </p>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                      {item.recordType}
+                    </p>
+                    <p className="text-xs text-neutral-400 dark:text-neutral-500 mt-0.5">
+                      {item.date}
+                    </p>
+                  </div>
+                </label>
+              ))}
             </div>
           )}
           <ModalFooter>
-            <Button variant="ghost" onClick={() => setExpandedRecordToView(null)}>
-              Close
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setShowAddRecordsDialog(false);
+                setSelectedRecordsToAdd([]);
+              }}
+              disabled={isAddingRecords}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAddRecords}
+              disabled={selectedRecordsToAdd.length === 0 || isAddingRecords}
+            >
+              {isAddingRecords ? "Adding..." : "Add Records"}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -346,6 +463,7 @@ export default function ShareRecordPage() {
   const [viewId, setViewId] = useState<string | null>(null);
   const [shareId, setShareId] = useState<string | null>(null);
   const [refreshToken, setRefreshToken] = useState(0);
+  const [isDeletingSharedLink, setIsDeletingSharedLink] = useState(false);
   const [copied, setCopied] = useState(false);
   const linkInputRef = useRef<HTMLInputElement>(null);
   const [modalState, setModalState] = useState({
@@ -385,9 +503,17 @@ export default function ShareRecordPage() {
     }
   };
 
-  const handleDelete = (id: string) => {
-    setRecords((prev) => prev.filter((r) => r.id !== id));
-    setDeleteId(null);
+  const handleDelete = async (id: string) => {
+    try {
+      setIsDeletingSharedLink(true);
+      await SharedRecordsApi.deleteSharedLink(id);
+      setRecords((prev) => prev.filter((r) => r.id !== id));
+      setDeleteId(null);
+    } catch {
+      setRecordsError("Unable to delete shared link right now.");
+    } finally {
+      setIsDeletingSharedLink(false);
+    }
   };
 
   const handleOpenManage = (id: string) => {
@@ -524,6 +650,8 @@ export default function ShareRecordPage() {
                 onView={setViewId}
                 onManage={handleOpenManage}
                 onDelete={setDeleteId}
+                availableMedicalRecords={medicalRecords}
+                onRecordsAdded={() => setRefreshToken((prev) => prev + 1)}
               />
             ))
           )}
@@ -688,9 +816,10 @@ export default function ShareRecordPage() {
                 </button>
                 <button
                   className="px-4 py-2 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 transition-colors"
-                  onClick={() => handleDelete(deleteId)}
+                  onClick={() => void handleDelete(deleteId)}
+                  disabled={isDeletingSharedLink}
                 >
-                  Delete
+                  {isDeletingSharedLink ? "Deleting..." : "Delete"}
                 </button>
               </div>
             </div>
