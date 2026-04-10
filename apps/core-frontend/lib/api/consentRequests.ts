@@ -56,4 +56,15 @@ export const ConsentRequestsApi = {
     );
     return response.data;
   },
+
+  requestAccess: async (recordId: string): Promise<ConsentRequest> => {
+    const response = await axios.post(
+      `${API_BASE}/api/consent-requests/${recordId}`,
+      {},
+      {
+        withCredentials: true,
+      }
+    );
+    return response.data;
+  },
 };

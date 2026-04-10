@@ -442,7 +442,7 @@ function BlockchainEventRow({ event }: { event: HistoryEventDto }) {
           {event.additionalData && Object.keys(event.additionalData).length > 0 && (
             <div className="mt-4">
               <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-1">
-                Raw Payload
+                Log Metadata
               </p>
               <pre className="text-[10px] text-neutral-600 dark:text-neutral-400 font-mono bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-3 overflow-x-auto">
                 {JSON.stringify(event.additionalData, null, 2)}

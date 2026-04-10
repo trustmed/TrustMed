@@ -4,10 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 import type { AxiosRequestConfig } from 'axios';
 
-/**
- * Core proxy service that forwards requests to the TrustMed core-backend.
- * All HMS backend modules use this to communicate with the core API.
- */
+// Core proxy service to forwards requests to the TrustMed core-backend.
 @Injectable()
 export class CoreProxyService {
   private readonly logger = new Logger(CoreProxyService.name);
