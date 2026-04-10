@@ -1,6 +1,6 @@
 "use client";
 
-import { Upload, Search, FolderOpen, Filter } from "lucide-react";
+import { Upload, Search, FolderOpen, Filter, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -42,11 +42,11 @@ export default function MedicalRecordsPage() {
     showToast,
   } = useMedicalRecords();
 
-  const pendingRequestsForSelectedRecord = selectedRecord
-    ? consentRequests.filter(
-        (request) => request.recordId === selectedRecord.id && request.status === "PENDING",
-      )
-    : [];
+  const pendingRequests = consentRequests.filter(
+    (request) => request.status === "PENDING",
+  );
+
+
 
   return (
     <div className="flex flex-col gap-6 w-full">
@@ -75,9 +75,24 @@ export default function MedicalRecordsPage() {
             securely
           </p>
         </div>
-        <Button onClick={() => setModal("upload")} className="gap-2 shrink-0">
-          <Upload className="h-4 w-4" /> Upload Record
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setModal("accept_request")}
+            className="relative h-10 w-10 rounded-xl border-neutral-200 dark:border-neutral-800"
+          >
+            <Bell className="h-5 w-5 text-neutral-600 dark:text-neutral-400" />
+            {pendingRequests.length > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white shadow-sm ring-2 ring-white dark:ring-neutral-950">
+                {pendingRequests.length}
+              </span>
+            )}
+          </Button>
+          <Button onClick={() => setModal("upload")} className="gap-2 shrink-0">
+            <Upload className="h-4 w-4" /> Upload Record
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -187,13 +202,12 @@ export default function MedicalRecordsPage() {
         }}
         onDelete={handleDelete}
       />
-      {modal === "accept_request" && selectedRecord && (
+      {modal === "accept_request" && (
         <AcceptRequestModal
-          pendingRequests={pendingRequestsForSelectedRecord}
+          pendingRequests={pendingRequests}
           open={true}
           onClose={() => {
             setModal(null);
-            setSelectedRecord(null);
           }}
           onSuccess={() => {
             setModal(null);
