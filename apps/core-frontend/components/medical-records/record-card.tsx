@@ -1,16 +1,20 @@
+
 'use client';
 
-import { FileText, FileImage, File, Pencil, Trash2, Download, MoreHorizontal } from 'lucide-react';
+import { FileText, FileImage, File, Pencil, Trash2, Download, MoreHorizontal, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MedicalRecord, CATEGORY_LABELS, CATEGORY_COLORS } from '@/types/medical-records';
 import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useRouter } from 'next/navigation';
 
 interface Props {
   record: MedicalRecord;
+  onView: (record: MedicalRecord) => void;
   onEdit: (record: MedicalRecord) => void;
   onDelete: (record: MedicalRecord) => void;
   onDownload: (record: MedicalRecord) => void;
+  onAcceptRequest?: (record: MedicalRecord) => void;
 }
 
 function formatBytes(b: number) {
@@ -24,19 +28,20 @@ function formatDate(iso: string) {
   });
 }
 
-function FileTypeIcon({ type }: { type: string }) {
+function FileTypeIcon({ type }: Readonly<{ type: string }>) {
   if (type?.startsWith('image/')) return <FileImage className="h-5 w-5" />;
   if (type === 'application/pdf') return <FileText className="h-5 w-5" />;
   return <File className="h-5 w-5" />;
 }
 
-export function RecordCard({ record, onEdit, onDelete, onDownload }: Props) {
+export function RecordCard({ record, onView, onEdit, onDelete, onDownload }: Readonly<Props>) {
   const primaryTitle = record.doctorName || record.hospitalName || "—";
+  const router = useRouter();
 
   return (
     <div className="group flex flex-col md:flex-row md:items-center gap-3 md:gap-0 p-3 md:p-3 md:px-4 rounded-lg bg-white dark:bg-neutral-900/20 border border-neutral-200/50 dark:border-neutral-800/50 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors duration-200">
       
-      {/* 1. Icon & Record Name */}
+      {/*  Icon & Record Name */}
       <div className="flex items-center gap-3 w-full md:w-[35%] min-w-0 pr-4">
         <div className={cn("h-9 w-9 rounded-md flex items-center justify-center shrink-0 bg-opacity-20", CATEGORY_COLORS[record.category])}>
           <FileTypeIcon type={record.fileType} />
@@ -51,21 +56,21 @@ export function RecordCard({ record, onEdit, onDelete, onDownload }: Props) {
         </div>
       </div>
 
-      {/* 2. Category Pill */}
+      {/*  Category Pill */}
       <div className="hidden md:flex w-[20%] items-center min-w-0 pr-4">
         <span className={cn('inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium tracking-wide', CATEGORY_COLORS[record.category])}>
           {CATEGORY_LABELS[record.category]}
         </span>
       </div>
 
-      {/* 3. Doctor / Hospital */}
+      {/*  Doctor / Hospital */}
       <div className="hidden md:flex w-[20%] items-center min-w-0 pr-4">
         <p className="text-sm text-neutral-600 dark:text-neutral-400 truncate" title={primaryTitle}>
           {primaryTitle}
         </p>
       </div>
 
-      {/* 4. Date & Size */}
+      {/*  Date & Size */}
       <div className="hidden md:flex flex-col items-end w-[15%] min-w-0 pr-4">
         <span className="text-sm text-neutral-700 dark:text-neutral-300">
           {formatDate(record.createdAt)}
@@ -75,8 +80,27 @@ export function RecordCard({ record, onEdit, onDelete, onDownload }: Props) {
         </span>
       </div>
 
-      {/* 5. Desktop Actions (Ellipsis Menu) */}
-      <div className="hidden md:flex items-center justify-end w-10 shrink-0">
+
+      {/*  Access History Link */}
+      <div className="hidden lg:flex w-[15%] items-center justify-end min-w-0 pr-4">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="h-9 text-[11px] font-bold border-primary/20 text-primary rounded-xl transition-all group/history whitespace-nowrap"
+          onClick={(e) => {
+            e.stopPropagation();
+            router.push(`/medical-records/${record.id}/access`);
+          }}
+        >
+          <Clock className="h-3.5 w-3.5 mr-1.5 transition-transform group-hover/history:-rotate-12" />
+          Access History
+        </Button>
+      </div>
+
+
+      
+      {/*  Desktop Actions (Ellipsis Menu) */}
+      <div className="hidden md:flex items-center justify-end w-auto shrink-0 gap-2 relative z-10">
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="ghost" size="icon" className="h-8 w-8 text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 data-[state=open]:bg-neutral-100 dark:data-[state=open]:bg-neutral-800">
@@ -84,6 +108,9 @@ export function RecordCard({ record, onEdit, onDelete, onDownload }: Props) {
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-40 p-1 hidden sm:block" align="end" sideOffset={5}>
+            <button onClick={() => onView(record)} className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-md text-neutral-700 dark:text-neutral-200 transition-colors">
+              <FileText className="h-4 w-4 text-neutral-500" /> View
+            </button>
             <button onClick={() => onDownload(record)} className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-md text-neutral-700 dark:text-neutral-200 transition-colors">
               <Download className="h-4 w-4 text-neutral-500" /> Download
             </button>
@@ -99,9 +126,12 @@ export function RecordCard({ record, onEdit, onDelete, onDownload }: Props) {
       </div>
 
       {/* Mobile Actions Overlay (Direct Buttons) */}
-      <div className="flex md:hidden items-center justify-end gap-1 mt-2 border-t border-neutral-100 dark:border-neutral-800 pt-2">
+      <div className="flex md:hidden items-center justify-end gap-1 mt-2 border-t border-neutral-100 dark:border-neutral-800 pt-2 relative z-10">
          <Button variant="ghost" size="sm" className="h-8 px-2 text-neutral-500" onClick={() => onDownload(record)}>
            <Download className="h-4 w-4 mr-1" /> Download
+         </Button>
+         <Button variant="ghost" size="sm" className="h-8 px-2 text-neutral-500" onClick={() => onView(record)}>
+           <FileText className="h-4 w-4 mr-1" /> View
          </Button>
          <Button variant="ghost" size="sm" className="h-8 px-2 text-neutral-500" onClick={() => onEdit(record)}>
            <Pencil className="h-4 w-4 mr-1" /> Edit

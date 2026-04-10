@@ -69,6 +69,7 @@ export interface AppointmentFormDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     mode: AppointmentFormMode;
+    appointmentNo?: string;
     patientId: string;
     patientName: string;
     appointment?: Appointment | null;
@@ -80,6 +81,7 @@ export function AppointmentFormDialog({
     open,
     onOpenChange,
     mode,
+    appointmentNo,
     patientId,
     patientName,
     appointment,
@@ -92,6 +94,7 @@ export function AppointmentFormDialog({
                 key={`${open}-${mode}-${appointment?.id ?? "new"}`}
                 onOpenChange={onOpenChange}
                 mode={mode}
+                appointmentNo={appointmentNo}
                 patientId={patientId}
                 patientName={patientName}
                 appointment={appointment}
@@ -107,6 +110,7 @@ type InnerProps = Omit<AppointmentFormDialogProps, "open">;
 function AppointmentFormDialogInner({
     onOpenChange,
     mode,
+    appointmentNo,
     patientId,
     patientName,
     appointment,
@@ -121,6 +125,7 @@ function AppointmentFormDialogInner({
     const readOnly = mode === "view";
     const title =
         mode === "add" ? "Add appointment" : mode === "edit" ? "Edit appointment" : "View appointment";
+    const displayedAppointmentNo = mode === "add" ? appointmentNo : appointment?.appointmentNo;
 
     const hospitalLocationOptions = useMemo(() => {
         const known = HOSPITAL_LOCATIONS as readonly string[];
@@ -151,7 +156,7 @@ function AppointmentFormDialogInner({
                     <DialogTitle className="text-xl font-semibold tracking-tight">{title}</DialogTitle>
                     <div className="flex flex-col gap-2">
                         <span className="inline-flex w-fit rounded-md border border-border bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-                            {patientId}
+                            {displayedAppointmentNo || patientId}
                         </span>
                         <p className="text-sm font-medium text-foreground">{patientName}</p>
                     </div>

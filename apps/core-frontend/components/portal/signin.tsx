@@ -21,7 +21,7 @@ const SignIn = () => {
 
   const { mutate: login, isPending: isLoading } = useAuthControllerLogin({
     mutation: {
-      onSuccess: () => router.push("/portal"),
+      onSuccess: () => router.push("/dashboard"),
       onError: (error) => {
         const msg =
           (error as unknown as { response?: { data?: { message?: string } } })?.response

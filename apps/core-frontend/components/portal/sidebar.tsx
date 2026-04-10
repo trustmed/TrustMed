@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Sidebar, SidebarBody, SidebarLink, useSidebar } from "@/components/ui/sidebar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { LogOut, PanelLeftClose, PanelLeftOpen, UserCog } from "lucide-react";
 import { ThemeToggle } from "@/components/portal/theme-toggle";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -23,6 +23,7 @@ interface UserProfile {
   label: string;
   href: string;
   icon: React.ReactNode;
+  email?: string;
 }
 
 interface SidebarNavProps {
@@ -81,21 +82,42 @@ export function SidebarNav({ children, links, userProfile }: Readonly<SidebarNav
             </div>
           </div>
 
-          {/* ── BOTTOM: anchored utilities ── */}
+          {/* ── BOTTOM: profile popover only ── */}
           <div className="flex flex-col gap-0">
-            {/* Theme switcher — sits above the profile with 24px gap below */}
-            <div className="mb-6">
-              <ThemeToggle />
-            </div>
-
-            {/* User profile — no divider, whitespace creates separation */}
             <Popover>
               <PopoverTrigger asChild>
                 <div className="w-full cursor-pointer">
                   <UserProfileTrigger link={userProfile} />
                 </div>
               </PopoverTrigger>
-              <PopoverContent className="w-56 p-2" side="top" align="start" sideOffset={10}>
+              <PopoverContent className="w-64 p-4 flex flex-col gap-4" side="top" align="start" sideOffset={10}>
+                {/* Profile info at top with theme button on right */}
+                <div className="flex items-center gap-3 border-b pb-3 mb-2 justify-between">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="shrink-0 ring-2 ring-slate-100 dark:ring-neutral-800 rounded-full">
+                      {userProfile.icon}
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-base font-semibold text-neutral-900 dark:text-neutral-100 truncate">{userProfile.label}</span>
+                      {userProfile.email && (
+                        <span className="text-xs text-neutral-400 tracking-wide truncate">{userProfile.email}</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="ml-2">
+                    <ThemeToggle />
+                  </div>
+                </div>
+                {/* Profile button */}
+                <Button
+                  variant="outline"
+                  onClick={() => router.push(userProfile.href)}
+                  className="w-full justify-start gap-2 mb-2"
+                >
+                  <UserCog size={16} />
+                  Profile
+                </Button>
+                {/* Logout button at bottom */}
                 <Button
                   variant="secondary"
                   onClick={handleLogout}
@@ -138,9 +160,11 @@ const UserProfileTrigger = ({ link }: { link: UserProfile }) => {
         <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 truncate">
           {link.label}
         </span>
-        <span className="text-[10px] text-neutral-400 tracking-wide">
-          Patient
-        </span>
+        {link.email && (
+          <span className="text-[10px] text-neutral-400 tracking-wide truncate">
+            {link.email}
+          </span>
+        )}
       </motion.div>
     </div>
   );

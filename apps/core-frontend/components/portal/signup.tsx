@@ -28,7 +28,7 @@ const SignUp = () => {
     mutation: {
       onSuccess: () => {
         toast.success("Account created successfully!");
-        router.push("/portal");
+        router.push("/dashboard");
       },
       onError: (error) => {
         const msg =

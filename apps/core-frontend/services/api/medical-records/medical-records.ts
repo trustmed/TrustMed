@@ -33,11 +33,102 @@ import type {
   UpdateMedicalRecordRequestDto
 } from '../../interfaces';
 
+import medicalRecordControllerDownloadMutator from '../../../config/api-config/axios';
 import medicalRecordControllerUpdateMutator from '../../../config/api-config/axios';
 import medicalRecordControllerGetByIdMutator from '../../../config/api-config/axios';
 import medicalRecordControllerDeleteByIdMutator from '../../../config/api-config/axios';
 import medicalRecordControllerCreateMutator from '../../../config/api-config/axios';
 import medicalRecordControllerGetAllByAuthUserIdMutator from '../../../config/api-config/axios';
+
+
+
+
+/**
+ * @summary Download a decrypted medical record
+ */
+export const medicalRecordControllerDownload = (
+    recordId: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return medicalRecordControllerDownloadMutator<void>(
+      {url: `/api/medical-records/${recordId}/download`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getMedicalRecordControllerDownloadQueryKey = (recordId: string,) => {
+    return [
+    `/api/medical-records/${recordId}/download`
+    ] as const;
+    }
+
+    
+export const getMedicalRecordControllerDownloadQueryOptions = <TData = Awaited<ReturnType<typeof medicalRecordControllerDownload>>, TError = unknown>(recordId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof medicalRecordControllerDownload>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getMedicalRecordControllerDownloadQueryKey(recordId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof medicalRecordControllerDownload>>> = ({ signal }) => medicalRecordControllerDownload(recordId, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(recordId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof medicalRecordControllerDownload>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type MedicalRecordControllerDownloadQueryResult = NonNullable<Awaited<ReturnType<typeof medicalRecordControllerDownload>>>
+export type MedicalRecordControllerDownloadQueryError = unknown
+
+
+export function useMedicalRecordControllerDownload<TData = Awaited<ReturnType<typeof medicalRecordControllerDownload>>, TError = unknown>(
+ recordId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof medicalRecordControllerDownload>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof medicalRecordControllerDownload>>,
+          TError,
+          Awaited<ReturnType<typeof medicalRecordControllerDownload>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useMedicalRecordControllerDownload<TData = Awaited<ReturnType<typeof medicalRecordControllerDownload>>, TError = unknown>(
+ recordId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof medicalRecordControllerDownload>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof medicalRecordControllerDownload>>,
+          TError,
+          Awaited<ReturnType<typeof medicalRecordControllerDownload>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useMedicalRecordControllerDownload<TData = Awaited<ReturnType<typeof medicalRecordControllerDownload>>, TError = unknown>(
+ recordId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof medicalRecordControllerDownload>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Download a decrypted medical record
+ */
+
+export function useMedicalRecordControllerDownload<TData = Awaited<ReturnType<typeof medicalRecordControllerDownload>>, TError = unknown>(
+ recordId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof medicalRecordControllerDownload>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getMedicalRecordControllerDownloadQueryOptions(recordId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
 
 
 

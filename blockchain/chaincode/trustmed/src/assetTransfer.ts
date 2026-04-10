@@ -21,8 +21,21 @@ interface AccessRequest {
   expiresAt?: string;
 }
 
+export interface BlockchainAuditLog {
+  auditId: string;
+  eventType: string;
+  actorId: string;
+  patientId?: string;
+  targetResource?: string;
+  ipAddress?: string;
+  additionalData?: string;
+  timestamp: string;
+}
+
 @Info({ title: 'TrustMedContract', description: 'TrustMed access request contract' })
 export class TrustMedContract extends Contract {
+
+  // Get transaction's timestamp
   private getTxTimestampIsoString(ctx: Context): string {
     const ts = ctx.stub.getTxTimestamp();
     const millis =
@@ -32,6 +45,7 @@ export class TrustMedContract extends Contract {
     return new Date(millis).toISOString();
   }
 
+  // Create the request for the patient data
   @Transaction()
   public async CreateAccessRequest(
     ctx: Context,
@@ -41,6 +55,8 @@ export class TrustMedContract extends Contract {
     hospitalId: string,
     purpose: string,
   ): Promise<void> {
+
+    // Check the record existence
     const exists = await this.AssetExists(ctx, requestId);
     if (exists) {
       throw new Error(`Access request ${requestId} already exists`);
@@ -56,9 +72,11 @@ export class TrustMedContract extends Contract {
       status: 'REQUESTED',
     };
 
+    // Put the request in the ledger
     await ctx.stub.putState(requestId, Buffer.from(JSON.stringify(request)));
   }
 
+  // Approve the request
   @Transaction()
   public async ApproveAccessRequest(
     ctx: Context,
@@ -80,6 +98,8 @@ export class TrustMedContract extends Contract {
     await ctx.stub.putState(requestId, Buffer.from(JSON.stringify(request)));
   }
 
+
+  // Reject the request
   @Transaction()
   public async RejectAccessRequest(ctx: Context, requestId: string): Promise<void> {
     const request = await this.GetRequest(ctx, requestId);
@@ -96,6 +116,7 @@ export class TrustMedContract extends Contract {
     await ctx.stub.putState(requestId, Buffer.from(JSON.stringify(request)));
   }
 
+  // Revoke the access
   @Transaction()
   public async RevokeAccessRequest(ctx: Context, requestId: string): Promise<void> {
     const request = await this.GetRequest(ctx, requestId);
@@ -112,13 +133,15 @@ export class TrustMedContract extends Contract {
     await ctx.stub.putState(requestId, Buffer.from(JSON.stringify(request)));
   }
 
-  @Transaction(false)
+  // Return the full JSON data of a request
+  @Transaction(false) // Query (without changing the ledger)
   @Returns('string')
   public async ReadAccessRequest(ctx: Context, requestId: string): Promise<string> {
     const request = await this.GetRequest(ctx, requestId);
     return JSON.stringify(request);
   }
 
+  // Check if the access is allowed
   @Transaction(false)
   @Returns('string')
   public async CheckAccess(ctx: Context, requestId: string): Promise<string> {
@@ -160,13 +183,78 @@ export class TrustMedContract extends Contract {
     });
   }
 
+  // Check if the asset exists in the world state database
   @Transaction(false)
   @Returns('boolean')
-  public async AssetExists(ctx: Context, requestId: string): Promise<boolean> {
-    const data = await ctx.stub.getState(requestId);
+  public async AssetExists(ctx: Context, id: string): Promise<boolean> {
+    const data = await ctx.stub.getState(id);
     return !!data && data.length > 0;
   }
 
+  // Log an immutable audit event
+  @Transaction()
+  public async LogAuditEvent(
+    ctx: Context,
+    auditId: string,
+    eventType: string,
+    actorId: string,
+    patientId: string,
+    targetResource: string,
+    ipAddress: string,
+    additionalData: string,
+  ): Promise<void> {
+    const exists = await this.AssetExists(ctx, auditId);
+    if (exists) {
+      throw new Error(`Audit log ${auditId} already exists`);
+    }
+
+    const log: BlockchainAuditLog = {
+      auditId,
+      eventType,
+      actorId,
+      patientId: patientId || undefined,
+      targetResource: targetResource || undefined,
+      ipAddress: ipAddress || undefined,
+      additionalData: additionalData || undefined,
+      timestamp: this.getTxTimestampIsoString(ctx),
+    };
+
+    await ctx.stub.putState(auditId, Buffer.from(JSON.stringify(log)));
+
+    if (patientId) {
+      const indexName = 'patient~auditId';
+      const indexKey = ctx.stub.createCompositeKey(indexName, [patientId, auditId]);
+      await ctx.stub.putState(indexKey, Buffer.from('\u0000'));
+    }
+  }
+
+  // Get the audit history of a patient
+  @Transaction(false)
+  @Returns('string')
+  public async GetAuditHistory(ctx: Context, patientId: string): Promise<string> {
+    const results = [];
+    const iterator = await ctx.stub.getStateByPartialCompositeKey('patient~auditId', [patientId]);
+
+    let result = await iterator.next();
+    while (!result.done) {
+      const { value } = result;
+      if (value && value.key) {
+        const keyParts = ctx.stub.splitCompositeKey(value.key);
+        const auditId = keyParts.attributes[1];
+
+        const logBytes = await ctx.stub.getState(auditId);
+        if (logBytes && logBytes.length > 0) {
+          results.push(JSON.parse(logBytes.toString()));
+        }
+      }
+      result = await iterator.next();
+    }
+
+    await iterator.close();
+    return JSON.stringify(results);
+  }
+
+  // Fetch and parse a request from the ledger
   private async GetRequest(ctx: Context, requestId: string): Promise<AccessRequest> {
     const data = await ctx.stub.getState(requestId);
 

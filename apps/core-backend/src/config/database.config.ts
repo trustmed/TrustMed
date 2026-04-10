@@ -14,11 +14,17 @@ import { Allergy } from '../entities/allergy.entity';
 import { Medication } from '../entities/medication.entity';
 import { EmergencyContact } from '../entities/emergency-contact.entity';
 import { AuthUser } from '../entities/auth-user.entity';
-import { InitialOracle1773847768524 } from '../entities/migrations/1773847768524-initial-oracle';
+import { ConsentRequest } from '../entities/consent-request.entity';
 import { MedicalRecord } from '../entities/medical-record.entity';
 import { Appointment } from '../entities/appointment.entity';
-import { CreateMedicalRecordTable1774144345789 } from '../entities/migrations/1774144345789-CreateMedicalRecordTable';
-import { MedicalRecordsAndAppoinmnts1774196469803 } from '../entities/migrations/1774196469803-medicalRecordsAndAppoinmnts';
+import { SharedLinkRecord } from '../entities/shared-link-record.entity';
+import { SharedLinkMedicalRecord } from '../entities/shared-link-medical-record.entity';
+
+import { Init1775252452217 } from '../entities/migrations/1775252452217-init';
+import { InitSharedRecords1775439988102 } from '../entities/migrations/1775439988102-initSharedRecords';
+import { AddAppoinmentNoToAppoinmentTabel1775708269564 } from '../entities/migrations/1775708269564-addAppoinmentNoToAppoinmentTabel';
+import { ResolveConsentIdIssue1775758008335 } from '../entities/migrations/1775758008335-resolve-consent-id-issue';
+
 dotenv.config();
 
 export const dataSourceOptions: DataSourceOptions = {
@@ -43,13 +49,18 @@ export const dataSourceOptions: DataSourceOptions = {
     EmergencyContact,
     AuthUser,
     MedicalRecord,
+    ConsentRequest,
     Appointment,
+    SharedLinkRecord,
+    SharedLinkMedicalRecord,
   ],
   migrations: [
-    InitialOracle1773847768524,
-    CreateMedicalRecordTable1774144345789,
-    MedicalRecordsAndAppoinmnts1774196469803,
+    Init1775252452217,
+    InitSharedRecords1775439988102,
+    AddAppoinmentNoToAppoinmentTabel1775708269564,
+    ResolveConsentIdIssue1775758008335,
   ],
+
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
 };

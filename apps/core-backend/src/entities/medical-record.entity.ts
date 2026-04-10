@@ -1,6 +1,7 @@
-import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { Person } from './person.entity';
+import { ConsentRequest } from './consent-request.entity';
 
 export enum RecordCategory {
   LAB_REPORT = 'lab_report',
@@ -85,4 +86,7 @@ export class MedicalRecord extends BaseEntity {
 
   @Column({ name: 'record_date', type: 'date', nullable: true })
   recordDate: Date | null;
+
+  @OneToMany(() => ConsentRequest, (req) => req.record)
+  consentRequests: ConsentRequest[];
 }

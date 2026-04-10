@@ -9,8 +9,11 @@ import { AuthModule } from './auth/auth.module';
 import { JwtCookieGuard } from './auth/jwt-cookie.guard';
 import { MedicalRecordModule } from './medical-record/medical-record.module';
 import { AuditModule } from './audit/audit.module';
-import { S3VaultModule } from './s3-vault/s3-vault.module';
 import { AppointmentsModule } from './appointments/appointments.module';
+import { AiModule } from './ai/ai.module';
+import { MedicalHistoryModule } from './medical-history/medical-history.module';
+import { StorageModule } from './storage/storage.module';
+import { SharedRecordsModule } from './shared-records/shared-records.module';
 
 @Module({
   imports: [
@@ -24,8 +27,11 @@ import { AppointmentsModule } from './appointments/appointments.module';
     ProfileModule,
     MedicalRecordModule,
     AuditModule,
-    S3VaultModule,
     AppointmentsModule,
+    AiModule,
+    MedicalHistoryModule,
+    StorageModule,
+    SharedRecordsModule,
   ],
   controllers: [],
   providers: [
@@ -35,4 +41,4 @@ import { AppointmentsModule } from './appointments/appointments.module';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

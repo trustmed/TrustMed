@@ -16,14 +16,15 @@ function TestPage() {
   const [requestId, setRequestId] = useState(
     "req" + Math.floor(Math.random() * 1000),
   );
+  const [patientDid, setPatientDid] = useState("did:trustmed:patient1");
   const [response, setResponse] = useState<TestResponse | null>(null);
-  const [loading, setLoading] = useState<"create" | "approve" | "check" | null>(
+  const [loading, setLoading] = useState<"create" | "approve" | "check" | "audit" | null>(
     null,
   );
 
   const getApiUrl = (path: string) => `${process.env.NEXT_PUBLIC_API_URL}${path}`;
 
-  const handleRequest = async (type: "create" | "approve" | "check") => {
+  const handleRequest = async (type: "create" | "approve" | "check" |"audit") => {
     setLoading(type);
     setResponse(null);
 
@@ -53,6 +54,9 @@ function TestPage() {
             expiresAt: new Date(Date.now() + 86400000).toISOString(),
           }),
         };
+      } else if (type === "audit") {
+        url = getApiUrl(`/api/audit/blockchain/${patientDid}`);
+        options = { method: "GET" };
       } else {
         url = getApiUrl(`/api/access-requests/${requestId}`);
         options = { method: "GET" };
@@ -99,11 +103,15 @@ function TestPage() {
 
       <section className="bg-white dark:bg-neutral-900 p-6 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-4">
         <div className="space-y-2">
-          <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+          <label 
+            htmlFor="request-id-input"
+            className="text-sm font-medium text-neutral-700 dark:text-neutral-300"
+          >
             Target Request ID
           </label>
           <div className="flex gap-2">
             <input
+              id="request-id-input"
               type="text"
               value={requestId}
               onChange={(e) => setRequestId(e.target.value)}
@@ -159,6 +167,32 @@ function TestPage() {
             <span className="text-xs text-neutral-500 group-hover:text-amber-600 transition-colors">
               {loading === "check" ? "Checking..." : "GET /:id/check"}
             </span>
+          </button>
+        </div>
+
+        <div className="pt-4 border-t border-neutral-100 dark:border-neutral-800 space-y-4">
+          <div className="space-y-2">
+            <label 
+              htmlFor="audit-patient-did"
+              className="text-sm font-medium text-neutral-700 dark:text-neutral-300"
+            >
+              Audit Logs: Patient DID
+            </label>
+            <input
+              id="audit-patient-did"
+              type="text"
+              value={patientDid}
+              onChange={(e) => setPatientDid(e.target.value)}
+              className="w-full px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-transparent focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+              placeholder="did:trustmed:..."
+            />
+          </div>
+          <button
+            onClick={() => handleRequest("audit")}
+            disabled={!!loading}
+            className="w-full py-3 rounded-xl bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
+          >
+            {loading === "audit" ? "Fetching Logs..." : "Fetch Blockchain Audit Logs"}
           </button>
         </div>
       </section>

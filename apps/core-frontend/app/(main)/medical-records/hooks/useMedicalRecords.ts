@@ -3,7 +3,8 @@ import { useState, useCallback } from "react";
 import { MedicalRecord, RecordCategory } from "@/types/medical-records";
 import { getAuthUser } from "@/utils/auth";
 import { MedicalRecordsApi } from "@/lib/api/medicalRecords";
-import { useQueryClient } from "@tanstack/react-query";
+import { ConsentRequestsApi } from "@/lib/api/consentRequests";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import {
   useMedicalRecordControllerGetAllByAuthUserId,
   useMedicalRecordControllerCreate,
@@ -16,7 +17,13 @@ import {
   UpdateMedicalRecordRequestDto,
 } from "@/services/interfaces";
 
-type ModalState = "upload" | "edit" | "delete" | null;
+type ModalState =
+  | "upload"
+  | "view"
+  | "edit"
+  | "delete"
+  | "accept_request"
+  | null;
 type Toast = { id: number; message: string; type: "success" | "error" };
 
 export default function useMedicalRecords() {
@@ -39,7 +46,7 @@ export default function useMedicalRecords() {
   const queryClient = useQueryClient();
 
   // Queries and Mutations
-  const { data: recordsData } = useMedicalRecordControllerGetAllByAuthUserId(
+  const { data: recordsData, refetch: refetchRecords } = useMedicalRecordControllerGetAllByAuthUserId(
     AUTHUSER_ID,
     {
       query: {
@@ -48,6 +55,12 @@ export default function useMedicalRecords() {
     },
   );
   const records = (recordsData?.records as MedicalRecord[]) || [];
+
+  const { data: consentRequests = [], refetch: refetchConsentRequests } = useQuery({
+    queryKey: ['consentRequests', 'received'],
+    queryFn: () => ConsentRequestsApi.getReceivedRequests(),
+    enabled: !!AUTHUSER_ID,
+  });
 
   const showToast = useCallback(
     (message: string, type: "success" | "error") => {
@@ -77,7 +90,7 @@ export default function useMedicalRecords() {
         if (props.recordDate) formData.append("recordDate", props.recordDate);
 
         await createMutation.mutateAsync({
-          data: formData as unknown as CreateMedicalRecordRequestDto 
+          data: formData as unknown as CreateMedicalRecordRequestDto
         });
 
         queryClient.invalidateQueries({
@@ -91,7 +104,7 @@ export default function useMedicalRecords() {
 
         showToast(
           "Failed to upload record: " +
-            (err instanceof Error ? err.message : String(err)),
+          (err instanceof Error ? err.message : String(err)),
           "error",
         );
       }
@@ -154,17 +167,19 @@ export default function useMedicalRecords() {
     async (record: MedicalRecord) => {
       if (!AUTHUSER_ID) return;
       try {
-        const url = await MedicalRecordsApi.getDownloadUrl(
-          AUTHUSER_ID,
-          record.id,
-        );
-        window.open(url, "_blank");
+        await MedicalRecordsApi.downloadRecord(record.id);
       } catch {
-        showToast("Failed to get download URL", "error");
+        showToast("Failed to download record", "error");
       }
     },
     [AUTHUSER_ID, showToast],
   );
+
+  const handleView = useCallback((record: MedicalRecord) => {
+    if (typeof window === "undefined") return;
+
+    window.open(`/medical-records/${record.id}/view`, "_blank", "noopener,noreferrer");
+  }, []);
 
   //handle medical record filtering
   const filtered = records.filter((r) => {
@@ -182,6 +197,7 @@ export default function useMedicalRecords() {
     handleEdit,
     handleDelete,
     handleDownload,
+    handleView,
     search,
     setSearch,
     filterCategory,
@@ -195,5 +211,8 @@ export default function useMedicalRecords() {
     showToast,
     records,
     filtered,
+    consentRequests,
+    refetchConsentRequests,
+    refetchRecords,
   };
 }

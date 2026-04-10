@@ -54,11 +54,13 @@ export class BlockchainService implements OnModuleDestroy {
   private network?: Network;
   private contract?: Contract;
 
+  // Close the connection when the module is destroyed
   async onModuleDestroy(): Promise<void> {
     this.gateway?.close();
     this.client?.close();
   }
 
+  // Establish a gRPC connection 
   private async newGrpcConnection(): Promise<grpc.Client> {
     const tlsRootCert = await fs.readFile(FABRIC.tlsCertPath);
     const tlsCredentials = grpc.credentials.createSsl(tlsRootCert);
@@ -68,11 +70,14 @@ export class BlockchainService implements OnModuleDestroy {
     });
   }
 
+  // Get the user identity
   private async newIdentity(): Promise<Identity> {
     const credentials = await fs.readFile(FABRIC.certPath);
     return { mspId: FABRIC.mspId, credentials };
   }
 
+  // Get the private key to sign a transaction
+  // Sign the transaction with a priviate key to ensure the transaction is authentic
   private async newSigner(): Promise<Signer> {
     try {
       // Check if the directory exists first
@@ -98,6 +103,7 @@ export class BlockchainService implements OnModuleDestroy {
     }
   }
 
+  // bundle gRPC connection,identity and signer into a session to access the blockchain
   private async getContract(): Promise<Contract> {
     if (this.contract) return this.contract;
 
@@ -117,6 +123,7 @@ export class BlockchainService implements OnModuleDestroy {
     return this.contract;
   }
 
+  // Create the access request (submits a transaction)
   async createAccessRequest(input: {
     requestId: string;
     patientId: string;
@@ -159,6 +166,46 @@ export class BlockchainService implements OnModuleDestroy {
     };
   }
 
+  async logAuditEvent(input: {
+    auditId: string;
+    eventType: string;
+    actorId: string;
+    patientId?: string;
+    targetResource?: string;
+    ipAddress?: string;
+    additionalData?: string;
+  }) {
+    const contract = await this.getContract();
+
+    await contract.submitTransaction(
+      "LogAuditEvent",
+      input.auditId,
+      input.eventType,
+      input.actorId,
+      input.patientId || "",
+      input.targetResource || "",
+      input.ipAddress || "",
+      input.additionalData || "",
+    );
+
+    return {
+      ok: true,
+      message: "Audit event logged",
+      auditId: input.auditId,
+    };
+  }
+
+  // Get the audit history (queries a transaction)
+  async getAuditHistory(patientId: string): Promise<any[]> {
+    const contract = await this.getContract();
+    const result = await contract.evaluateTransaction(
+      "GetAuditHistory",
+      patientId,
+    );
+    const json = Buffer.from(result).toString("utf8");
+    return JSON.parse(json);
+  }
+
   async checkAccess(requestId: string): Promise<CheckAccessResult> {
     const contract = await this.getContract();
     const result = await contract.evaluateTransaction("CheckAccess", requestId);
@@ -184,8 +231,8 @@ export class BlockchainService implements OnModuleDestroy {
     }
   }
 
+  // Communicate wit the blockchain and check the system status
   async checkHealth(): Promise<{ status: string; gateway: any; network: any }> {
-    // Initial state: We assume the Gateway code is running
     const health = {
       status: "OK",
       gateway: {
@@ -201,13 +248,12 @@ export class BlockchainService implements OnModuleDestroy {
     };
 
     try {
-      // handshake with the peer
       const contract = await this.getContract();
 
       // ping to verify the gRPC pipe and Chaincode availability
       await contract.evaluateTransaction("AssetExists", "health-check-ping");
 
-      // if we reached here, network is UP
+      // if reached here, network is UP
       health.network.status = "UP";
 
     } catch (error: any) {

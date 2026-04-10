@@ -1,8 +1,18 @@
-import { Controller, Post, Body, Get, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Query,
+  Patch,
+  Delete,
+} from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { AppointmentResponseDto } from './dto/appointment-response.dto';
+import { EditAppointmentDto } from './dto/edit-appointment.dto';
+import { DeleteAppointmentDto } from './dto/delete-appointment.dto';
 
 @ApiTags('appointments')
 @Controller('appointments')
@@ -15,19 +25,18 @@ export class AppointmentsController {
   async create(
     @Body() dto: CreateAppointmentDto,
   ): Promise<AppointmentResponseDto> {
-    console.log('Received appointment creation request:', dto);
     const a = await this.appointmentsService.create(dto);
     return {
       id: a.id,
-      appointmentNo: a['appointmentNo'] || '',
-      appointmentType: a['type'] || '',
-      doctorName: a['doctor'] || '',
+      appointmentNo: a.appointmentNo ?? '',
+      appointmentType: a.type || '',
+      doctorName: a.doctor || '',
       date: a.date instanceof Date ? a.date.toISOString().slice(0, 10) : a.date,
-      hospitalLocation: a['location'] || '',
+      hospitalLocation: a.location || '',
       status: a.status,
-      address: a['address'] || '',
-      phone: a['phone'] || '',
-      email: a['email'] || '',
+      address: a.address || '',
+      phone: a.phone || '',
+      email: a.email || '',
     };
   }
 
@@ -41,12 +50,31 @@ export class AppointmentsController {
   ): Promise<{ records: AppointmentResponseDto[] }> {
     const records =
       await this.appointmentsService.findAllByAuthUserId(authUserId);
-    console.log(
-      'Retrieved appointments for authUserId',
-      authUserId,
-      ':',
-      records,
-    );
     return { records };
+  }
+
+  @Get('find')
+  @ApiOperation({ summary: 'Find appointment by id' })
+  @ApiResponse({ status: 200, type: AppointmentResponseDto })
+  async findOneById(@Query('id') id: string): Promise<AppointmentResponseDto> {
+    return await this.appointmentsService.findOneById(id);
+  }
+
+  @Patch()
+  @ApiOperation({ summary: 'Edit appointment by id' })
+  @ApiBody({ type: EditAppointmentDto })
+  @ApiResponse({ status: 200, type: AppointmentResponseDto })
+  async edit(@Body() dto: EditAppointmentDto): Promise<AppointmentResponseDto> {
+    return this.appointmentsService.edit(dto);
+  }
+
+  @Delete()
+  @ApiOperation({ summary: 'Delete appointment by id' })
+  @ApiBody({ type: DeleteAppointmentDto })
+  @ApiResponse({ status: 200, schema: { example: { success: true } } })
+  async delete(
+    @Body() dto: DeleteAppointmentDto,
+  ): Promise<{ success: boolean }> {
+    return this.appointmentsService.delete(dto.id);
   }
 }

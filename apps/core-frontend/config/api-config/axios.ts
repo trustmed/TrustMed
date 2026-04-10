@@ -1,5 +1,5 @@
 import axios from "axios";
-import qs from "qs"; 
+import qs from "qs";
 import { config } from "../config";
 
 const axiosInstance = axios.create({
@@ -62,10 +62,13 @@ export default async function orvalMutator<TData = unknown, TVariables = unknown
   signal?: AbortSignal;
 }): Promise<TData> {
   const isFormData = data instanceof FormData;
-  const finalHeaders = { ...headers };
-  
-  if (isFormData && finalHeaders['Content-Type'] === 'application/json') {
-    delete finalHeaders['Content-Type'];
+  const finalHeaders: Record<string, string | undefined> = { ...headers };
+
+  if (isFormData) {
+    // Must explicitly set multipart/form-data to override the axios instance
+    // default Content-Type: application/json. Just deleting the header doesn't
+    // override the instance default. Axios will auto-append the boundary.
+    finalHeaders['Content-Type'] = 'multipart/form-data';
   }
 
   const response = await axiosInstance.request<TData>({

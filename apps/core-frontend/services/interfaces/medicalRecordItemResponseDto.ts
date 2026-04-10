@@ -5,12 +5,14 @@
  * API documentation for the TrustMed Core backend
  * OpenAPI spec version: 1.0.0
  */
+import type { MedicalRecordItemResponseDtoRequestStatus } from './medicalRecordItemResponseDtoRequestStatus';
 
 export interface MedicalRecordItemResponseDto {
   id: string;
   personId: string;
   fileName: string;
   fileUrl: string;
+  downloadUrl: string;
   fileType: string;
   fileSize: number;
   category: string;
@@ -20,4 +22,5 @@ export interface MedicalRecordItemResponseDto {
   recordDate?: string;
   createdAt: string;
   updatedAt: string;
+  requestStatus?: MedicalRecordItemResponseDtoRequestStatus;
 }
