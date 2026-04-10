@@ -28,15 +28,14 @@ function formatDate(iso: string) {
   });
 }
 
-function FileTypeIcon({ type }: { type: string }) {
+function FileTypeIcon({ type }: Readonly<{ type: string }>) {
   if (type?.startsWith('image/')) return <FileImage className="h-5 w-5" />;
   if (type === 'application/pdf') return <FileText className="h-5 w-5" />;
   return <File className="h-5 w-5" />;
 }
 
-export function RecordCard({ record, onView, onEdit, onDelete, onDownload, onAcceptRequest }: Props) {
+export function RecordCard({ record, onView, onEdit, onDelete, onDownload }: Readonly<Props>) {
   const primaryTitle = record.doctorName || record.hospitalName || "—";
-  const isPending = record.requestStatus?.status === 'PENDING';
   const router = useRouter();
 
   return (
