@@ -4,7 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, In, IsNull, Repository } from 'typeorm';
 import { SharedRecordsResponseDto } from './dto/shared-records-response.dto';
 import { SendSharedLinkResponseDto } from './dto/send-shared-link-response.dto';
 import { CreateSharedLinkDto } from './dto/create-shared-link.dto';
@@ -17,12 +17,15 @@ import { MedicalRecord } from '../entities/medical-record.entity';
 import { AuthUser } from '../entities/auth-user.entity';
 import { SharedLinkMedicalRecordItemDto } from './dto/shared-records-response.dto';
 import { SharedLinkMedicalRecordsResponseDto } from './dto/shared-records-response.dto';
+import { AddSharedLinkRecordsDto } from './dto/add-shared-link-records.dto';
 
 @Injectable()
 export class SharedRecordsService {
   constructor(
     @InjectRepository(SharedLinkRecord)
     private readonly sharedLinkRecordRepository: Repository<SharedLinkRecord>,
+    @InjectRepository(SharedLinkMedicalRecord)
+    private readonly sharedLinkMedicalRecordRepository: Repository<SharedLinkMedicalRecord>,
     @InjectRepository(MedicalRecord)
     private readonly medicalRecordRepository: Repository<MedicalRecord>,
     @InjectRepository(AuthUser)
@@ -158,6 +161,177 @@ export class SharedRecordsService {
         status: sharedLink.status,
         medicalRecords,
       },
+    };
+  }
+
+  async addRecordsToSharedLink(
+    authUserId: string,
+    sharedLinkId: string,
+    payload: AddSharedLinkRecordsDto,
+  ): Promise<SendSharedLinkResponseDto> {
+    const sharedLink = await this.sharedLinkRecordRepository.findOne({
+      where: { id: sharedLinkId, authUserId },
+      select: { id: true },
+    });
+
+    if (!sharedLink) {
+      throw new UnauthorizedException('Invalid shared record');
+    }
+
+    const medicalRecordIds = Array.from(
+      new Set(payload.medicalRecordIds.map((id) => id.trim()).filter(Boolean)),
+    );
+
+    if (medicalRecordIds.length === 0) {
+      throw new BadRequestException('Medical record IDs are required');
+    }
+
+    const accessibleRecords = await this.medicalRecordRepository
+      .createQueryBuilder('record')
+      .innerJoin('record.person', 'person')
+      .where('record.id IN (:...medicalRecordIds)', { medicalRecordIds })
+      .andWhere('person.authUserId = :authUserId', { authUserId })
+      .select(['record.id'])
+      .getMany();
+
+    if (accessibleRecords.length !== medicalRecordIds.length) {
+      throw new BadRequestException(
+        'One or more medical records are invalid for this user',
+      );
+    }
+
+    const existingSharedRecords = await this.sharedLinkMedicalRecordRepository.find({
+      where: {
+        sharedLinkId,
+        medicalRecordId: In(medicalRecordIds),
+      },
+      withDeleted: true,
+    });
+
+    const existingByRecordId = new Map(
+      existingSharedRecords.map((entry) => [entry.medicalRecordId, entry]),
+    );
+
+    const softDeletedToRestore = existingSharedRecords.filter(
+      (entry) => !!entry.deletedAt,
+    );
+
+    const recordIdsToInsert = medicalRecordIds.filter(
+      (id) => !existingByRecordId.has(id),
+    );
+
+    if (recordIdsToInsert.length === 0 && softDeletedToRestore.length === 0) {
+      return {
+        success: true,
+        message: 'No new records to add',
+      };
+    }
+
+    await this.dataSource.transaction(async (manager) => {
+      if (softDeletedToRestore.length > 0) {
+        const restoreIds = softDeletedToRestore.map((entry) => entry.id);
+
+        await manager
+          .getRepository(SharedLinkMedicalRecord)
+          .restore(restoreIds);
+
+        await manager
+          .getRepository(SharedLinkMedicalRecord)
+          .update(
+            { id: In(restoreIds) },
+            { updatedBy: authUserId },
+          );
+      }
+
+      const sharedLinkMedicalRecords = recordIdsToInsert.map((medicalRecordId) =>
+        manager.create(SharedLinkMedicalRecord, {
+          sharedLinkId,
+          medicalRecordId,
+          createdBy: authUserId,
+          updatedBy: authUserId,
+        }),
+      );
+
+      await manager.save(sharedLinkMedicalRecords);
+    });
+
+    return {
+      success: true,
+      message: 'Records added to shared link successfully',
+    };
+  }
+
+  async deleteSharedLinkRecord(
+    authUserId: string,
+    sharedLinkId: string,
+    medicalRecordId: string,
+  ): Promise<SendSharedLinkResponseDto> {
+    const sharedLink = await this.sharedLinkRecordRepository.findOne({
+      where: { id: sharedLinkId, authUserId },
+      select: { id: true },
+    });
+
+    if (!sharedLink) {
+      throw new UnauthorizedException('Invalid shared record');
+    }
+
+    const sharedMedicalRecord = await this.sharedLinkMedicalRecordRepository.findOne({
+      where: {
+        sharedLinkId,
+        medicalRecordId,
+        deletedAt: IsNull(),
+      },
+      select: { id: true },
+    });
+
+    if (!sharedMedicalRecord) {
+      throw new BadRequestException('Shared medical record not found');
+    }
+
+    await this.sharedLinkMedicalRecordRepository.softDelete(sharedMedicalRecord.id);
+    await this.sharedLinkMedicalRecordRepository.update(sharedMedicalRecord.id, {
+      updatedBy: authUserId,
+    });
+
+    return {
+      success: true,
+      message: 'Record removed from shared link successfully',
+    };
+  }
+
+  async deleteSharedLink(
+    authUserId: string,
+    sharedLinkId: string,
+  ): Promise<SendSharedLinkResponseDto> {
+    const sharedLink = await this.sharedLinkRecordRepository.findOne({
+      where: { id: sharedLinkId, authUserId, deletedAt: IsNull() },
+      select: { id: true },
+    });
+
+    if (!sharedLink) {
+      throw new UnauthorizedException('Invalid shared record');
+    }
+
+    await this.dataSource.transaction(async (manager) => {
+      await manager.getRepository(SharedLinkMedicalRecord).update(
+        { sharedLinkId, deletedAt: IsNull() },
+        { updatedBy: authUserId },
+      );
+
+      await manager.getRepository(SharedLinkMedicalRecord).softDelete({
+        sharedLinkId,
+        deletedAt: IsNull(),
+      });
+
+      await manager.getRepository(SharedLinkRecord).softDelete(sharedLinkId);
+      await manager.getRepository(SharedLinkRecord).update(sharedLinkId, {
+        updatedBy: authUserId,
+      });
+    });
+
+    return {
+      success: true,
+      message: 'Shared link deleted successfully',
     };
   }
 }
