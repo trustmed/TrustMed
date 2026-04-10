@@ -1,7 +1,7 @@
 
 'use client';
 
-import { FileText, FileImage, File, Pencil, Trash2, Download, MoreHorizontal, Eye, Clock } from 'lucide-react';
+import { FileText, FileImage, File, Pencil, Trash2, Download, MoreHorizontal, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MedicalRecord, CATEGORY_LABELS, CATEGORY_COLORS } from '@/types/medical-records';
 import { cn } from '@/lib/utils';
@@ -14,7 +14,7 @@ interface Props {
   onEdit: (record: MedicalRecord) => void;
   onDelete: (record: MedicalRecord) => void;
   onDownload: (record: MedicalRecord) => void;
-
+  onAcceptRequest?: (record: MedicalRecord) => void;
 }
 
 function formatBytes(b: number) {
@@ -34,12 +34,16 @@ function FileTypeIcon({ type }: { type: string }) {
   return <File className="h-5 w-5" />;
 }
 
-export function RecordCard({ record, onView, onEdit, onDelete, onDownload }: Props) {
-  const router = useRouter();
+export function RecordCard({ record, onView, onEdit, onDelete, onDownload, onAcceptRequest }: Props) {
   const primaryTitle = record.doctorName || record.hospitalName || "—";
+  const isPending = record.requestStatus?.status === 'PENDING';
+  const router = useRouter();
 
   return (
-    <div className="group flex flex-col md:flex-row md:items-center gap-3 md:gap-0 p-3 md:p-3 md:px-4 rounded-lg bg-white dark:bg-neutral-900/20 border border-neutral-200/50 dark:border-neutral-800/50 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors duration-200">
+    <div className={cn(
+      "group flex flex-col md:flex-row md:items-center gap-3 md:gap-0 p-3 md:p-3 md:px-4 rounded-lg bg-white dark:bg-neutral-900/20 border border-neutral-200/50 dark:border-neutral-800/50 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors duration-200",
+      isPending && "bg-red-50/10 dark:bg-red-900/10 border-red-200/50 dark:border-red-800/20"
+    )}>
       
       {/* 1. Icon & Record Name */}
       <div className="flex items-center gap-3 w-full md:w-[35%] min-w-0 pr-4">
@@ -47,9 +51,14 @@ export function RecordCard({ record, onView, onEdit, onDelete, onDownload }: Pro
           <FileTypeIcon type={record.fileType} />
         </div>
         <div className="flex flex-col min-w-0">
-          <h3 className="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate" title={record.fileName}>
-            {record.fileName}
-          </h3>
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate" title={record.fileName}>
+              {record.fileName}
+            </h3>
+            {isPending && (
+              <span className="flex h-2 w-2 rounded-full bg-red-500 animate-pulse shrink-0" title="Pending access request" />
+            )}
+          </div>
           <span className="text-[11px] text-neutral-500 truncate md:hidden mt-0.5">
             {formatDate(record.createdAt)} · {formatBytes(record.fileSize)}
           </span>
@@ -64,7 +73,7 @@ export function RecordCard({ record, onView, onEdit, onDelete, onDownload }: Pro
       </div>
 
       {/* 3. Doctor / Hospital */}
-      <div className="hidden md:flex w-[15%] items-center min-w-0 pr-4">
+      <div className="hidden md:flex w-[20%] items-center min-w-0 pr-4">
         <p className="text-sm text-neutral-600 dark:text-neutral-400 truncate" title={primaryTitle}>
           {primaryTitle}
         </p>
@@ -79,6 +88,7 @@ export function RecordCard({ record, onView, onEdit, onDelete, onDownload }: Pro
           {formatBytes(record.fileSize)}
         </span>
       </div>
+
 
       {/* 4.5 Access History Link */}
       <div className="hidden lg:flex w-[15%] items-center justify-end min-w-0 pr-4">
@@ -97,9 +107,21 @@ export function RecordCard({ record, onView, onEdit, onDelete, onDownload }: Pro
       </div>
 
 
-
+      
       {/* 5. Desktop Actions (Ellipsis Menu) */}
       <div className="hidden md:flex items-center justify-end w-auto shrink-0 gap-2 relative z-10">
+        {isPending && onAcceptRequest && (
+          <Button 
+            size="sm" 
+            className="h-8 text-xs bg-red-600 hover:bg-red-700 text-white font-medium relative z-20" 
+            onClick={(e) => {
+              e.stopPropagation();
+              onAcceptRequest(record);
+            }}
+          >
+            Requested
+          </Button>
+        )}
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="ghost" size="icon" className="h-8 w-8 text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 data-[state=open]:bg-neutral-100 dark:data-[state=open]:bg-neutral-800">
@@ -108,7 +130,7 @@ export function RecordCard({ record, onView, onEdit, onDelete, onDownload }: Pro
           </PopoverTrigger>
           <PopoverContent className="w-40 p-1 hidden sm:block" align="end" sideOffset={5}>
             <button onClick={() => onView(record)} className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-md text-neutral-700 dark:text-neutral-200 transition-colors">
-              <Eye className="h-4 w-4 text-neutral-500" /> View
+              <FileText className="h-4 w-4 text-neutral-500" /> View
             </button>
             <button onClick={() => onDownload(record)} className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-md text-neutral-700 dark:text-neutral-200 transition-colors">
               <Download className="h-4 w-4 text-neutral-500" /> Download
@@ -126,22 +148,24 @@ export function RecordCard({ record, onView, onEdit, onDelete, onDownload }: Pro
 
       {/* Mobile Actions Overlay (Direct Buttons) */}
       <div className="flex md:hidden items-center justify-end gap-1 mt-2 border-t border-neutral-100 dark:border-neutral-800 pt-2 relative z-10">
-         <Button 
-          variant="ghost" 
-          size="sm" 
-          className="h-8 px-2 text-primary font-bold" 
-          onClick={(e) => {
-            e.stopPropagation();
-            router.push(`/medical-records/${record.id}/access`);
-          }}
-         >
-           <Clock className="h-4 w-4 mr-1" /> History
-         </Button>
+         {isPending && onAcceptRequest && (
+           <Button 
+            variant="default" 
+            size="sm" 
+            className="h-8 px-3 text-xs bg-red-600 hover:bg-red-700 text-white font-medium mr-auto relative z-20" 
+            onClick={(e) => {
+              e.stopPropagation();
+              onAcceptRequest(record);
+            }}
+           >
+             Requested
+           </Button>
+         )}
          <Button variant="ghost" size="sm" className="h-8 px-2 text-neutral-500" onClick={() => onDownload(record)}>
            <Download className="h-4 w-4 mr-1" /> Download
          </Button>
          <Button variant="ghost" size="sm" className="h-8 px-2 text-neutral-500" onClick={() => onView(record)}>
-           <Eye className="h-4 w-4 mr-1" /> View
+           <FileText className="h-4 w-4 mr-1" /> View
          </Button>
          <Button variant="ghost" size="sm" className="h-8 px-2 text-neutral-500" onClick={() => onEdit(record)}>
            <Pencil className="h-4 w-4 mr-1" /> Edit

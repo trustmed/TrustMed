@@ -176,8 +176,9 @@ export default function useMedicalRecords() {
   );
 
   const handleView = useCallback((record: MedicalRecord) => {
-    setSelectedRecord(record);
-    setModal("view");
+    if (typeof window === "undefined") return;
+
+    window.open(`/medical-records/${record.id}/view`, "_blank", "noopener,noreferrer");
   }, []);
 
   //handle medical record filtering
